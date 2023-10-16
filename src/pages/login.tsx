@@ -6,11 +6,11 @@ import Image from "next/image";
 const Login = () => {
   return (
     <div className="w-full h-full flex flex-col items-center gap-y-10">
-      <div className="w-1/2">
+      <div className="w-full md:w-1/2">
         <Image
           src={logopic}
           alt="logo"
-          className="object-contain object-center w-1/2"
+          className="object-contain object-center md:w-1/2"
           layout="responsive"
         />
       </div>
