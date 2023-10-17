@@ -22,7 +22,7 @@ const items = [
     label: `客户管理`,
   },
   {
-    key: `applyer`,
+    key: `supplyer`,
     icon: React.createElement(CoffeeOutlined),
     label: `供应商管理`,
   },
@@ -55,7 +55,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return (
-    <Layout className="h-screen">
+    <Layout className="h-full">
       <Header
         style={{
           display: "flex",
@@ -63,39 +63,40 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           justifyContent: "space-between",
           height: "100px",
           padding: 0,
-          background: "#162455",
+          background: "#fff",
         }}
-        className="w-full h-[100px] text-white"
+        className="w-full h-[100px]"
       >
-        <Image
-          src={logoPic}
-          width={200}
-          height={40}
-          alt="logo"
-          className="object-contain object-center"
-        />
+        <div className="flex flex-row items-center">
+          <Image
+            src={logoPic}
+            width={200}
+            height={40}
+            alt="logo"
+            className="object-contain object-center"
+          />
+          <h2 style={{ color: "#198348", fontSize: '24px', fontWeight: 'bold', marginLeft:'20px' }}>专业版</h2>
+        </div>
         <User />
       </Header>
       <Layout>
-        <Sider width={200} theme="dark">
+        <Sider width={200}>
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
             defaultOpenKeys={["customer"]}
-            style={{ height: "100%", borderRight: 0, background: "#1E2B55" }}
+            style={{ height: "100%", borderRight: 0, background: "#198348", color: '#fff' }}
             items={items}
-            className="text-white hover:text-pink-400"
+            className="hover:text-pink-400"
             onClick={(props) => handleClick(props)}
           />
         </Sider>
         <Layout>
           <Content
             style={{
-              padding: 10,
-              paddingBottom: 0,
-              margin: 0,
+              margin: 15,
               minHeight: 280,
-              background: "linear-gradient(to right, #263B7E, #182657)",
+              background: "#FFF",
             }}
           >
             {children}

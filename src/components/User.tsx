@@ -13,11 +13,11 @@ const User = () => {
   };
 
   return (
-    <div className="pr-5">
+    <div className="pr-5 text-[#198348]">
       {login ? (
         "admin"
       ) : (
-        <Button className="bg-pink-400 text-white" onClick={handleClick}>
+        <Button className="bg-pink-400 text-[#198348]" onClick={handleClick}>
           {"登录"}
         </Button>
       )}

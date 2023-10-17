@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
 import { loginState } from "@/store/loginState";
+import Background from "@/assets/bg.jpg";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -22,14 +23,22 @@ const Login = () => {
   };
 
   return (
-    <div className="p-20 w-full h-screen flex flex-col items-center gap-y-10 bg-gradient-to-r from-[#263B7E] to-[#182657]">
-      <div className="w-full">
+    <div
+      className="p-20 w-full h-full flex flex-col items-center justify-center"
+      style={{
+        background: `url(${Background.src})`,
+        backgroundPosition: "center",
+        backgroundSize: "100% 100%",
+        backgroundRepeat: "no-repeat",
+      }}
+    >
+      {/* <div className="w-full">
         <Image
           src={logopic}
           alt="logo"
           className="object-contain object-center md:w-1/2 mx-auto"
         />
-      </div>
+      </div> */}
       <Space
         direction="vertical"
         size="large"

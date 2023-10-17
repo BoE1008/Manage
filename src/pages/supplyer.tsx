@@ -2,7 +2,7 @@ import { useRecoilValue } from "recoil";
 import { loginState } from "@/store/loginState";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Table, Button, Modal, Form, Input} from "antd";
+import { Table, Button, Modal, Form, Input } from "antd";
 
 const dataSource = [
   {
@@ -41,22 +41,22 @@ const dataSource = [
 
 const columns = [
   {
-    title: "客户名称",
+    title: "供应商名称",
     dataIndex: "name",
     key: "name",
   },
   {
-    title: "客户地址",
+    title: "供应商地址",
     dataIndex: "address",
     key: "address",
   },
   {
-    title: "客户联系人",
+    title: "供应商联系人",
     dataIndex: "contacts_name",
     key: "contacts_name",
   },
   {
-    title: "客户联系人电话",
+    title: "供应商联系人电话",
     dataIndex: "contacts_mobile",
     key: "contacts_mobile",
   },
@@ -67,20 +67,13 @@ const columns = [
   },
 ];
 
-const Customer = () => {
+const Supplyer = () => {
   const login = useRecoilValue(loginState);
   const router = useRouter();
 
   const [modalOpen, setModalOpen] = useState(false);
 
   const [form] = Form.useForm();
-  const initialValues= {
-    name: "q",
-    address: "s",
-    contacts_name: "s",
-    contacts_mobile: "",
-    remark: "",
-  }
 
   useEffect(() => {
     !login && router.push("/login");
@@ -110,7 +103,7 @@ const Customer = () => {
       </Button>
       <Table bordered dataSource={dataSource} columns={columns} />
       <Modal
-        title={"添加客户"}
+        title={"添加供应商"}
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
@@ -122,21 +115,20 @@ const Customer = () => {
           wrapperCol={{ span: 14 }}
           layout={"horizontal"}
           form={form}
-          initialValues={initialValues}
           onValuesChange={() => console.log(222222)}
-          style={{ maxWidth: 600, color: "#000" }}
+          style={{ maxWidth: 1000, color: "#000" }}
         >
           <Form.Item required label="名称">
-            <Input placeholder="请输入客户名称" />
+            <Input placeholder="请输入供应商名称" />
           </Form.Item>
           <Form.Item label="地址">
-            <Input placeholder="请输入客户地址" />
+            <Input placeholder="请输入供应商地址" />
           </Form.Item>
           <Form.Item required label="联系人">
-            <Input placeholder="请输入客户联系人姓名" />
+            <Input placeholder="请输入供应商联系人姓名" />
           </Form.Item>
           <Form.Item required label="电话">
-            <Input placeholder="请输入客户联系人电话" />
+            <Input placeholder="请输入供应商联系人电话" />
           </Form.Item>
           <Form.Item label="备注">
             <Input placeholder="备注信息" />
@@ -147,4 +139,4 @@ const Customer = () => {
   );
 };
 
-export default Customer;
+export default Supplyer;

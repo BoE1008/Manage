@@ -19,8 +19,22 @@ export default function App({ Component, pageProps }: AppProps) {
           theme={{
             token: {
               fontSize: 16,
-              colorText: '#88B6F1',
-              colorPrimary: "#32CD32",
+              colorTextBase: "#000",
+              colorBgBase: "#fff",
+              colorPrimary: "#198348",
+            },
+            components: {
+              Menu: {
+                itemSelectedBg: "#fff",
+              },
+              Table: {
+                colorText: "#000",
+                colorTextHeading: "#000",
+              },
+              Modal: {
+                colorBgBase: "#198348",
+                colorBgContainer: "#198348",
+              },
             },
           }}
         >
