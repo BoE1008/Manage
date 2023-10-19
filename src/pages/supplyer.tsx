@@ -2,7 +2,22 @@ import { useRecoilValue } from "recoil";
 import { loginState } from "@/store/loginState";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { Table, Button, Modal, Form, Input } from "antd";
+import { Table, Button, Modal, Form, Input, Space } from "antd";
+import { EditTwoTone } from "@ant-design/icons";
+import Operation from "antd/es/transfer/operation";
+
+interface Company {
+  name: string;
+  address?: string;
+  contacts_name?: string;
+  contacts_mobile?: string;
+  remark?: string;
+}
+
+enum Operation {
+  Add,
+  Edit,
+}
 
 const dataSource = [
   {
@@ -39,39 +54,19 @@ const dataSource = [
   },
 ];
 
-const columns = [
-  {
-    title: "供应商名称",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "供应商地址",
-    dataIndex: "address",
-    key: "address",
-  },
-  {
-    title: "供应商联系人",
-    dataIndex: "contacts_name",
-    key: "contacts_name",
-  },
-  {
-    title: "供应商联系人电话",
-    dataIndex: "contacts_mobile",
-    key: "contacts_mobile",
-  },
-  {
-    title: "备注",
-    dataIndex: "remark",
-    key: "remark",
-  },
-];
-
 const Supplyer = () => {
+  const initialValues = {
+    name: "",
+    address: "",
+    contacts_name: "",
+    contacts_mobile: "",
+    remark: "",
+  };
   const login = useRecoilValue(loginState);
   const router = useRouter();
 
   const [modalOpen, setModalOpen] = useState(false);
+  const [operation, setOperation] = useState(Operation.Add);
 
   const [form] = Form.useForm();
 
@@ -80,17 +75,70 @@ const Supplyer = () => {
   }, [login, router]);
 
   const handleAdd = () => {
+    form.setFieldsValue(initialValues);
+    setOperation(Operation.Add);
+    setModalOpen(true);
+  };
+
+  const handleEditOne = (record: Company) => {
+    form.setFieldsValue(record);
+    setOperation(Operation.Edit);
     setModalOpen(true);
   };
 
   const handleOk = async () => {
-    console.log("提交");
+    const values = form.getFieldsValue();
+    console.log(values, "values");
   };
 
   const handleCancel = () => {
     form.resetFields();
     setModalOpen(false);
   };
+
+  const columns = [
+    {
+      title: "供应商名称",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "供应商地址",
+      dataIndex: "address",
+      key: "address",
+    },
+    {
+      title: "供应商联系人",
+      dataIndex: "contacts_name",
+      key: "contacts_name",
+    },
+    {
+      title: "供应商联系人电话",
+      dataIndex: "contacts_mobile",
+      key: "contacts_mobile",
+    },
+    {
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (record: Company) => {
+        return (
+          <Space size="middle">
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleEditOne(record)}
+            >
+              <EditTwoTone twoToneColor="#198348" />
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
@@ -103,7 +151,7 @@ const Supplyer = () => {
       </Button>
       <Table bordered dataSource={dataSource} columns={columns} />
       <Modal
-        title={"添加供应商"}
+        title={operation === Operation.Add ? "添加供应商":"编辑供应商"}
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
@@ -111,26 +159,26 @@ const Supplyer = () => {
         onCancel={handleCancel}
       >
         <Form
-          labelCol={{ span: 4 }}
-          wrapperCol={{ span: 14 }}
+          labelCol={{ span: 7 }}
+          wrapperCol={{ span: 22 }}
           layout={"horizontal"}
           form={form}
-          onValuesChange={() => console.log(222222)}
+          initialValues={initialValues}
           style={{ maxWidth: 1000, color: "#000" }}
         >
-          <Form.Item required label="名称">
+          <Form.Item required label="供应商名称" name="name">
             <Input placeholder="请输入供应商名称" />
           </Form.Item>
-          <Form.Item label="地址">
+          <Form.Item label="供应商地址" name={"address"}>
             <Input placeholder="请输入供应商地址" />
           </Form.Item>
-          <Form.Item required label="联系人">
+          <Form.Item label="供应商联系人" name={"contacts_name"}>
             <Input placeholder="请输入供应商联系人姓名" />
           </Form.Item>
-          <Form.Item required label="电话">
+          <Form.Item label="供应商联系人电话" name="contacts_mobile">
             <Input placeholder="请输入供应商联系人电话" />
           </Form.Item>
-          <Form.Item label="备注">
+          <Form.Item label="备注" name="remark">
             <Input placeholder="备注信息" />
           </Form.Item>
         </Form>
