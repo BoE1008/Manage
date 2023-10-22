@@ -1,24 +1,27 @@
 import { Input, Space, Button } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import logopic from "@/assets/logo.jpg";
-import Image from "next/image";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
-import { loginState } from "@/store/loginState";
-import Background from "@/assets/bg.jpg";
+import { userInfoState } from "@/store/userInfoState";
+import Background from "@/assets/images/bg.jpg";
+import { login } from "@/restApi/user";
+import { notification } from "antd";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const setLoginState = useSetRecoilState(loginState);
+  const setUserinfoState = useSetRecoilState(userInfoState);
 
   const router = useRouter();
 
-  const handleClick = () => {
-    if (username.trim() === "admin" && password.trim() === "123456") {
-      setLoginState(true);
-      router.push("/customer");
+  const handleClick = async () => {
+    const { status, message } = await login(username, password);
+    if (status === "SUCCESS") {
+      setUserinfoState({ username });
+      router.push("/");
+    } else {
+      notification.error({ message });
     }
   };
 

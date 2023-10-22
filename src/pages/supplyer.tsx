@@ -1,99 +1,64 @@
-import { useRecoilValue } from "recoil";
-import { loginState } from "@/store/loginState";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import { Table, Button, Modal, Form, Input, Space } from "antd";
+import { Table, Button, Modal, Form, Input, Space, Empty } from "antd";
 import { EditTwoTone } from "@ant-design/icons";
-import Operation from "antd/es/transfer/operation";
+import {
+  getSuppliersList,
+  addSupplyer,
+  updateSupplyer,
+} from "@/restApi/supplyer";
+import { Company, Operation } from "@/types";
 
-interface Company {
-  name: string;
-  address?: string;
-  contacts_name?: string;
-  contacts_mobile?: string;
-  remark?: string;
-}
-
-enum Operation {
-  Add,
-  Edit,
-}
-
-const dataSource = [
-  {
-    key: "1",
-    name: "BoE",
-    address: "上海浦江",
-    contacts_name: "BoE",
-    contacts_mobile: "111111111",
-    remark: "小企业",
-  },
-  {
-    key: "2",
-    name: "Fei",
-    address: "上海青浦",
-    contacts_name: "Fei",
-    contacts_mobile: "222222222",
-    remark: "跨国企业",
-  },
-  {
-    key: "3",
-    name: "Cozy",
-    address: "上海泗泾",
-    contacts_name: "Cozy",
-    contacts_mobile: "3333333333",
-    remark: "上市公司",
-  },
-  {
-    key: "4",
-    name: "Lei",
-    address: "上海青浦",
-    contacts_name: "Lei",
-    contacts_mobile: "444444",
-    remark: "大企业",
-  },
-];
+const initialValues = {
+  name: "",
+  address: "",
+  contactsName: "",
+  contactsMobile: "",
+  remark: "",
+};
 
 const Supplyer = () => {
-  const initialValues = {
-    name: "",
-    address: "",
-    contacts_name: "",
-    contacts_mobile: "",
-    remark: "",
-  };
-  const login = useRecoilValue(loginState);
-  const router = useRouter();
-
+  const [data, setData] = useState();
+  const [editId, setEditId] = useState("");
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchValue, setSearchValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [operation, setOperation] = useState(Operation.Add);
+  const [operation, setOperation] = useState<Operation>(Operation.Add);
 
   const [form] = Form.useForm();
 
   useEffect(() => {
-    !login && router.push("/login");
-  }, [login, router]);
+    (async () => {
+      const data = await getSuppliersList(page, pageSize, searchValue);
+      setData(data);
+    })();
+  }, [page, pageSize, searchValue]);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     form.setFieldsValue(initialValues);
     setOperation(Operation.Add);
     setModalOpen(true);
   };
 
   const handleEditOne = (record: Company) => {
-    form.setFieldsValue(record);
     setOperation(Operation.Edit);
+    setEditId(record.id);
+    form.setFieldsValue(record);
     setModalOpen(true);
   };
 
   const handleOk = async () => {
+    form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values, "values");
-  };
-
-  const handleCancel = () => {
-    form.resetFields();
-    setModalOpen(false);
+    const { status } =
+      operation === Operation.Add
+        ? await addSupplyer(values)
+        : await updateSupplyer(editId, values);
+    if (status === "SUCCESS") {
+      setModalOpen(false);
+      const data = await getSuppliersList(page, pageSize, searchValue);
+      setData(data)
+    }
   };
 
   const columns = [
@@ -109,13 +74,13 @@ const Supplyer = () => {
     },
     {
       title: "供应商联系人",
-      dataIndex: "contacts_name",
-      key: "contacts_name",
+      dataIndex: "contactsName",
+      key: "contactsName",
     },
     {
       title: "供应商联系人电话",
-      dataIndex: "contacts_mobile",
-      key: "contacts_mobile",
+      dataIndex: "contactsMobile",
+      key: "contactsMobile",
     },
     {
       title: "备注",
@@ -142,40 +107,80 @@ const Supplyer = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <Button
-        onClick={handleAdd}
-        type="primary"
-        style={{ marginBottom: 16, background: "#198348" }}
-      >
-        添加
-      </Button>
-      <Table bordered dataSource={dataSource} columns={columns} />
+      <div className="flex flex-col gap-y-3">
+        <Space>
+          <Input
+            placeholder="名称"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </Space>
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+        >
+          添加
+        </Button>
+      </div>
+
+      {data?.entity?.data.length ? (
+        <Table
+          bordered
+          dataSource={data?.entity.data}
+          columns={columns}
+          pagination={{
+            // 设置总条数
+            total: data.entity.total,
+            // 显示总条数
+            showTotal: (total) => `共 ${total} 条`,
+            // 是否可以改变 pageSize
+            showSizeChanger: true,
+
+            // 改变页码时
+            onChange: async (page) => {
+              setPage(page);
+            },
+            // pageSize 变化的回调
+            onShowSizeChange: async (page, size) => {
+              setPage(page);
+              setPageSize(size);
+            },
+          }}
+        />
+      ) : (
+        <Empty style={{ marginTop: "150px" }} />
+      )}
       <Modal
-        title={operation === Operation.Add ? "添加供应商":"编辑供应商"}
+        centered
+        destroyOnClose
+        title={operation === Operation.Add ? "添加供应商" : "编辑供应商"}
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
         // confirmLoading={confirmLoading}
-        onCancel={handleCancel}
+        onCancel={() => setModalOpen(false)}
+        afterClose={() => form.resetFields()}
+        style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 7 }}
-          wrapperCol={{ span: 22 }}
+          labelCol={{ span: 3 }}
+          wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
           initialValues={initialValues}
-          style={{ maxWidth: 1000, color: "#000" }}
+          style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item required label="供应商名称" name="name">
+          <Form.Item required label="名称" name="name">
             <Input placeholder="请输入供应商名称" />
           </Form.Item>
-          <Form.Item label="供应商地址" name={"address"}>
+          <Form.Item label="地址" name="address">
             <Input placeholder="请输入供应商地址" />
           </Form.Item>
-          <Form.Item label="供应商联系人" name={"contacts_name"}>
+          <Form.Item label="联系人" name="contacts_name">
             <Input placeholder="请输入供应商联系人姓名" />
           </Form.Item>
-          <Form.Item label="供应商联系人电话" name="contacts_mobile">
+          <Form.Item label="电话" name="contactsMobile">
             <Input placeholder="请输入供应商联系人电话" />
           </Form.Item>
           <Form.Item label="备注" name="remark">

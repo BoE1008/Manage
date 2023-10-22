@@ -6,12 +6,11 @@ import {
   CoffeeOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, theme, ConfigProvider } from "antd";
-import Image from "next/image";
-import logoPic from "@/assets/logo.jpg";
+import { Layout, Menu, theme } from "antd";
 import User from "@/components/User";
 import { useRouter } from "next/router";
 import type { MenuProps } from "antd";
+import Link from "next/link";
 
 const { Header, Content, Sider } = Layout;
 
@@ -51,13 +50,17 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
 
   const handleClick: MenuProps["onClick"] = (props) => {
-    router.push(props.key);
+    router.push(`/${props.key}`);
   };
 
   return (
     <Layout className="h-full">
       <Header
         style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          zIndex:5,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -67,31 +70,38 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         }}
         className="w-full h-[100px]"
       >
-        <div className="flex flex-row items-center">
-          <Image
-            src={logoPic}
-            width={200}
-            height={40}
-            alt="logo"
-            className="object-contain object-center"
-          />
-          <h2 style={{ color: "#198348", fontSize: '24px', fontWeight: 'bold', marginLeft:'20px' }}>专业版</h2>
-        </div>
+        <Link href="/" className="flex flex-row items-center">
+          <p className="font-Major text-[#198348] text-[80px]">甄察供应链</p>
+          <h2
+            style={{
+              color: "#198348",
+              fontSize: "24px",
+              fontWeight: "bold",
+              marginLeft: "20px",
+            }}
+          >
+            专业版
+          </h2>
+        </Link>
         <User />
       </Header>
-      <Layout>
-        <Sider width={200}>
+      <Layout className="h-full">
+        <Sider width={200} style={{ position: "fixed", top: 120, left: 0,zIndex:5 }} className="h-full" >
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
             defaultOpenKeys={["customer"]}
-            style={{ height: "100%", borderRight: 0, background: "#198348", color: '#fff' }}
+            style={{
+              height: "100%",
+              borderRight: 0,
+              background: "#198348",
+              color: "#fff",
+            }}
             items={items}
-            className="hover:text-pink-400"
             onClick={(props) => handleClick(props)}
           />
         </Sider>
-        <Layout>
+        <Layout style={{ paddingLeft: "200px", paddingTop: '120px' }} className="h-full">
           <Content
             style={{
               margin: 15,
