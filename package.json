@@ -7,6 +7,7 @@
     "dev": "PORT=80 next dev",
     "build": "next build",
     "start": "PORT=80 next start",
+    "export": "next build && next export",
     "lint": "next lint"
   },
   "dependencies": {
