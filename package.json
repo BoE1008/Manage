@@ -3,14 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev-windows": "set PORT=80 && next dev",
     "dev": "PORT=80 next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "PORT=80 next start",
     "lint": "next lint"
   },
   "dependencies": {
     "antd": "^5.10.1",
     "axios": "^1.5.1",
+    "clsx": "^2.0.0",
     "next": "13.5.4",
     "react": "^18",
     "react-dom": "^18",

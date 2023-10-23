@@ -85,8 +85,8 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         </Link>
         <User />
       </Header>
-      <Layout className="h-full">
-        <Sider width={200} style={{ position: "fixed", top: 120, left: 0,zIndex:5 }} className="h-full" >
+      <Layout className="min-h-screen">
+        <Sider width={200} style={{ position: "fixed", top: 120, left: 0,zIndex:5 }} className="h-screen" >
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
@@ -101,7 +101,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             onClick={(props) => handleClick(props)}
           />
         </Sider>
-        <Layout style={{ paddingLeft: "200px", paddingTop: '120px' }} className="h-full">
+        <Layout style={{ paddingLeft: "200px", paddingTop: '120px' }} className="">
           <Content
             style={{
               margin: 15,
