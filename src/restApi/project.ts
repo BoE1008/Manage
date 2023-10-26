@@ -50,6 +50,37 @@ export const getProjectYSList = async (
   return res.data;
 };
 
-export const addProjectYS = async () => {
-  const res = await axios.post(`/zc/project/ys/add`);
+export const addProjectYS = async (info) => {
+  const res = await axios.post(`/zc/project/ys/add`, {
+    ...info,
+  });
+
+  return res.data;
+};
+
+export const updateProjectYS = async (id: string, info) => {
+  const res = await axios.post(`/zc/project/ys/update`, {
+    id,
+    ...info,
+  });
+
+  return res.data;
+};
+
+
+export const addProjectYf = async (info) => {
+  const res = await axios.post(`/zc/project/yf/add`, {
+    ...info,
+  });
+
+  return res.data;
+};
+
+export const updateProjectYf = async (id: string, info) => {
+  const res = await axios.post(`/zc/project/yf/update`, {
+    id,
+    ...info,
+  });
+
+  return res.data;
 };

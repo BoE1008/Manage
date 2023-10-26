@@ -11,14 +11,15 @@ import { notification } from "antd";
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const setUserinfoState = useSetRecoilState(userInfoState);
+  const setUserinfo = useSetRecoilState(userInfoState);
 
   const router = useRouter();
 
   const handleClick = async () => {
     const { status, message } = await login(username, password);
     if (status === "SUCCESS") {
-      setUserinfoState({ username });
+      typeof window !== "undefined" &&
+        sessionStorage.setItem("username",  username );
       router.push("/");
     } else {
       notification.error({ message });

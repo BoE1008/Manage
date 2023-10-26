@@ -1,17 +1,21 @@
 import { useRecoilState } from "recoil";
 import { userInfoState } from "@/store/userInfoState";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import clsx from "clsx";
 import { DownOutlined } from "@ant-design/icons";
 import { logout } from "@/restApi/user";
 
 const User = () => {
-  const [userInfo, setUserInfoState] = useRecoilState(userInfoState);
-
   const router = useRouter();
 
   const [hovered, setHovered] = useState(false);
+
+  const [username, setUsername] = useState("");
+
+  useEffect(() => {
+    setUsername(sessionStorage.getItem("username")!);
+  }, []);
 
   return (
     <div className="pr-5 text-[#198348]">
@@ -21,7 +25,7 @@ const User = () => {
         onMouseLeave={() => setHovered(false)}
       >
         <div className="flex flex-row gap-x-3">
-          <span className="text-[#198348]">{userInfo?.username}</span>
+          <span className="text-[#198348]">{username}</span>
           <DownOutlined
             className={clsx(
               "w-5 stroke-white transform transition-transform",
@@ -38,7 +42,7 @@ const User = () => {
           <li
             onClick={async () => {
               await logout();
-              setUserInfoState(undefined);
+              sessionStorage.removeItem("username");
               setHovered(false);
               router.push("/login");
             }}

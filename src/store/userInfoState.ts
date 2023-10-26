@@ -2,5 +2,5 @@ import { atom } from 'recoil';
 
 export const userInfoState = atom({
     key: 'userInfoState',
-    default: undefined
+    default: typeof window !== 'undefined' && sessionStorage.getItem('username')
 })
