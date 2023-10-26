@@ -2,14 +2,13 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import { RecoilRoot } from "recoil";
 import AppLayout from "@/layout";
-import { useRouter } from "next/router";
 import { ConfigProvider } from "antd";
 
-export default function App({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-
-  const { asPath } = router;
-
+export default function App({
+  Component,
+  pageProps,
+  router: { asPath },
+}: AppProps) {
   return (
     <RecoilRoot>
       {asPath === "/login" ? (
