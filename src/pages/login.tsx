@@ -28,7 +28,7 @@ const Login = () => {
 
   return (
     <div
-      className="p-20 w-full h-full flex flex-col items-center justify-center"
+      className="p-20 w-full h-screen flex flex-col items-center justify-center"
       style={{
         background: `url(${Background.src})`,
         backgroundPosition: "center",
@@ -36,13 +36,6 @@ const Login = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* <div className="w-full">
-        <Image
-          src={logopic}
-          alt="logo"
-          className="object-contain object-center md:w-1/2 mx-auto"
-        />
-      </div> */}
       <Space
         direction="vertical"
         size="large"

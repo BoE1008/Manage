@@ -6,7 +6,7 @@ import {
   CoffeeOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu, theme } from "antd";
+import { Layout, Menu } from "antd";
 import User from "@/components/User";
 import { useRouter } from "next/router";
 import type { MenuProps } from "antd";
@@ -43,24 +43,21 @@ const items = [
 ];
 
 const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const {
-    token: { colorBgContainer },
-  } = theme.useToken();
-
   const router = useRouter();
+  const { asPath } = router;
 
   const handleClick: MenuProps["onClick"] = (props) => {
     router.push(`/${props.key}`);
   };
 
-  return (
+  return asPath !== "/login" ? (
     <Layout className="h-full">
       <Header
         style={{
           position: "fixed",
           top: 0,
           left: 0,
-          zIndex:5,
+          zIndex: 5,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -86,11 +83,15 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         <User />
       </Header>
       <Layout className="min-h-screen">
-        <Sider width={200} style={{ position: "fixed", top: 120, left: 0,zIndex:5 }} className="h-screen" >
+        <Sider
+          width={200}
+          style={{ position: "fixed", top: 120, left: 0, zIndex: 5 }}
+          className="h-screen"
+        >
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
-            defaultOpenKeys={["customer"]}
+            // selectedKeys={[asPath]}
             style={{
               height: "100%",
               borderRight: 0,
@@ -101,7 +102,10 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
             onClick={(props) => handleClick(props)}
           />
         </Sider>
-        <Layout style={{ paddingLeft: "200px", paddingTop: '120px' }} className="">
+        <Layout
+          style={{ paddingLeft: "200px", paddingTop: "120px" }}
+          className=""
+        >
           <Content
             style={{
               margin: 15,
@@ -114,6 +118,8 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         </Layout>
       </Layout>
     </Layout>
+  ) : (
+    <Layout>{children}</Layout>
   );
 };
 

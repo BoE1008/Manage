@@ -11,38 +11,34 @@ export default function App({
 }: AppProps) {
   return (
     <RecoilRoot>
-      {asPath === "/login" ? (
-        <Component {...pageProps} />
-      ) : (
-        <ConfigProvider
-          theme={{
-            token: {
-              fontSize: 16,
-              colorTextBase: "#000",
-              colorBgBase: "#fff",
-              colorPrimary: "#198348",
+      <ConfigProvider
+        theme={{
+          token: {
+            fontSize: 16,
+            colorTextBase: "#000",
+            colorBgBase: "#fff",
+            colorPrimary: "#198348",
+          },
+          components: {
+            Menu: {
+              itemSelectedBg: "#fff",
+              colorPrimaryTextHover: "#198348",
             },
-            components: {
-              Menu: {
-                itemSelectedBg: "#fff",
-                colorPrimaryTextHover: "#198348",
-              },
-              Table: {
-                colorText: "#000",
-                colorTextHeading: "#000",
-              },
-              Modal: {
-                colorBgBase: "#198348",
-                colorBgContainer: "#198348",
-              },
+            Table: {
+              colorText: "#000",
+              colorTextHeading: "#000",
             },
-          }}
-        >
-          <AppLayout>
-            <Component {...pageProps} />
-          </AppLayout>
-        </ConfigProvider>
-      )}
+            Modal: {
+              colorBgBase: "#198348",
+              colorBgContainer: "#198348",
+            },
+          },
+        }}
+      >
+        <AppLayout>
+          <Component {...pageProps} />
+        </AppLayout>
+      </ConfigProvider>
     </RecoilRoot>
   );
 }

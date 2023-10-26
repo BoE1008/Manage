@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, Empty } from "antd";
+import { Table, Button, Modal, Form, Input, Space } from "antd";
 import { EditTwoTone, ProfileTwoTone } from "@ant-design/icons";
 import { getProjectsList, addProject, updateProject } from "@/restApi/project";
 import { Company, Operation } from "@/types";
@@ -22,12 +22,14 @@ const Project = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
 
+  const [loading,setLoading] = useState(true)
+
   const [form] = Form.useForm();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectsList(page, pageSize, searchValue);
-      console.log(data, "data");
+      setLoading(false);
       setData(data);
     })();
   }, [page, pageSize, searchValue]);
@@ -138,14 +140,14 @@ const Project = () => {
         </Button>
       </div>
 
-      {data?.entity?.data.length ? (
         <Table
           bordered
+          loading={loading}
           dataSource={data?.entity.data}
           columns={columns}
           pagination={{
             // 设置总条数
-            total: data.entity.total,
+            total: data?.entity.total,
             // 显示总条数
             showTotal: (total) => `共 ${total} 条`,
             // 是否可以改变 pageSize
@@ -162,9 +164,6 @@ const Project = () => {
             },
           }}
         />
-      ) : (
-        <Empty style={{ marginTop: "150px" }} />
-      )}
       <Modal
         centered
         destroyOnClose

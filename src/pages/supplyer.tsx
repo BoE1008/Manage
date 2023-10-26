@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, Empty } from "antd";
+import { Table, Button, Modal, Form, Input, Space } from "antd";
 import { EditTwoTone } from "@ant-design/icons";
 import {
   getSuppliersList,
@@ -25,11 +25,14 @@ const Supplyer = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
 
+  const [loading, setLoading] = useState(true);
+
   const [form] = Form.useForm();
 
   useEffect(() => {
     (async () => {
       const data = await getSuppliersList(page, pageSize, searchValue);
+      setLoading(false);
       setData(data);
     })();
   }, [page, pageSize, searchValue]);
@@ -50,6 +53,7 @@ const Supplyer = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    setLoading(true);
     const { status } =
       operation === Operation.Add
         ? await addSupplyer(values)
@@ -57,7 +61,8 @@ const Supplyer = () => {
     if (status === "SUCCESS") {
       setModalOpen(false);
       const data = await getSuppliersList(page, pageSize, searchValue);
-      setData(data)
+      setLoading(false);
+      setData(data);
     }
   };
 
@@ -124,33 +129,30 @@ const Supplyer = () => {
         </Button>
       </div>
 
-      {data?.entity?.data.length ? (
-        <Table
-          bordered
-          dataSource={data?.entity.data}
-          columns={columns}
-          pagination={{
-            // 设置总条数
-            total: data.entity.total,
-            // 显示总条数
-            showTotal: (total) => `共 ${total} 条`,
-            // 是否可以改变 pageSize
-            showSizeChanger: true,
+      <Table
+        bordered
+        loading={loading}
+        dataSource={data?.entity.data}
+        columns={columns}
+        pagination={{
+          // 设置总条数
+          total: data?.entity.total,
+          // 显示总条数
+          showTotal: (total) => `共 ${total} 条`,
+          // 是否可以改变 pageSize
+          showSizeChanger: true,
 
-            // 改变页码时
-            onChange: async (page) => {
-              setPage(page);
-            },
-            // pageSize 变化的回调
-            onShowSizeChange: async (page, size) => {
-              setPage(page);
-              setPageSize(size);
-            },
-          }}
-        />
-      ) : (
-        <Empty style={{ marginTop: "150px" }} />
-      )}
+          // 改变页码时
+          onChange: async (page) => {
+            setPage(page);
+          },
+          // pageSize 变化的回调
+          onShowSizeChange: async (page, size) => {
+            setPage(page);
+            setPageSize(size);
+          },
+        }}
+      />
       <Modal
         centered
         destroyOnClose

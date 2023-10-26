@@ -37,12 +37,15 @@ const Item = () => {
   const [ysEditId, setYsEditId] = useState("");
   const [yfEditId, setYfEditId] = useState("");
 
+  const [loading, setLoading] = useState(true);
+
   const [form] = Form.useForm();
   const [form1] = Form.useForm();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectYSList(slug as string, page, pageSize);
+      setLoading(false);
       setData({
         ...data,
         entity: {
@@ -145,55 +148,14 @@ const Item = () => {
       <div>
         <Table
           bordered
-          dataSource={record.yf_data}
+          loading={loading}
+          dataSource={record.yf_data.map((item, index) => ({
+            ...item,
+            key: index,
+          }))}
           columns={littleTableColumn}
           pagination={false}
         />
-        {/* 应付弹窗 */}
-        <Modal
-          centered
-          destroyOnClose
-          open={yfModalOpen}
-          title={operation === Operation.Add ? "添加应付" : "编辑应付"}
-          onOk={handleYfOk}
-          okButtonProps={{ style: { background: "#198348" } }}
-          // confirmLoading={confirmLoading}
-          onCancel={() => setYfModalOpen(false)}
-          afterClose={() => form1.resetFields()}
-          style={{ minWidth: "650px" }}
-        >
-          <Form
-            form={form1}
-            labelCol={{ span: 3 }}
-            wrapperCol={{ span: 20 }}
-            layout={"horizontal"}
-          >
-            <Form.Item label="供应商" name="supplierName">
-              <Input placeholder="输入供应商名称" />
-            </Form.Item>
-            <Form.Item label="人民币" name="yfRmb">
-              <Input placeholder="请输入金额" />
-            </Form.Item>
-            <Form.Item label="美金" name="yfDollar">
-              <Input placeholder="请输入金额" />
-            </Form.Item>
-            <Form.Item label="汇率" name="yfExRate">
-              <Input placeholder="请输入汇率" />
-            </Form.Item>
-            <Form.Item label="对账" name="yfChecking">
-              <Input placeholder="是否" />
-            </Form.Item>
-            <Form.Item label="开票" name="yfInvoice">
-              <Input placeholder="是否" />
-            </Form.Item>
-            <Form.Item label="付款" name="yfCollection">
-              <Input placeholder="是否" />
-            </Form.Item>
-            <Form.Item label="日期" name="yfDate">
-              <Input />
-            </Form.Item>
-          </Form>
-        </Modal>
       </div>
     );
   };
@@ -307,11 +269,13 @@ const Item = () => {
 
       <Table
         bordered
+        loading={loading}
         dataSource={data?.entity?.data}
         columns={columns}
         expandable={{
           expandedRowRender: (record) => expandedRowRender(record),
           defaultExpandedRowKeys: ["0"],
+          expandRowByClick: true,
         }}
       />
 
@@ -356,6 +320,52 @@ const Item = () => {
             <Input placeholder="是否" />
           </Form.Item>
           <Form.Item label="日期" name="ysDate">
+            <Input />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* 应付弹窗 */}
+      <Modal
+        centered
+        destroyOnClose
+        open={yfModalOpen}
+        title={operation === Operation.Add ? "添加应付" : "编辑应付"}
+        onOk={handleYfOk}
+        okButtonProps={{ style: { background: "#198348" } }}
+        // confirmLoading={confirmLoading}
+        onCancel={() => setYfModalOpen(false)}
+        afterClose={() => form1.resetFields()}
+        style={{ minWidth: "650px" }}
+      >
+        <Form
+          form={form1}
+          labelCol={{ span: 3 }}
+          wrapperCol={{ span: 20 }}
+          layout={"horizontal"}
+        >
+          <Form.Item label="供应商" name="supplierName">
+            <Input placeholder="输入供应商名称" />
+          </Form.Item>
+          <Form.Item label="人民币" name="yfRmb">
+            <Input placeholder="请输入金额" />
+          </Form.Item>
+          <Form.Item label="美金" name="yfDollar">
+            <Input placeholder="请输入金额" />
+          </Form.Item>
+          <Form.Item label="汇率" name="yfExRate">
+            <Input placeholder="请输入汇率" />
+          </Form.Item>
+          <Form.Item label="对账" name="yfChecking">
+            <Input placeholder="是否" />
+          </Form.Item>
+          <Form.Item label="开票" name="yfInvoice">
+            <Input placeholder="是否" />
+          </Form.Item>
+          <Form.Item label="付款" name="yfCollection">
+            <Input placeholder="是否" />
+          </Form.Item>
+          <Form.Item label="日期" name="yfDate">
             <Input />
           </Form.Item>
         </Form>
