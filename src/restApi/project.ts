@@ -17,6 +17,11 @@ export const getProjectsList = async (
   return res.data;
 };
 
+export const getProjectType = async() => {
+  const res = await axios.get("/zc/project/type/list")
+  return res.data;
+} 
+
 export const addProject = async (info: Project) => {
   const res = await axios.post("/zc/project/add", {
     ...info,

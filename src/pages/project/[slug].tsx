@@ -6,10 +6,12 @@ import {
   updateProjectYf,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
-import { Form, Table, Modal, Input, Button, Space } from "antd";
+import { Form, Table, Modal, Input, Button, Space, Select, InputNumber } from "antd";
 import { useRouter } from "next/router";
 import { EditTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
 import { Operation } from "@/types";
+import { getCustomersList } from "@/restApi/customer";
+import { getSuppliersList } from "@/restApi/supplyer";
 
 const initialYSValues = {
   customName: "",
@@ -42,9 +44,14 @@ const Item = () => {
   const [form] = Form.useForm();
   const [form1] = Form.useForm();
 
+  const [customer, setCustomer] = useState();
+  const [suppliers, setSuppliers] = useState();
+
   useEffect(() => {
     (async () => {
       const data = await getProjectYSList(slug as string, page, pageSize);
+      const customerData = await getCustomersList(1, 10000);
+      const supplierData = await getSuppliersList(1, 10000);
       setLoading(false);
       setData({
         ...data,
@@ -56,10 +63,13 @@ const Item = () => {
           })),
         },
       });
+      setCustomer(customerData.entity.data);
+      setSuppliers(supplierData.entity.data);
     })();
   }, [slug, page, pageSize]);
 
-  const handleYfAddClick = () => {
+  const handleYfAddClick = (record) => {
+    setYsEditId(record.id)
     setOperation(Operation.Add);
     setYfModalOpen(true);
   };
@@ -74,15 +84,26 @@ const Item = () => {
   const handleYfOk = async () => {
     form1.validateFields();
     const values = form1.getFieldsValue();
-    const { status } =
+    console.log(values,'values')
+
+    const { code } =
       operation === Operation.Add
-        ? await addProjectYf(values)
+        ? await addProjectYf({...values, projectId: slug, ysId: ysEditId})
         : await updateProjectYf(yfEditId, values);
 
-    if (status === "SUCCESS") {
+    if (code === 200) {
       setYfModalOpen(false);
       const data = await getProjectYSList(slug as string, page, pageSize);
-      setData(data);
+      setData({
+        ...data,
+        entity: {
+          ...data.entity,
+          data: data.entity.data.map((item, index) => ({
+            key: index,
+            ...item,
+          })),
+        },
+      });
     }
   };
 
@@ -215,7 +236,7 @@ const Item = () => {
             </Button>
             <Button
               style={{ display: "flex", alignItems: "center" }}
-              onClick={handleYfAddClick}
+              onClick={() =>handleYfAddClick(record)}
             >
               <PlusSquareTwoTone twoToneColor="#198348" />
             </Button>
@@ -240,17 +261,52 @@ const Item = () => {
   const handleYsOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    const { status } =
+    const { code } =
       operation === Operation.Add
-        ? await addProjectYS(values)
+        ? await addProjectYS({ ...values, projectId: slug })
         : await updateProjectYS(ysEditId, values);
 
-    if (status === "SUCCESS") {
+    if (code === 200) {
       setYsModalOpen(false);
       const data = await getProjectYSList(slug as string, page, pageSize);
-      setData(data);
+      setData({
+        ...data,
+        entity: {
+          ...data.entity,
+          data: data.entity.data.map((item, index) => ({
+            key: index,
+            ...item,
+          })),
+        },
+      });
     }
   };
+
+  const handleCustomerSelectChange = (value) => {
+    console.log(value, "change");
+  };
+
+  const handleCustomerSelectSearch = (value) => {
+    console.log(value, "search");
+  };
+
+  const customerFilterOption = (
+    input: string,
+    option?: { label: string; value: string }
+  ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+
+  const handleSupplierSelectChange = (value) => {
+    console.log(value, "change");
+  };
+
+  const handleSupplierSelectSearch = (value) => {
+    console.log(value, "search");
+  };
+
+  const supplierFilterOption = (
+    input: string,
+    option?: { label: string; value: string }
+  ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   return (
     <div>
@@ -277,6 +333,24 @@ const Item = () => {
           defaultExpandedRowKeys: ["0"],
           expandRowByClick: true,
         }}
+        pagination={{
+          // 设置总条数
+          total: data?.entity.total,
+          // 显示总条数
+          showTotal: (total) => `共 ${total} 条`,
+          // 是否可以改变 pageSize
+          showSizeChanger: true,
+
+          // 改变页码时
+          onChange: async (page) => {
+            setPage(page);
+          },
+          // pageSize 变化的回调
+          onShowSizeChange: async (page, size) => {
+            setPage(page);
+            setPageSize(size);
+          },
+        }}
       />
 
       {/* 应收弹窗 */}
@@ -298,17 +372,28 @@ const Item = () => {
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
         >
-          <Form.Item label="客户" name="customName">
-            <Input placeholder="输入客户名称" />
+          <Form.Item label="客户" name="customId">
+            <Select
+              showSearch
+              placeholder="选择客户"
+              optionFilterProp="children"
+              onChange={handleCustomerSelectChange}
+              onSearch={handleCustomerSelectSearch}
+              filterOption={customerFilterOption}
+              options={customer?.map((con) => ({
+                label: con.name,
+                value: con.id,
+              }))}
+            />
           </Form.Item>
           <Form.Item label="人民币" name="ysRmb">
-            <Input placeholder="请输入金额" />
+            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="美金" name="ysDollar">
-            <Input placeholder="请输入金额" />
+            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
           </Form.Item>
           <Form.Item label="汇率" name="ysExrate">
-            <Input placeholder="请输入汇率" />
+            <InputNumber placeholder="请输入汇率"  style={{ width: '100%' }} />
           </Form.Item>
           <Form.Item label="对账" name="ysChecking">
             <Input placeholder="是否" />
@@ -344,17 +429,28 @@ const Item = () => {
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
         >
-          <Form.Item label="供应商" name="supplierName">
-            <Input placeholder="输入供应商名称" />
+          <Form.Item label="供应商" name="supplierId">
+            <Select
+              showSearch
+              placeholder="选择供应商"
+              optionFilterProp="children"
+              onChange={handleSupplierSelectChange}
+              onSearch={handleSupplierSelectSearch}
+              filterOption={supplierFilterOption}
+              options={suppliers?.map((con) => ({
+                label: con.name,
+                value: con.id,
+              }))}
+            />
           </Form.Item>
           <Form.Item label="人民币" name="yfRmb">
-            <Input placeholder="请输入金额" />
+            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
           </Form.Item>
           <Form.Item label="美金" name="yfDollar">
-            <Input placeholder="请输入金额" />
+            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
           </Form.Item>
           <Form.Item label="汇率" name="yfExRate">
-            <Input placeholder="请输入汇率" />
+            <InputNumber placeholder="请输入汇率"  style={{ width: '100%' }}/>
           </Form.Item>
           <Form.Item label="对账" name="yfChecking">
             <Input placeholder="是否" />

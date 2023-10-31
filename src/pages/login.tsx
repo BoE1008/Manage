@@ -16,8 +16,8 @@ const Login = () => {
   const router = useRouter();
 
   const handleClick = async () => {
-    const { status, message } = await login(username, password);
-    if (status === "SUCCESS") {
+    const { code, message } = await login(username, password);
+    if (code === 200) {
       typeof window !== "undefined" &&
         sessionStorage.setItem("username",  username );
       router.push("/");

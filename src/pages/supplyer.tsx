@@ -54,11 +54,11 @@ const Supplyer = () => {
     form.validateFields();
     const values = form.getFieldsValue();
     setLoading(true);
-    const { status } =
+    const { code } =
       operation === Operation.Add
         ? await addSupplyer(values)
         : await updateSupplyer(editId, values);
-    if (status === "SUCCESS") {
+    if (code === 200) {
       setModalOpen(false);
       const data = await getSuppliersList(page, pageSize, searchValue);
       setLoading(false);

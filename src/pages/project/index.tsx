@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space } from "antd";
+import { Table, Button, Modal, Form, Input, Space, Select } from "antd";
 import { EditTwoTone, ProfileTwoTone } from "@ant-design/icons";
-import { getProjectsList, addProject, updateProject } from "@/restApi/project";
+import {
+  getProjectsList,
+  addProject,
+  updateProject,
+  getProjectType,
+} from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import Link from "next/link";
 
@@ -22,15 +27,19 @@ const Project = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
 
-  const [loading,setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   const [form] = Form.useForm();
+
+  const [projectType, setProjectType] = useState();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectsList(page, pageSize, searchValue);
+      const typelist = await getProjectType();
       setLoading(false);
       setData(data);
+      setProjectType(typelist.entity.data);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -50,11 +59,12 @@ const Project = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    const { status } =
+    console.log(values,'values')
+    const { code } =
       operation === Operation.Add
         ? await addProject(values)
         : await updateProject(editId, values);
-    if (status === "SUCCESS") {
+    if (code === 200) {
       setModalOpen(false);
       const data = await getProjectsList(page, pageSize, searchValue);
       setData(data);
@@ -66,6 +76,11 @@ const Project = () => {
       title: "项目名称",
       dataIndex: "name",
       key: "name",
+    },
+    {
+      title: "typeId",
+      dataIndex: "typeId",
+      key: "typeId",
     },
     {
       title: "日期",
@@ -121,6 +136,19 @@ const Project = () => {
     },
   ];
 
+  const handleSelectChange = (value) => {
+    console.log(value, "change");
+  };
+
+  const handleSelectSearch = (value) => {
+    console.log(value, "search");
+  };
+
+  const filterOption = (
+    input: string,
+    option?: { label: string; value: string }
+  ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
       <div className="flex flex-col gap-y-3">
@@ -140,30 +168,30 @@ const Project = () => {
         </Button>
       </div>
 
-        <Table
-          bordered
-          loading={loading}
-          dataSource={data?.entity.data}
-          columns={columns}
-          pagination={{
-            // 设置总条数
-            total: data?.entity.total,
-            // 显示总条数
-            showTotal: (total) => `共 ${total} 条`,
-            // 是否可以改变 pageSize
-            showSizeChanger: true,
+      <Table
+        bordered
+        loading={loading}
+        dataSource={data?.entity.data}
+        columns={columns}
+        pagination={{
+          // 设置总条数
+          total: data?.entity.total,
+          // 显示总条数
+          showTotal: (total) => `共 ${total} 条`,
+          // 是否可以改变 pageSize
+          showSizeChanger: true,
 
-            // 改变页码时
-            onChange: async (page) => {
-              setPage(page);
-            },
-            // pageSize 变化的回调
-            onShowSizeChange: async (page, size) => {
-              setPage(page);
-              setPageSize(size);
-            },
-          }}
-        />
+          // 改变页码时
+          onChange: async (page) => {
+            setPage(page);
+          },
+          // pageSize 变化的回调
+          onShowSizeChange: async (page, size) => {
+            setPage(page);
+            setPageSize(size);
+          },
+        }}
+      />
       <Modal
         centered
         destroyOnClose
@@ -186,6 +214,20 @@ const Project = () => {
         >
           <Form.Item required label="名称" name="name">
             <Input placeholder="请输入项目名称" />
+          </Form.Item>
+          <Form.Item label="类型" name="type_id">
+            <Select
+              showSearch
+              placeholder="选择类型"
+              optionFilterProp="children"
+              onChange={handleSelectChange}
+              onSearch={handleSelectSearch}
+              filterOption={filterOption}
+              options={projectType?.map((con) => ({
+                value: con.id,
+                label: con.name,
+              }))}
+            />
           </Form.Item>
           <Form.Item label="数量" name="num">
             <Input placeholder="数量" />

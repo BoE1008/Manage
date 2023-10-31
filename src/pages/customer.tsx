@@ -7,6 +7,7 @@ import {
   updateCustomer,
 } from "@/restApi/customer";
 import { Company, Operation } from "@/types";
+import { useRouter } from "next/router";
 
 const initialValues = {
   name: "",
@@ -17,6 +18,7 @@ const initialValues = {
 };
 
 const Customer = () => {
+  const router = useRouter();
   const [data, setData] = useState();
   const [editId, setEditId] = useState("");
   const [page, setPage] = useState(1);
@@ -30,11 +32,15 @@ const Customer = () => {
 
   useEffect(() => {
     (async () => {
-      const data = await getCustomersList(page, pageSize, searchValue);
-      setLoading(false);
-      setData(data);
+      if (!!sessionStorage.getItem("username")) {
+        const data = await getCustomersList(page, pageSize, searchValue);
+        setLoading(false);
+        setData(data);
+      } else {
+        router.push("/login");
+      }
     })();
-  }, [page, pageSize, searchValue]);
+  }, [page, pageSize, searchValue, router]);
 
   const handleAdd = async () => {
     form.setFieldsValue(initialValues);
@@ -53,11 +59,11 @@ const Customer = () => {
     form.validateFields();
     const values = form.getFieldsValue();
     setLoading(true);
-    const { status } =
+    const { code } =
       operation === Operation.Add
         ? await addCustomer(values)
         : await updateCustomer(editId, values);
-    if (status === "SUCCESS") {
+    if (code === 200) {
       setModalOpen(false);
       const data = await getCustomersList(page, pageSize, searchValue);
       setLoading(false);
@@ -129,6 +135,7 @@ const Customer = () => {
         </Button>
       </div>
       <Table
+        bordered
         loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
