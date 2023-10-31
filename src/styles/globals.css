@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Major';
-  src: url('../assets/fonts/SanJiLingYunZhangCao-2.ttf') format('woff2');
+  src: url('/fonts/SanJiLingYunZhangCao-2.ttf') format('woff2');
   font-weight: normal;
 	font-style: normal;
 }
