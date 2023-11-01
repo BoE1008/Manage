@@ -56,7 +56,7 @@ const Login = () => {
         />
         <Button
           size="large"
-          className="bg-pink-400 text-white w-1/3"
+          className="!bg-pink-400 !text-white w-1/3"
           onClick={handleClick}
         >
           {"登录"}

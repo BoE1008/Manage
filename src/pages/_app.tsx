@@ -7,7 +7,6 @@ import { ConfigProvider } from "antd";
 export default function App({
   Component,
   pageProps,
-  router: { asPath },
 }: AppProps) {
   return (
     <RecoilRoot>

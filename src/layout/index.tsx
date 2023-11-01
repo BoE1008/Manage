@@ -51,7 +51,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   return asPath !== "/login" ? (
-    <Layout className="h-full">
+    <Layout className="h-full" style={{minHeight: '100vh'}}>
       <Header
         style={{
           position: "fixed",
@@ -91,7 +91,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
-            // selectedKeys={[asPath]}
+            selectedKeys={[asPath.slice(1,asPath.length)]}
             style={{
               height: "100%",
               borderRight: 0,
@@ -103,8 +103,8 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           />
         </Sider>
         <Layout
-          style={{ paddingLeft: "200px", paddingTop: "120px" }}
-          className=""
+          style={{ paddingLeft: "200px", paddingTop: "120px", minHeight: '100%', }}
+          className="min-h-screen"
         >
           <Content
             style={{
