@@ -11,6 +11,8 @@ import User from "@/components/User";
 import { useRouter } from "next/router";
 import type { MenuProps } from "antd";
 import Link from "next/link";
+import logo from '@/assets/images/logo.png';
+import Image from "next/image";
 
 const { Header, Content, Sider } = Layout;
 
@@ -68,7 +70,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         className="w-full h-[100px]"
       >
         <Link href="/" className="flex flex-row items-center">
-          <p className="font-Major text-[#198348] text-[80px]">甄察供应链</p>
+          <Image src={logo} alt="logo" />
           <h2
             style={{
               color: "#198348",

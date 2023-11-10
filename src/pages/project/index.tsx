@@ -1,5 +1,14 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, Select } from "antd";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  Select,
+  DatePicker,
+} from "antd";
 import { EditTwoTone, ProfileTwoTone } from "@ant-design/icons";
 import {
   getProjectsList,
@@ -9,6 +18,9 @@ import {
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import Link from "next/link";
+import zhCN from "antd/es/date-picker/locale/zh_CN";
+import "dayjs/locale/zh-cn";
+// import dayjs from "dayjs";
 
 const initialValues = {
   name: "",
@@ -59,7 +71,9 @@ const Project = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values,'values')
+    const params = {...values,projectDate: dayjs(values.projectDate,'YYYY-MM-DD')}
+    console.log(values, "values");
+    console.log(params, "params");
     const { code } =
       operation === Operation.Add
         ? await addProject(values)
@@ -233,7 +247,9 @@ const Project = () => {
             <Input placeholder="数量" />
           </Form.Item>
           <Form.Item label="日期" name="projectDate">
-            <Input placeholder="日期" />
+            <DatePicker
+              format={"YYYY-MM-DD"}
+            />
           </Form.Item>
         </Form>
       </Modal>

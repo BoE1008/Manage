@@ -16,3 +16,14 @@ export interface Project {
   num: string;
   date: string;
 }
+
+export interface User {
+  email: string;
+  id?: string;
+  loginName: string;
+  mobile: string;
+  password?: string;
+  sex?: string;
+  status?: string;
+  userName: string;
+}
