@@ -71,7 +71,10 @@ const Project = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    const params = {...values,projectDate: dayjs(values.projectDate,'YYYY-MM-DD')}
+    const params = {
+      ...values,
+      // projectDate: dayjs(values.projectDate, "YYYY-MM-DD"),
+    };
     console.log(values, "values");
     console.log(params, "params");
     const { code } =
@@ -165,14 +168,7 @@ const Project = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-col gap-y-3">
-        <Space>
-          <Input
-            placeholder="名称"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </Space>
+      <div className="flex flex-row gap-y-3 justify-between">
         <Button
           onClick={handleAdd}
           type="primary"
@@ -180,6 +176,13 @@ const Project = () => {
         >
           添加
         </Button>
+        <Space>
+          <Input
+            placeholder="名称"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </Space>
       </div>
 
       <Table
@@ -246,11 +249,9 @@ const Project = () => {
           <Form.Item label="数量" name="num">
             <Input placeholder="数量" />
           </Form.Item>
-          <Form.Item label="日期" name="projectDate">
-            <DatePicker
-              format={"YYYY-MM-DD"}
-            />
-          </Form.Item>
+          {/* <Form.Item label="日期" name="projectDate">
+            <DatePicker format={"YYYY-MM-DD"} />
+          </Form.Item> */}
         </Form>
       </Modal>
     </div>

@@ -112,14 +112,7 @@ const Supplyer = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-col gap-y-3">
-        <Space>
-          <Input
-            placeholder="名称"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </Space>
+      <div className="flex flex-row gap-y-3 justify-between">
         <Button
           onClick={handleAdd}
           type="primary"
@@ -127,6 +120,13 @@ const Supplyer = () => {
         >
           添加
         </Button>
+        <Space>
+          <Input
+            placeholder="名称"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+          />
+        </Space>
       </div>
 
       <Table

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Table, Button, Modal, Form, Input, Space } from "antd";
 import { EditTwoTone } from "@ant-design/icons";
-import { getUserList, updateUser,addUser } from "@/restApi/user";
+import { getUserList, updateUser, addUser } from "@/restApi/user";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
 
@@ -58,7 +58,7 @@ const User = () => {
     const { code } =
       operation === Operation.Add
         ? await addUser(values)
-        : await updateUser( values,editId);
+        : await updateUser(values, editId);
     if (code === 200) {
       setModalOpen(false);
       const data = await getUserList(page, pageSize, searchValue);
@@ -172,9 +172,11 @@ const User = () => {
           <Form.Item required label="用户名" name="userName">
             <Input placeholder="请输入用户名" />
           </Form.Item>
-          <Form.Item label="登录名" name="loginName">
-            <Input placeholder="请输入登录名" />
-          </Form.Item>
+          {operation === Operation.Add && (
+            <Form.Item label="登录名" name="loginName">
+              <Input placeholder="请输入登录名" />
+            </Form.Item>
+          )}
           <Form.Item label="邮箱" name="email">
             <Input placeholder="请输入邮箱地址" />
           </Form.Item>

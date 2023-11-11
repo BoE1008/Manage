@@ -117,7 +117,14 @@ const Customer = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-col gap-y-3">
+      <div className="flex flex-row gap-y-3 justify-between">
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+        >
+          添加
+        </Button>
         <Space>
           <Input
             placeholder="名称"
@@ -126,13 +133,6 @@ const Customer = () => {
           />
           {/* <Button onClick={handleSearch}>查询</Button> */}
         </Space>
-        <Button
-          onClick={handleAdd}
-          type="primary"
-          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-        >
-          添加
-        </Button>
       </div>
       <Table
         bordered
