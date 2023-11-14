@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import {
   UserOutlined,
   CustomerServiceOutlined,
@@ -11,8 +11,9 @@ import User from "@/components/User";
 import { useRouter } from "next/router";
 import type { MenuProps } from "antd";
 import Link from "next/link";
-import logo from '@/assets/images/logo.png';
+import logo from "@/assets/images/logo.png";
 import Image from "next/image";
+import { getMenu } from "@/restApi/menu";
 
 const { Header, Content, Sider } = Layout;
 
@@ -48,12 +49,23 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
   const { asPath } = router;
 
+  const [menu, setMenu] = useState();
+
+  useEffect(() => {
+    (async () => {
+      const data = await getMenu();
+      setMenu(data.entity.data)
+    })();
+  }, []);
+
+  console.log(menu)
+
   const handleClick: MenuProps["onClick"] = (props) => {
     router.push(`/${props.key}`);
   };
 
   return asPath !== "/login" ? (
-    <Layout className="h-full" style={{minHeight: '100vh'}}>
+    <Layout className="h-full" style={{ minHeight: "100vh" }}>
       <Header
         style={{
           position: "fixed",
@@ -93,7 +105,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           <Menu
             mode="inline"
             defaultSelectedKeys={["customer"]}
-            selectedKeys={[asPath.slice(1,asPath.length)]}
+            selectedKeys={[asPath.slice(1, asPath.length)]}
             style={{
               height: "100%",
               borderRight: 0,
@@ -105,7 +117,11 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           />
         </Sider>
         <Layout
-          style={{ paddingLeft: "200px", paddingTop: "120px", minHeight: '100%', }}
+          style={{
+            paddingLeft: "200px",
+            paddingTop: "120px",
+            minHeight: "100%",
+          }}
           className="min-h-screen"
         >
           <Content

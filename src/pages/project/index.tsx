@@ -8,19 +8,21 @@ import {
   Space,
   Select,
   DatePicker,
+  notification,
 } from "antd";
-import { EditTwoTone, ProfileTwoTone } from "@ant-design/icons";
+import { EditTwoTone, ProfileTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import {
   getProjectsList,
   addProject,
   updateProject,
   getProjectType,
+  deleteProject,
+  exportProject,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
+import dayjs from "dayjs";
+import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
-import zhCN from "antd/es/date-picker/locale/zh_CN";
-import "dayjs/locale/zh-cn";
-// import dayjs from "dayjs";
 
 const initialValues = {
   name: "",
@@ -39,6 +41,8 @@ const Project = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
 
+  const [fileName, setFileName] = useState();
+
   const [loading, setLoading] = useState(true);
 
   const [form] = Form.useForm();
@@ -49,9 +53,11 @@ const Project = () => {
     (async () => {
       const data = await getProjectsList(page, pageSize, searchValue);
       const typelist = await getProjectType();
+      const file = await exportProject();
       setLoading(false);
       setData(data);
       setProjectType(typelist.entity.data);
+      setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -73,19 +79,34 @@ const Project = () => {
     const values = form.getFieldsValue();
     const params = {
       ...values,
-      // projectDate: dayjs(values.projectDate, "YYYY-MM-DD"),
+      projectDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
     };
-    console.log(values, "values");
-    console.log(params, "params");
     const { code } =
       operation === Operation.Add
-        ? await addProject(values)
-        : await updateProject(editId, values);
+        ? await addProject(params)
+        : await updateProject(editId, params);
     if (code === 200) {
       setModalOpen(false);
       const data = await getProjectsList(page, pageSize, searchValue);
       setData(data);
+      notification.success({
+        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
+      });
     }
+  };
+
+  const handleDeleteOne = async (id: string) => {
+    await deleteProject(id);
+    const data = await getProjectsList(page, pageSize, searchValue);
+    setData(data);
+    setLoading(false);
+  };
+
+  const handleExport = async () => {
+    const file = await exportProject();
+    // const res = await downloadFile(data.msg);
+    // console.log(res, "res");
   };
 
   const columns = [
@@ -130,6 +151,11 @@ const Project = () => {
       key: "deductProfit",
     },
     {
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
+    },
+    {
       title: "操作",
       key: "action",
       render: (record: Company) => {
@@ -141,12 +167,18 @@ const Project = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
-            <Link
-              href={`/project/${record.id}`}
+            <Button
+              onClick={() => window.open(`/project/${record.id}`)}
               style={{ display: "flex", alignItems: "center" }}
             >
               <ProfileTwoTone twoToneColor="#198348" />
-            </Link>
+            </Button>
+            <Button
+              onClick={() => handleDeleteOne(record.id)}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <DeleteTwoTone twoToneColor="#198348" />
+            </Button>
           </Space>
         );
       },
@@ -166,16 +198,36 @@ const Project = () => {
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
+  const validateName = () => {
+    return {
+      validator: (_, value) => {
+        if (value.trim() !== "") {
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error("请输入供应商名称"));
+      },
+    };
+  };
+
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
       <div className="flex flex-row gap-y-3 justify-between">
-        <Button
-          onClick={handleAdd}
-          type="primary"
-          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-        >
-          添加
-        </Button>
+        <Space>
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+          >
+            添加
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+          >
+            <Link href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}>导出</Link>
+          </Button>
+        </Space>
+
         <Space>
           <Input
             placeholder="名称"
@@ -212,7 +264,7 @@ const Project = () => {
       <Modal
         centered
         destroyOnClose
-        title={operation === Operation.Add ? "添加供应商" : "编辑供应商"}
+        title={operation === Operation.Add ? "添加项目" : "编辑项目"}
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
@@ -229,10 +281,23 @@ const Project = () => {
           initialValues={initialValues}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item required label="名称" name="name">
+          <Form.Item
+            required
+            label="名称"
+            name="name"
+            validateTrigger="onBlur"
+            rules={[validateName]}
+            hasFeedback
+          >
             <Input placeholder="请输入项目名称" />
           </Form.Item>
-          <Form.Item label="类型" name="type_id">
+          <Form.Item
+            label="类型"
+            name="type_id"
+            validateTrigger="onBlur"
+            rules={[{ required: true, message: "请选择项目类型" }]}
+            hasFeedback
+          >
             <Select
               showSearch
               placeholder="选择类型"
@@ -249,9 +314,16 @@ const Project = () => {
           <Form.Item label="数量" name="num">
             <Input placeholder="数量" />
           </Form.Item>
-          {/* <Form.Item label="日期" name="projectDate">
-            <DatePicker format={"YYYY-MM-DD"} />
-          </Form.Item> */}
+          <Form.Item
+            label="日期"
+            name="projectDate"
+            getValueProps={(i) => ({ value: dayjs(i) })}
+          >
+            <DatePicker />
+          </Form.Item>
+          <Form.Item label="备注" name="remark">
+            <Input.TextArea placeholder="备注" maxLength={6} />
+          </Form.Item>
         </Form>
       </Modal>
     </div>

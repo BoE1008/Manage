@@ -1,8 +1,8 @@
 import { Company } from "@/types";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 export const getSuppliersList = async (pageNo: number, pageSize: number, name?: string) => {
-  const res = await axios.get(`/zc/supplier/list`, {
+  const res = await axiosInstance.get(`/zc/supplier/list`, {
     params: {
       pageNo,
       pageSize,
@@ -14,7 +14,7 @@ export const getSuppliersList = async (pageNo: number, pageSize: number, name?: 
 };
 
 export const addSupplyer = async (info: Company) => {
-  const res = await axios.post(`/zc/supplier/add`, {
+  const res = await axiosInstance.post(`/zc/supplier/add`, {
     ...info,
   });
 
@@ -22,10 +22,18 @@ export const addSupplyer = async (info: Company) => {
 };
 
 export const updateSupplyer = async (id: string, info: Company) => { 
-    const res = await axios.post(`/zc/supplier/update`, {
+    const res = await axiosInstance.post(`/zc/supplier/update`, {
         ...info,
         id,
     })
 
     return res.data;
+}
+
+export const deleteSupplyer = async(id:string) => {
+  const res = await axiosInstance.post(`/zc/supplier/delete`, {
+    id,
+  });
+
+  return res.data;
 }

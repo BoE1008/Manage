@@ -6,12 +6,24 @@ import {
   updateProjectYf,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
-import { Form, Table, Modal, Input, Button, Space, Select, InputNumber } from "antd";
+import {
+  Form,
+  Table,
+  Modal,
+  Input,
+  Button,
+  Space,
+  Select,
+  InputNumber,
+  DatePicker,
+  notification
+} from "antd";
 import { useRouter } from "next/router";
 import { EditTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
 import { Operation } from "@/types";
 import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
+import dayjs from "dayjs";
 
 const initialYSValues = {
   customName: "",
@@ -69,7 +81,7 @@ const Item = () => {
   }, [slug, page, pageSize]);
 
   const handleYfAddClick = (record) => {
-    setYsEditId(record.id)
+    setYsEditId(record.id);
     setOperation(Operation.Add);
     setYfModalOpen(true);
   };
@@ -84,11 +96,11 @@ const Item = () => {
   const handleYfOk = async () => {
     form1.validateFields();
     const values = form1.getFieldsValue();
-    console.log(values,'values')
+    console.log(values, "values");
 
     const { code } =
       operation === Operation.Add
-        ? await addProjectYf({...values, projectId: slug, ysId: ysEditId})
+        ? await addProjectYf({ ...values, projectId: slug, ysId: ysEditId })
         : await updateProjectYf(yfEditId, values);
 
     if (code === 200) {
@@ -103,6 +115,10 @@ const Item = () => {
             ...item,
           })),
         },
+      });
+      notification.success({
+        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
       });
     }
   };
@@ -135,9 +151,9 @@ const Item = () => {
         key: "yfChecking",
       },
       {
+        key: "yfInvoice",
         title: "开票",
         dataIndex: "yfInvoice",
-        key: "yfInvoice",
       },
       {
         title: "付款",
@@ -148,6 +164,11 @@ const Item = () => {
         title: "时间",
         dataIndex: "yfDate",
         key: "yfDate",
+      },
+      {
+        title: "备注",
+        dataIndex: "remark",
+        key: "remark",
       },
       {
         title: "操作",
@@ -223,6 +244,11 @@ const Item = () => {
       key: "ysDate",
     },
     {
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
+    },
+    {
       title: "操作",
       key: "action",
       render: (record) => {
@@ -236,7 +262,7 @@ const Item = () => {
             </Button>
             <Button
               style={{ display: "flex", alignItems: "center" }}
-              onClick={() =>handleYfAddClick(record)}
+              onClick={() => handleYfAddClick(record)}
             >
               <PlusSquareTwoTone twoToneColor="#198348" />
             </Button>
@@ -261,10 +287,14 @@ const Item = () => {
   const handleYsOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    const params = {
+      ...values,
+      ysDate: dayjs(values.ysDate).format('YYYY-MM-DD')
+    }
     const { code } =
       operation === Operation.Add
-        ? await addProjectYS({ ...values, projectId: slug })
-        : await updateProjectYS(ysEditId, values);
+        ? await addProjectYS({ ...params, projectId: slug })
+        : await updateProjectYS(ysEditId, params);
 
     if (code === 200) {
       setYsModalOpen(false);
@@ -278,6 +308,10 @@ const Item = () => {
             ...item,
           })),
         },
+      });
+      notification.success({
+        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
       });
     }
   };
@@ -372,7 +406,11 @@ const Item = () => {
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
         >
-          <Form.Item label="客户" name="customId">
+          <Form.Item
+            label="客户"
+            name="customId"
+            rules={[{ required: true, message: "客户名称不能为空" }]}
+          >
             <Select
               showSearch
               placeholder="选择客户"
@@ -387,13 +425,13 @@ const Item = () => {
             />
           </Form.Item>
           <Form.Item label="人民币" name="ysRmb">
-            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }} />
+            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="美金" name="ysDollar">
-            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
+            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="汇率" name="ysExrate">
-            <InputNumber placeholder="请输入汇率"  style={{ width: '100%' }} />
+            <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="对账" name="ysChecking">
             <Input placeholder="是否" />
@@ -404,8 +442,11 @@ const Item = () => {
           <Form.Item label="收款" name="ysCollection">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="日期" name="ysDate">
-            <Input />
+          <Form.Item label="日期" name="ysDate" getValueProps={(i) => ({ value: dayjs(i) })}>
+            <DatePicker />
+          </Form.Item>
+          <Form.Item label="备注" name="remark">
+            <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
       </Modal>
@@ -429,7 +470,11 @@ const Item = () => {
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
         >
-          <Form.Item label="供应商" name="supplierId">
+          <Form.Item
+            label="供应商"
+            name="supplierId"
+            rules={[{ required: true, message: "客户名称不能为空" }]}
+          >
             <Select
               showSearch
               placeholder="选择供应商"
@@ -444,13 +489,13 @@ const Item = () => {
             />
           </Form.Item>
           <Form.Item label="人民币" name="yfRmb">
-            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
+            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="美金" name="yfDollar">
-            <InputNumber placeholder="请输入金额"  style={{ width: '100%' }}/>
+            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="汇率" name="yfExRate">
-            <InputNumber placeholder="请输入汇率"  style={{ width: '100%' }}/>
+            <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="对账" name="yfChecking">
             <Input placeholder="是否" />
@@ -461,8 +506,11 @@ const Item = () => {
           <Form.Item label="付款" name="yfCollection">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="日期" name="yfDate">
+          <Form.Item label="日期" name="yfDate" getValueProps={(i) => ({ value: dayjs(i) })} >
             <Input />
+          </Form.Item>
+          <Form.Item label="备注" name="remark">
+            <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
       </Modal>

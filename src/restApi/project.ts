@@ -1,12 +1,13 @@
 import { Project } from "@/types";
 import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 export const getProjectsList = async (
   pageNo: number,
   pageSize: number,
   name?: string
 ) => {
-  const res = await axios.get("/zc/project/list", {
+  const res = await axiosInstance.get("/zc/project/list", {
     params: {
       pageNo,
       pageSize,
@@ -17,13 +18,13 @@ export const getProjectsList = async (
   return res.data;
 };
 
-export const getProjectType = async() => {
-  const res = await axios.get("/zc/project/type/list")
+export const getProjectType = async () => {
+  const res = await axiosInstance.get("/zc/project/type/list");
   return res.data;
-} 
+};
 
 export const addProject = async (info: Project) => {
-  const res = await axios.post("/zc/project/add", {
+  const res = await axiosInstance.post("/zc/project/add", {
     ...info,
   });
 
@@ -31,11 +32,16 @@ export const addProject = async (info: Project) => {
 };
 
 export const updateProject = async (id: string, info: Project) => {
-  const res = await axios.post(`/zc/project/update`, {
+  const res = await axiosInstance.post(`/zc/project/update`, {
     id,
     ...info,
   });
 
+  return res.data;
+};
+
+export const deleteProject = async (id: string) => {
+  const res = await axiosInstance.post(`/zc/project/delete`, { id });
   return res.data;
 };
 
@@ -44,7 +50,7 @@ export const getProjectYSList = async (
   pageNo: number,
   pageSize: number
 ) => {
-  const res = await axios.get(`/zc/project/ys/list`, {
+  const res = await axiosInstance.get(`/zc/project/ys/list`, {
     params: {
       projectId,
       pageNo,
@@ -56,7 +62,7 @@ export const getProjectYSList = async (
 };
 
 export const addProjectYS = async (info) => {
-  const res = await axios.post(`/zc/project/ys/add`, {
+  const res = await axiosInstance.post(`/zc/project/ys/add`, {
     ...info,
   });
 
@@ -64,7 +70,7 @@ export const addProjectYS = async (info) => {
 };
 
 export const updateProjectYS = async (id: string, info) => {
-  const res = await axios.post(`/zc/project/ys/update`, {
+  const res = await axiosInstance.post(`/zc/project/ys/update`, {
     id,
     ...info,
   });
@@ -72,9 +78,8 @@ export const updateProjectYS = async (id: string, info) => {
   return res.data;
 };
 
-
 export const addProjectYf = async (info) => {
-  const res = await axios.post(`/zc/project/yf/add`, {
+  const res = await axiosInstance.post(`/zc/project/yf/add`, {
     ...info,
   });
 
@@ -82,10 +87,15 @@ export const addProjectYf = async (info) => {
 };
 
 export const updateProjectYf = async (id: string, info) => {
-  const res = await axios.post(`/zc/project/yf/update`, {
+  const res = await axiosInstance.post(`/zc/project/yf/update`, {
     id,
     ...info,
   });
 
   return res.data;
 };
+
+export const exportProject = async() => {
+  const res = await axios.get(`/zc/project/export`);
+  return res.data;
+}

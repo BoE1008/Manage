@@ -1,24 +1,24 @@
 import { User } from "@/types";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 export const login = async (loginName: string, password: string) => {
-  const res = await axios.post(`/zc/user/login?loginName=${loginName}&password=${password}`);
+  const res = await axiosInstance.post(`/zc/user/login?loginName=${loginName}&password=${password}`);
 
   return res.data;
 };
 
 export const logout = async () => {
-    const res = await axios.post(`/zc/user/logout`);
+    const res = await axiosInstance.post(`/zc/user/logout`);
     return res.data;
 }
 
 export const getUserList = async(pageNo:number,pageSize:number, userName:string ) => {
-  const res = await axios.get(`/zc/user/list?pageNo=${pageNo}&pageSize=${pageSize}&userName=${userName}`);
+  const res = await axiosInstance.get(`/zc/user/list?pageNo=${pageNo}&pageSize=${pageSize}&userName=${userName}`);
   return res.data;
 }
 
 export const addUser = async(info:User) => {
-  const res = await axios.post(`/zc/user/add`, {
+  const res = await axiosInstance.post(`/zc/user/add`, {
     ...info,
   });
 
@@ -26,7 +26,7 @@ export const addUser = async(info:User) => {
 }
 
 export const updateUser = async(info:User,id: string) => {
-  const res = await axios.post(`/zc/user/update`, {
+  const res = await axiosInstance.post(`/zc/user/update`, {
     ...info,
     id,
   });

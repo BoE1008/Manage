@@ -1,12 +1,12 @@
 import { Company } from "@/types";
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 export const getCustomersList = async (
   pageNo: number,
   pageSize: number,
   name?: string
 ) => {
-  const res = await axios.get(`/zc/custom/list`, {
+  const res = await axiosInstance.get(`/zc/custom/list`, {
     params: {
       pageNo,
       pageSize,
@@ -18,7 +18,7 @@ export const getCustomersList = async (
 };
 
 export const addCustomer = async (info: Company) => {
-  const res = await axios.post(`/zc/custom/add`, {
+  const res = await axiosInstance.post(`/zc/custom/add`, {
     ...info,
   });
 
@@ -26,10 +26,18 @@ export const addCustomer = async (info: Company) => {
 };
 
 export const updateCustomer = async (id: string, info: Company) => {
-  const res = await axios.post(`/zc/custom/update`, {
+  const res = await axiosInstance.post(`/zc/custom/update`, {
     ...info,
     id,
   });
 
   return res.data;
 };
+
+export const deleteCustomer = async(id:string) => {
+  const res = await axiosInstance.post(`/zc/custom/delete`, {
+    id,
+  });
+
+  return res.data;
+}

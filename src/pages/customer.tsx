@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space } from "antd";
-import { EditTwoTone } from "@ant-design/icons";
+import { Table, Button, Modal, Form, Input, Space, notification } from "antd";
+import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import {
   getCustomersList,
   addCustomer,
   updateCustomer,
+  deleteCustomer,
 } from "@/restApi/customer";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
@@ -34,6 +35,7 @@ const Customer = () => {
     (async () => {
       if (!!sessionStorage.getItem("username")) {
         const data = await getCustomersList(page, pageSize, searchValue);
+        console.log(data, "data");
         setLoading(false);
         setData(data);
       } else {
@@ -68,7 +70,18 @@ const Customer = () => {
       const data = await getCustomersList(page, pageSize, searchValue);
       setLoading(false);
       setData(data);
+      notification.success({
+        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
+      });
     }
+  };
+
+  const handleDeleteOne = async (id: string) => {
+    await deleteCustomer(id);
+    const data = await getCustomersList(page, pageSize, searchValue);
+    setLoading(false);
+    setData(data);
   };
 
   const columns = [
@@ -93,6 +106,26 @@ const Customer = () => {
       key: "contactsMobile",
     },
     {
+      title: "银行账户",
+      dataIndex: "bank",
+      key: "bank",
+    },
+    {
+      title: "开户银行",
+      dataIndex: "bankCard",
+      key: "bankCard",
+    },
+    {
+      title: "币种",
+      dataIndex: "moneyType",
+      key: "moneyType",
+    },
+    {
+      title: "税号",
+      dataIndex: "taxationNumber",
+      key: "taxationNumber",
+    },
+    {
       title: "备注",
       dataIndex: "remark",
       key: "remark",
@@ -109,11 +142,28 @@ const Customer = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleDeleteOne(record.id)}
+            >
+              <DeleteTwoTone twoToneColor="#198348" />
+            </Button>
           </Space>
         );
       },
     },
   ];
+
+  const validateName = () => {
+    return {
+      validator: (_, value) => {
+        if (value.trim() !== "") {
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error("请输入客户名称"));
+      },
+    };
+  };
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
@@ -178,7 +228,14 @@ const Customer = () => {
           initialValues={initialValues}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item required label="名称" name="name">
+          <Form.Item
+            required
+            label="名称"
+            name="name"
+            rules={[validateName]}
+            validateTrigger="onBlur"
+            hasFeedback
+          >
             <Input placeholder="请输入客户名称" />
           </Form.Item>
           <Form.Item label="地址" name="address">
@@ -190,8 +247,20 @@ const Customer = () => {
           <Form.Item label="电话" name="contactsMobile">
             <Input placeholder="请输入客户联系人电话" />
           </Form.Item>
+          <Form.Item label="银行账户" name="bank">
+            <Input placeholder="请输入银行账户" />
+          </Form.Item>
+          <Form.Item label="开户银行" name="bankCard">
+            <Input placeholder="请输入开户银行" />
+          </Form.Item>
+          <Form.Item label="币种" name="moneyType">
+            <Input placeholder="请输入币种" />
+          </Form.Item>
+          <Form.Item label="税号" name="taxationNumber">
+            <Input placeholder="请输入税号" />
+          </Form.Item>
           <Form.Item label="备注" name="remark">
-            <Input placeholder="备注信息" />
+            <Input.TextArea placeholder="备注信息" maxLength={6} />
           </Form.Item>
         </Form>
       </Modal>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space } from "antd";
+import { Table, Button, Modal, Form, Input, Space, notification } from "antd";
 import { EditTwoTone } from "@ant-design/icons";
 import { getUserList, updateUser, addUser } from "@/restApi/user";
 import { Company, Operation } from "@/types";
@@ -64,6 +64,10 @@ const User = () => {
       const data = await getUserList(page, pageSize, searchValue);
       setLoading(false);
       setData(data);
+      notification.success({
+        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
+      });
     }
   };
 
@@ -108,7 +112,14 @@ const User = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-col gap-y-3">
+      <div className="flex flex-row justify-between gap-y-3">
+        <Button
+          onClick={handleAdd}
+          type="primary"
+          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+        >
+          添加
+        </Button>
         <Space>
           <Input
             placeholder="用户名"
@@ -117,13 +128,6 @@ const User = () => {
           />
           {/* <Button onClick={handleSearch}>查询</Button> */}
         </Space>
-        <Button
-          onClick={handleAdd}
-          type="primary"
-          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-        >
-          添加
-        </Button>
       </div>
       <Table
         bordered
