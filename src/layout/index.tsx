@@ -82,7 +82,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         className="w-full h-[100px]"
       >
         <Link href="/" className="flex flex-row items-center">
-          <Image src={logo} alt="logo" />
+          <Image src={logo} alt="logo" width={300} height={50} />
           <h2
             style={{
               color: "#198348",
