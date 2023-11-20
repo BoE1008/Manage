@@ -316,14 +316,6 @@ const Item = () => {
     }
   };
 
-  const handleCustomerSelectChange = (value) => {
-    console.log(value, "change");
-  };
-
-  const handleCustomerSelectSearch = (value) => {
-    console.log(value, "search");
-  };
-
   const customerFilterOption = (
     input: string,
     option?: { label: string; value: string }
@@ -415,8 +407,6 @@ const Item = () => {
               showSearch
               placeholder="选择客户"
               optionFilterProp="children"
-              onChange={handleCustomerSelectChange}
-              onSearch={handleCustomerSelectSearch}
               filterOption={customerFilterOption}
               options={customer?.map((con) => ({
                 label: con.name,

@@ -10,14 +10,15 @@ import {
   DatePicker,
   notification,
 } from "antd";
-import { EditTwoTone, ProfileTwoTone, DeleteTwoTone } from "@ant-design/icons";
+import { EditTwoTone, ProfileTwoTone, DeleteTwoTone, InteractionTwoTone } from "@ant-design/icons";
 import {
-  getProjectsList,
+  getProjectsSubmitList,
   addProject,
   updateProject,
   getProjectType,
   deleteProject,
   exportProject,
+  submitOne,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
@@ -51,13 +52,13 @@ const Project = () => {
 
   useEffect(() => {
     (async () => {
-      const data = await getProjectsList(page, pageSize, searchValue);
+      const data = await getProjectsSubmitList(page, pageSize, searchValue);
       const typelist = await getProjectType();
-      const file = await exportProject();
+      // const file = await exportProject();
       setLoading(false);
       setData(data);
       setProjectType(typelist.entity.data);
-      setFileName(file.msg);
+      // setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -87,7 +88,7 @@ const Project = () => {
         : await updateProject(editId, params);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getProjectsList(page, pageSize, searchValue);
+      const data = await getProjectsSubmitList(page, pageSize, searchValue);
       setData(data);
       notification.success({
         message: operation === Operation.Add ? "添加成功" : "编辑成功",
@@ -98,10 +99,14 @@ const Project = () => {
 
   const handleDeleteOne = async (id: string) => {
     await deleteProject(id);
-    const data = await getProjectsList(page, pageSize, searchValue);
+    const data = await getProjectsSubmitList(page, pageSize, searchValue);
     setData(data);
     setLoading(false);
   };
+
+  const handleSubmitOne = async(id:string) => {
+    await submitOne(id)
+  }
 
   const handleExport = async () => {
     const file = await exportProject();
@@ -151,6 +156,11 @@ const Project = () => {
       key: "deductProfit",
     },
     {
+      title: "审核状态",
+      dataIndex: "state",
+      key: "state",
+    },
+    {
       title: "备注",
       dataIndex: "remark",
       key: "remark",
@@ -168,10 +178,16 @@ const Project = () => {
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              onClick={() => window.open(`/project/${record.id}`)}
+              onClick={() => window.open(`/projectSubmit/${record.id}`)}
               style={{ display: "flex", alignItems: "center" }}
             >
               <ProfileTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              onClick={() =>handleSubmitOne(record.id)}
+              style={{ display: "flex", alignItems: "center" }}
+            >
+              <InteractionTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               onClick={() => handleDeleteOne(record.id)}

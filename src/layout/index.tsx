@@ -14,6 +14,7 @@ import Link from "next/link";
 import logo from "@/assets/images/logo.png";
 import Image from "next/image";
 import { getMenu } from "@/restApi/menu";
+import { menuHandler } from "@/utils";
 
 const { Header, Content, Sider } = Layout;
 
@@ -53,12 +54,14 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     (async () => {
-      const data = await getMenu();
-      setMenu(data.entity.data)
+      if(sessionStorage.getItem('username')){
+        const data = await getMenu();
+        setMenu(menuHandler(data.entity.data));
+      }
     })();
   }, []);
 
-  console.log(menu)
+  console.log(menu);
 
   const handleClick: MenuProps["onClick"] = (props) => {
     router.push(`/${props.key}`);
@@ -104,7 +107,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         >
           <Menu
             mode="inline"
-            defaultSelectedKeys={["customer"]}
+            defaultSelectedKeys={["custom"]}
             selectedKeys={[asPath.slice(1, asPath.length)]}
             style={{
               height: "100%",
@@ -112,7 +115,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
               background: "#198348",
               color: "#fff",
             }}
-            items={items}
+            items={menu}
             onClick={(props) => handleClick(props)}
           />
         </Sider>

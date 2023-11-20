@@ -22,7 +22,6 @@ export default function App({ Component, pageProps }: AppProps) {
           components: {
             Menu: {
               itemSelectedBg: "#fff",
-              colorPrimaryTextHover: "#198348",
             },
             Table: {
               colorText: "#000",

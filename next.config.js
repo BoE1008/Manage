@@ -9,7 +9,6 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
-  // output: 'export',
   async rewrites() {
     return {
       fallback: [

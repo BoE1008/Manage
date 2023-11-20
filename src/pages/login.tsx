@@ -7,6 +7,7 @@ import { userInfoState } from "@/store/userInfoState";
 import Background from "@/assets/images/bg.jpg";
 import { login } from "@/restApi/user";
 import { notification } from "antd";
+import { menuHandler } from "@/utils";
 
 const Login = () => {
   const [username, setUsername] = useState("");

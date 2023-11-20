@@ -2,12 +2,28 @@ import { Project } from "@/types";
 import axios from "axios";
 import axiosInstance from "./axiosInstance";
 
-export const getProjectsList = async (
+export const getProjectsSubmitList = async (
   pageNo: number,
   pageSize: number,
   name?: string
 ) => {
-  const res = await axiosInstance.get("/zc/project/list", {
+  const res = await axiosInstance.get("/zc/project/submit/list", {
+    params: {
+      pageNo,
+      pageSize,
+      name,
+    },
+  });
+
+  return res.data;
+};
+
+export const getProjectsApproveList = async (
+  pageNo: number,
+  pageSize: number,
+  name?: string
+) => {
+  const res = await axiosInstance.get("/zc/project/approve/list", {
     params: {
       pageNo,
       pageSize,
@@ -23,7 +39,7 @@ export const getProjectType = async () => {
   return res.data;
 };
 
-export const addProject = async (info: Project) => {
+export const addProjectSubmit = async (info: Project) => {
   const res = await axiosInstance.post("/zc/project/add", {
     ...info,
   });
@@ -95,7 +111,39 @@ export const updateProjectYf = async (id: string, info) => {
   return res.data;
 };
 
-export const exportProject = async() => {
+export const exportProject = async () => {
   const res = await axios.get(`/zc/project/export`);
   return res.data;
-}
+};
+
+export const submitOne = async (projectId: string) => {
+  const res = await axiosInstance.post(`/zc/project/submit`, {
+    projectId,
+  });
+
+  return res.data;
+};
+
+export const approveOne = async (projectId: string) => {
+  const res = await axiosInstance.post(`/zc/project/approve`, {
+    projectId,
+  });
+
+  return res.data;
+};
+
+export const rejectOne = async (projectId: string) => {
+  const res = await axiosInstance.post(`/zc/project/reject`, {
+    projectId,
+  });
+
+  return res.data;
+};
+
+export const logsOne = async (projectId: string) => {
+  const res = await axiosInstance.get(
+    `/zc/project/log/list?projectId=${projectId}`
+  );
+
+  return res.data;
+};

@@ -17,12 +17,10 @@
 }
 
 html {
-  width: 100%;
   min-height: 100%;
 }
 
 body {
-  width: 100%;
   min-height: 100vh;
   color: '#000';
   background: linear-gradient(to bottom,
@@ -31,6 +29,13 @@ body {
 }
 
 #__next {
-  width: 100%;
   min-height: 100vh;
+}
+
+.ant-menu-submenu-selected .ant-menu-submenu-title > .ant-menu-title-content {
+  color: rgb(31, 196, 168) !important;
+}
+
+.ant-layout.ant-layout-has-sider >.ant-layout {
+  width: auto !important;
 }

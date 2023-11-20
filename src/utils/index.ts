@@ -1,8 +1,10 @@
-import axios from "axios";
-
-export const axiosInstance = axios.create({
-    baseURL: '/',
-    headers: {
-        "Content-Type": 'application/json'
-    }
-})
+export const menuHandler = (data) => {
+  return data.map(({ name, url, children }) =>  ({
+    key: url,
+    label: name,
+    children: children?.map((item) => ({
+      key: item.url,
+      label: item.name,
+    })),
+  }));
+};
