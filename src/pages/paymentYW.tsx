@@ -13,7 +13,9 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getRoleList, addRole, updateRole } from "@/restApi/role";
+import { getPaymentYWList, addPayment, updatePayment } from "@/restApi/payment";
+import { getProjectsSubmitList } from "@/restApi/project";
+import { getSuppliersList } from "@/restApi/supplyer";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -22,6 +24,10 @@ const Role = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
+  const [project, setProject] = useState();
+  const [supplier, setSupplier] = useState();
+
+
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
@@ -29,8 +35,14 @@ const Role = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getRoleList(1, 10);
+      const res = await getPaymentYWList(1, 10);
+      const projectData = await getProjectsSubmitList(1, 10000);
+      const supplierData = await getSuppliersList(1, 10000);
       setData(res);
+      setSupplier(supplierData.entity.data);
+      setProject(
+        projectData.entity.data.filter((item) => item.state === "审批通过")
+      );
     })();
   }, []);
 
@@ -52,11 +64,11 @@ const Role = () => {
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addRole(values)
-        : await updateRole(editId, values);
+        ? await addPayment(values)
+        : await updatePayment(editId, values);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getRoleList(page, pageSize);
+      const data = await getPaymentYWList(page, pageSize);
       setLoading(false);
       setData(data);
       notification.success({
@@ -68,7 +80,7 @@ const Role = () => {
 
   const handleDeleteOne = async (id: string) => {
     await deleteCustomer(id);
-    const data = await getRoleList(page, pageSize);
+    const data = await getPaymentYWList(page, pageSize);
     setLoading(false);
     setData(data);
   };
@@ -91,24 +103,44 @@ const Role = () => {
 
   const columns = [
     {
-      title: "名称",
-      dataIndex: "name",
-      key: "name",
+      title: "projectName",
+      dataIndex: "projectName",
+      key: "projectName",
     },
     {
-      title: "id",
-      dataIndex: "id",
-      key: "id",
+      title: "supplierName",
+      dataIndex: "supplierName",
+      key: "supplierName",
     },
     {
-      title: "roleKey",
-      dataIndex: "roleKey",
-      key: "roleKey",
+      title: "fee",
+      dataIndex: "fee",
+      key: "fee",
     },
     {
-      title: "status",
-      dataIndex: "status",
-      key: "status",
+      title: "moneyType",
+      dataIndex: "moneyType",
+      key: "moneyType",
+    },
+    {
+      title: "state",
+      dataIndex: "state",
+      key: "state",
+    },
+    {
+      title: "taxationNumber",
+      dataIndex: "taxationNumber",
+      key: "taxationNumber",
+    },
+    {
+      title: "bankCard",
+      dataIndex: "bankCard",
+      key: "bankCard",
+    },
+    {
+      title: "bank",
+      dataIndex: "bank",
+      key: "bank",
     },
     {
       title: "备注",
@@ -188,7 +220,7 @@ const Role = () => {
       <Modal
         centered
         destroyOnClose
-        title={operation === Operation.Add ? "添加角色" : "编辑角色"}
+        title={operation === Operation.Add ? "添加申请" : "编辑申请"}
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
@@ -204,14 +236,52 @@ const Role = () => {
           form={form}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item required label="名称" name="name">
-            <Input placeholder="名称" />
+          <Form.Item
+            label="项目"
+            name="projectName"
+            rules={[{ required: true, message: "项目名称不能为空" }]}
+          >
+            <Select
+              showSearch
+              placeholder="选择项目"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={project?.map((con) => ({
+                label: con.name,
+                value: con.id,
+              }))}
+            />
           </Form.Item>
-          <Form.Item required label="roleKey" name="roleKey">
-            <Input placeholder="roleKey" />
+          <Form.Item
+            label="供应商"
+            name="supplierName"
+            rules={[{ required: true, message: "客户名称不能为空" }]}
+          >
+            <Select
+              showSearch
+              placeholder="选择供应商"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={supplier?.map((con) => ({
+                label: con.name,
+                value: con.id,
+              }))}
+            />
           </Form.Item>
-          <Form.Item required label="status" name="status">
-            <Input placeholder="status" />
+          <Form.Item required label="币种" name="moneyType">
+            <Input placeholder="币种" />
+          </Form.Item>
+          <Form.Item required label="金额" name="fee">
+            <Input placeholder="金额" />
+          </Form.Item>
+          <Form.Item label="税号" name="taxationNumber">
+            <Input placeholder="税号" />
+          </Form.Item>
+          <Form.Item label="开户行" name="bank">
+            <Input placeholder="开户行" />
+          </Form.Item>
+          <Form.Item label="卡号" name="bankCard">
+            <Input placeholder="卡号" />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

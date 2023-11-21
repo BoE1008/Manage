@@ -18,20 +18,17 @@ import {
   DeleteTwoTone,
   CheckCircleTwoTone,
   StopTwoTone,
+  CalendarTwoTone,
 } from "@ant-design/icons";
 import {
   getProjectsApproveList,
   approveOne,
   rejectOne,
   logsOne,
-  updateProject,
   getProjectType,
-  deleteProject,
-  exportProject,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
-import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
 
 const initialValues = {
@@ -58,13 +55,11 @@ const Project = () => {
   const [form] = Form.useForm();
 
   const [projectType, setProjectType] = useState();
-
   const [logs, setLogs] = useState();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectsApproveList(page, pageSize, searchValue);
-      console.log(data);
       const typelist = await getProjectType();
       // const file = await exportProject();
       setLoading(false);
@@ -73,12 +68,6 @@ const Project = () => {
       // setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
-
-  const handleAdd = async () => {
-    form.setFieldsValue(initialValues);
-    setOperation(Operation.Add);
-    setModalOpen(true);
-  };
 
   const handleEditOne = (record: Company) => {
     setOperation(Operation.Edit);
@@ -119,11 +108,17 @@ const Project = () => {
   const handleApproveOne = async (projectId: string) => {
     const res = await approveOne(projectId);
     console.log(res, "res");
+    const data = await getProjectsApproveList(page, pageSize, searchValue);
+    setData(data);
+    setLoading(false);
   };
 
   const handleRejectOne = async (projectId: string) => {
     const res = await rejectOne(projectId);
     console.log(res, "res");
+    const data = await getProjectsApproveList(page, pageSize, searchValue);
+    setData(data);
+    setLoading(false);
   };
 
   const handleLogs = async (id: string) => {
@@ -134,80 +129,9 @@ const Project = () => {
 
   const columns = [
     {
-      title: "品牌名称",
-      dataIndex: "brandName",
-      key: "brandName",
-    },
-    {
-      title: "申请人",
-      dataIndex: "createBy",
-      key: "createBy",
-    },
-    {
-      title: "申请时间",
-      dataIndex: "createTime",
-      key: "createTime",
-    },
-    {
-      title: "客户名称",
-      dataIndex: "customName",
-      key: "customName",
-    },
-    {
-      title: "净利润",
-      dataIndex: "deductProfit",
-      key: "deductProfit",
-    },
-    {
       title: "项目名称",
       dataIndex: "name",
       key: "name",
-    },
-    {
-      title: "数量",
-      dataIndex: "num",
-      key: "num",
-    },
-    {
-      title: "成本",
-      dataIndex: "proCost",
-      key: "proCost",
-    },
-    {
-      title: "收入",
-      dataIndex: "proIncome",
-      key: "proIncome",
-    },
-    {
-      title: "产品名称",
-      dataIndex: "productName",
-      key: "productName",
-    },
-    {
-      title: "毛利润",
-      dataIndex: "profit",
-      key: "profit",
-    },
-    {
-      title: "项目日期",
-      dataIndex: "projectDate",
-      key: "projectDate",
-    },
-
-    {
-      title: "供应商名称",
-      dataIndex: "serviceName",
-      key: "serviceName",
-    },
-    {
-      title: "审核状态",
-      dataIndex: "state",
-      key: "state",
-    },
-    {
-      title: "trainNumName",
-      dataIndex: "trainNumName",
-      key: "trainNumName",
     },
     {
       title: "项目类型",
@@ -215,14 +139,39 @@ const Project = () => {
       key: "typeName",
     },
     {
-      title: "更新人",
-      dataIndex: "updateBy",
-      key: "updateBy",
+      title: "日期",
+      dataIndex: "projectDate",
+      key: "projectDate",
     },
     {
-      title: "更新时间",
-      dataIndex: "updateTime",
-      key: "updateTime",
+      title: "数量",
+      dataIndex: "num",
+      key: "num",
+    },
+    {
+      title: "收入小计",
+      dataIndex: "proIncome",
+      key: "proIncome",
+    },
+    {
+      title: "成本小计",
+      dataIndex: "proCost",
+      key: "proCost",
+    },
+    {
+      title: "利润",
+      dataIndex: "profit",
+      key: "profit",
+    },
+    {
+      title: "扣除后利润",
+      dataIndex: "deductProfit",
+      key: "deductProfit",
+    },
+    {
+      title: "审核状态",
+      dataIndex: "state",
+      key: "state",
     },
     {
       title: "备注",
@@ -241,6 +190,16 @@ const Project = () => {
                 alignItems: "center",
                 padding: "3px 5px",
               }}
+              onClick={() => window.open(`/projectYW/${record.id}`)}
+            >
+              <ProfileTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
@@ -253,7 +212,7 @@ const Project = () => {
                 padding: "3px 5px",
               }}
             >
-              <ProfileTwoTone twoToneColor="#198348" />
+              <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               onClick={() => handleApproveOne(record.id)}
@@ -291,14 +250,6 @@ const Project = () => {
     },
   ];
 
-  const handleSelectChange = (value) => {
-    console.log(value, "change");
-  };
-
-  const handleSelectSearch = (value) => {
-    console.log(value, "search");
-  };
-
   const filterOption = (
     input: string,
     option?: { label: string; value: string }
@@ -317,7 +268,7 @@ const Project = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-row gap-y-3 justify-between mb-2">
+      <div className="flex flex-row gap-y-3 justify-between my-2">
         <Space>
           <Input
             placeholder="名称"
@@ -392,8 +343,8 @@ const Project = () => {
               showSearch
               placeholder="选择类型"
               optionFilterProp="children"
-              onChange={handleSelectChange}
-              onSearch={handleSelectSearch}
+              // onChange={handleSelectChange}
+              // onSearch={handleSelectSearch}
               filterOption={filterOption}
               options={projectType?.map((con) => ({
                 value: con.id,
@@ -417,9 +368,17 @@ const Project = () => {
         </Form>
       </Modal>
 
-      <Modal centered destroyOnClose footer={null} title={"审核日志"} open={!!logs} style={{ minWidth: "650px" }} onCancel={() => setLogs(undefined)}>
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
         <List
-        //   pagination={{ position: "bottom", align: "end" }}
+          pagination={{ position: "bottom", align: "end" }}
           dataSource={logs}
           renderItem={(item, index) => (
             <List.Item>
@@ -430,7 +389,9 @@ const Project = () => {
                   />
                 }
                 title={item.state}
-                description={`${item.userName} ${item.createTime} 备注：${item.remark || '' } `}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
               />
             </List.Item>
           )}

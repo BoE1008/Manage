@@ -1,4 +1,8 @@
-import { getinvoicingList } from "@/restApi/invoicing";
+import {
+  getinvoicingList,
+  addInvoicing,
+  updateInvoicing,
+} from "@/restApi/invoicing";
 import { useEffect, useState } from "react";
 import {
   Table,
@@ -14,13 +18,14 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { getCustomersList } from "@/restApi/customer";
-import { getProjectsList } from "@/restApi/project";
+import { getProjectsSubmitList } from "@/restApi/project";
+import {EditTwoTone, DeleteTwoTone} from '@ant-design/icons'
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [customer, setCustomer] = useState();
-  const [projetc, setProject] = useState();
+  const [project, setProject] = useState();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -33,11 +38,13 @@ const InvoicingSubmit = () => {
   useEffect(() => {
     (async () => {
       const res = await getinvoicingList(1, 10);
-      const projectData = await getProjectsList(1, 10000);
+      const projectData = await getProjectsSubmitList(1, 10000);
       const customerData = await getCustomersList(1, 10000);
       setData(res);
       setCustomer(customerData.entity.data);
-      setProject(projectData.entity.data);
+      setProject(
+        projectData.entity.data.filter((item) => item.state === "审批通过")
+      );
     })();
   }, []);
 
@@ -46,7 +53,7 @@ const InvoicingSubmit = () => {
     setModalOpen(true);
   };
 
-  const handleEditOne = (record: Company) => {
+  const handleEditOne = (record) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
     form.setFieldsValue(record);
@@ -59,8 +66,8 @@ const InvoicingSubmit = () => {
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addCustomer(values)
-        : await updateCustomer(editId, values);
+        ? await addInvoicing(values)
+        : await updateInvoicing(editId, values);
     if (code === 200) {
       setModalOpen(false);
       const data = await getCustomersList(page, pageSize, searchValue);
@@ -168,6 +175,28 @@ const InvoicingSubmit = () => {
       dataIndex: "remark",
       key: "remark",
     },
+    {
+      title: "操作",
+      key: "action",
+      render: (record) => {
+        return (
+          <Space size="middle">
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleEditOne(record)}
+            >
+              <EditTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleDeleteOne(record.id)}
+            >
+              <DeleteTwoTone twoToneColor="#198348" />
+            </Button>
+          </Space>
+        );
+      },
+    },
   ];
 
   return (
@@ -237,7 +266,7 @@ const InvoicingSubmit = () => {
         >
           <Form.Item
             label="项目"
-            name="customId"
+            name="projectName"
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
@@ -245,7 +274,7 @@ const InvoicingSubmit = () => {
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              options={projetc?.map((con) => ({
+              options={project?.map((con) => ({
                 label: con.name,
                 value: con.id,
               }))}
@@ -253,7 +282,7 @@ const InvoicingSubmit = () => {
           </Form.Item>
           <Form.Item
             label="客户"
-            name="customId"
+            name="customName"
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select

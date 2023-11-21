@@ -39,7 +39,7 @@ export const getProjectType = async () => {
   return res.data;
 };
 
-export const addProjectSubmit = async (info: Project) => {
+export const addProject = async (info: Project) => {
   const res = await axiosInstance.post("/zc/project/add", {
     ...info,
   });
