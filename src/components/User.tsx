@@ -43,6 +43,7 @@ const User = () => {
             onClick={async () => {
               await logout();
               sessionStorage.removeItem("username");
+              sessionStorage.removeItem("menu");
               setHovered(false);
               router.push("/login");
             }}

@@ -28,7 +28,7 @@ export const updateInvoicing = async (id: string, info: Project) => {
 };
 
 export const getinvoicingYWList = async (pageNo: number, pageSize: number) => {
-  const res = await axiosInstance.get(`/zc/invoicing/YW/list`, {
+  const res = await axiosInstance.get(`/zc/invoicing/yw/list`, {
     params: {
       pageNo,
       pageSize,
@@ -38,7 +38,7 @@ export const getinvoicingYWList = async (pageNo: number, pageSize: number) => {
 };
 
 export const getinvoicingCWList = async (pageNo: number, pageSize: number) => {
-  const res = await axiosInstance.get(`/zc/invoicing/CW/list`, {
+  const res = await axiosInstance.get(`/zc/invoicing/cw/list`, {
     params: {
       pageNo,
       pageSize,

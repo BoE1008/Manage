@@ -35,7 +35,6 @@ const Customer = () => {
     (async () => {
       if (!!sessionStorage.getItem("username")) {
         const data = await getCustomersList(page, pageSize, searchValue);
-        console.log(data, "data");
         setLoading(false);
         setData(data);
       } else {

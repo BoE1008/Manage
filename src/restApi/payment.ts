@@ -47,4 +47,15 @@ export const getPaymentYWList = async (pageNo: number, pageSize: number) => {
     return res.data;
   };
 
+  export const getPaymentLDList = async (pageNo: number, pageSize: number) => {
+    const res = await axiosInstance.get(`/zc/payment/ld/list`, {
+      params: {
+        pageNo,
+        pageSize,
+      },
+    });
+    return res.data;
+  };
+
+
 

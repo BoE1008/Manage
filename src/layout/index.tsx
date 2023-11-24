@@ -13,38 +13,8 @@ import type { MenuProps } from "antd";
 import Link from "next/link";
 import logo from "@/assets/images/logo.png";
 import Image from "next/image";
-import { getMenu } from "@/restApi/menu";
-import { menuHandler } from "@/utils";
 
 const { Header, Content, Sider } = Layout;
-
-const items = [
-  {
-    key: `customer`,
-    icon: React.createElement(CustomerServiceOutlined),
-    label: `客户管理`,
-  },
-  {
-    key: `supplyer`,
-    icon: React.createElement(CoffeeOutlined),
-    label: `供应商管理`,
-  },
-  {
-    key: `project`,
-    icon: React.createElement(ProjectOutlined),
-    label: `项目管理`,
-  },
-  {
-    key: `user`,
-    icon: React.createElement(UserOutlined),
-    label: `用户管理`,
-  },
-  {
-    key: `system`,
-    icon: React.createElement(SettingOutlined),
-    label: `系统管理`,
-  },
-];
 
 const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   const router = useRouter();
@@ -55,13 +25,12 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   useEffect(() => {
     (async () => {
       if(sessionStorage.getItem('username')){
-        const data = await getMenu();
-        setMenu(menuHandler(data.entity.data));
+        const menu = JSON.parse(sessionStorage.getItem('menu'));
+        setMenu(menu);
       }
     })();
-  }, []);
+  }, [asPath]);
 
-  console.log(menu);
 
   const handleClick: MenuProps["onClick"] = (props) => {
     router.push(`/${props.key}`);

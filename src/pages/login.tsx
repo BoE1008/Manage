@@ -8,19 +8,24 @@ import Background from "@/assets/images/bg.jpg";
 import { login } from "@/restApi/user";
 import { notification } from "antd";
 import { menuHandler } from "@/utils";
+import { menuTreeState } from "@/store/userInfoState";
+import { getMenu } from "@/restApi/menu";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const setUserinfo = useSetRecoilState(userInfoState);
+  const setMenuTree = useSetRecoilState(menuTreeState);
 
   const router = useRouter();
 
   const handleClick = async () => {
     const { code, message } = await login(username, password);
     if (code === 200) {
-      typeof window !== "undefined" &&
-        sessionStorage.setItem("username",  username );
+      sessionStorage.setItem("username", username);
+      const data = await getMenu();
+      sessionStorage.setItem("menu", (JSON.stringify(menuHandler(data.entity.data))));
+
       router.push("/");
     } else {
       notification.error({ message });
