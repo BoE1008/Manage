@@ -97,9 +97,13 @@ const User = () => {
       key: "action",
       render: (record: Company) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />

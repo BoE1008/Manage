@@ -1,11 +1,4 @@
 import React, { ReactNode, useEffect, useState } from "react";
-import {
-  UserOutlined,
-  CustomerServiceOutlined,
-  ProjectOutlined,
-  CoffeeOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
 import { Layout, Menu } from "antd";
 import User from "@/components/User";
 import { useRouter } from "next/router";

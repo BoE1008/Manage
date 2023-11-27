@@ -1,5 +1,5 @@
 import { useRecoilState } from "recoil";
-import { userInfoState } from "@/store/userInfoState";
+import { userInfoState } from "@/store";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import clsx from "clsx";

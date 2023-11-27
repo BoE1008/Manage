@@ -42,7 +42,7 @@ const InvoicingSubmit = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getinvoicingList(1, 10);
+      const res = await getinvoicingList(page, pageSize);
       const projectData = await getProjectsApproveList(1, 10000);
       const customerData = await getCustomersList(1, 10000);
       setData(res);
@@ -75,7 +75,7 @@ const InvoicingSubmit = () => {
         : await updateInvoicing(editId, values);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getCustomersList(page, pageSize, searchValue);
+      const data = await getCustomersList(page, pageSize);
       setLoading(false);
       setData(data);
       notification.success({
@@ -93,7 +93,7 @@ const InvoicingSubmit = () => {
 
   const handleDeleteOne = async (id: string) => {
     await deleteCustomer(id);
-    const data = await getCustomersList(page, pageSize, searchValue);
+    const data = await getCustomersList(page, pageSize);
     setLoading(false);
     setData(data);
   };
@@ -202,21 +202,21 @@ const InvoicingSubmit = () => {
       key: "action",
       render: (record) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleEditOne(record.id)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleLogsOne(record.id)}
             >
               <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />

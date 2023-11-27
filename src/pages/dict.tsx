@@ -170,15 +170,15 @@ const Dict = () => {
       key: "action",
       render: (record: Company) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -226,15 +226,15 @@ const Dict = () => {
       key: "action",
       render: (record: Company) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleDataEdit(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />

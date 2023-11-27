@@ -19,14 +19,17 @@ import {
   DeleteTwoTone,
   CheckCircleTwoTone,
   CalendarTwoTone,
+  StopTwoTone,
+  IdcardTwoTone
 } from "@ant-design/icons";
 import {
   getPaymentYWList,
   addPayment,
   updatePayment,
-  approveOne,
-  rejectOne,
+  submitToLD,
+  submitToCW,
   logsOne,
+  rejectOne,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
@@ -50,7 +53,7 @@ const Role = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getPaymentYWList(1, 10);
+      const res = await getPaymentYWList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       const supplierData = await getSuppliersList(1, 10000);
       setData(res);
@@ -73,18 +76,27 @@ const Role = () => {
     setModalOpen(true);
   };
 
-  const handleApproveOne = async (id: string) => {
-    const res = await approveOne(id);
+  const handleSubmitToLD = async (id: string) => {
+    await submitToLD(id);
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
+  };
+
+  const handleSubmitToCW = async (id: string) => {
+    await submitToCW(id);
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
   };
 
   const handleRejectOne = async (id: string) => {
-    const res = await rejectOne(id);
+    await rejectOne(id);
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
   };
 
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
-
-    setLogs(res.entity.data)
+    setLogs(res.entity.data);
   };
 
   const handleOk = async () => {
@@ -108,10 +120,7 @@ const Role = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getPaymentYWList(page, pageSize);
-    setLoading(false);
-    setData(data);
+    
   };
 
   const validateName = () => {
@@ -191,33 +200,63 @@ const Role = () => {
       key: "action",
       render: (record) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
-              onClick={() => handleApproveOne(record.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleSubmitToLD(record.id)}
+            >
+              <IdcardTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleSubmitToCW(record.id)}
             >
               <CheckCircleTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleRejectOne(record.id)}
             >
-              <CheckCircleTwoTone twoToneColor="#198348" />
+              <StopTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record.id)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleLogsOne(record.id)}
             >
               <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />

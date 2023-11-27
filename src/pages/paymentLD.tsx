@@ -12,8 +12,8 @@ import {
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getPaymentLDList, addPayment, updatePayment } from "@/restApi/payment";
+import { EditTwoTone, DeleteTwoTone,CheckCircleTwoTone } from "@ant-design/icons";
+import { getPaymentLDList, addPayment, updatePayment, submitToCW } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 
@@ -27,7 +27,6 @@ const Role = () => {
   const [project, setProject] = useState();
   const [supplier, setSupplier] = useState();
 
-
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
@@ -35,7 +34,7 @@ const Role = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getPaymentLDList(1, 10);
+      const res = await getPaymentLDList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       const supplierData = await getSuppliersList(1, 10000);
       setData(res);
@@ -45,11 +44,6 @@ const Role = () => {
       );
     })();
   }, []);
-
-  const handleAdd = async () => {
-    setOperation(Operation.Add);
-    setModalOpen(true);
-  };
 
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);
@@ -79,10 +73,13 @@ const Role = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getPaymentLDList(page, pageSize);
-    setLoading(false);
-    setData(data);
+   
+  };
+
+  const handleSubmitToCW = async (id: string) => {
+    await submitToCW(id);
+    const res = await getPaymentLDList(page, pageSize);
+    setData(res);
   };
 
   const validateName = () => {
@@ -162,15 +159,33 @@ const Role = () => {
       key: "action",
       render: (record) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleSubmitToCW(record.id)}
+            >
+              <CheckCircleTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -184,16 +199,6 @@ const Role = () => {
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
-        <Space>
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-          >
-            添加
-          </Button>
-        </Space>
-
         <Space>
           <Input
             placeholder="名称"

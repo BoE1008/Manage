@@ -165,7 +165,7 @@ const Item = () => {
         render: (record) => {
           return (
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleEditYfOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
@@ -242,15 +242,15 @@ const Item = () => {
       key: "action",
       render: (record) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center" ,padding: "3px 5px"}}
               onClick={() => handleEditYsOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleYfAddClick(record)}
             >
               <PlusSquareTwoTone twoToneColor="#198348" />

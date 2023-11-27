@@ -57,25 +57,41 @@ export const getPaymentYWList = async (pageNo: number, pageSize: number) => {
     return res.data;
   };
 
-  export const approveOne = async (id:string) => {
+  export const submitToLD = async (paymentId:string) => {
+    const res = await axiosInstance.post(`/zc/payment/submitLeader`, {
+      paymentId
+    })
+  
+    return res.data;
+  }
+
+  export const submitToCW = async (paymentId:string) => {
+    const res = await axiosInstance.post(`/zc/payment/submitYWToCW`, {
+      paymentId
+    })
+  
+    return res.data;
+  }
+
+  export const approveOne = async (paymentId:string) => {
     const res = await axiosInstance.post(`/zc/payment/approve`, {
-      id
+      paymentId
     })
   
     return res.data;
   }
   
-  export const rejectOne = async (id:string) => {
+  export const rejectOne = async (paymentId:string) => {
     const res = await axiosInstance.post(`/zc/payment/reject`, {
-      id
+      paymentId
     })
   
     return res.data;
   }
   
-  export const logsOne = async (id: string) => {
+  export const logsOne = async (paymentId: string) => {
     const res = await axiosInstance.get(
-      `/zc/payment/log/list?id=${id}`
+      `/zc/payment/log/list?paymentId=${paymentId}`
     );
     return res.data;
   }

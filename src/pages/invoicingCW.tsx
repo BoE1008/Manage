@@ -4,7 +4,7 @@ import {
   updateInvoicing,
   approveOne,
   rejectOne,
-  logsOne
+  logsOne,
 } from "@/restApi/invoicing";
 import { useEffect, useState } from "react";
 import {
@@ -17,7 +17,8 @@ import {
   Select,
   DatePicker,
   notification,
-  List,Avatar
+  List,
+  Avatar,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -49,7 +50,7 @@ const InvoicingSubmit = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getinvoicingCWList(1, 10);
+      const res = await getinvoicingCWList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       const customerData = await getCustomersList(1, 10000);
       setData(res);
@@ -60,11 +61,6 @@ const InvoicingSubmit = () => {
     })();
   }, []);
 
-  const handleAdd = async () => {
-    setOperation(Operation.Add);
-    setModalOpen(true);
-  };
-
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
@@ -74,20 +70,17 @@ const InvoicingSubmit = () => {
 
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
-    setLogs(res.entity.data)
-  }
+    setLogs(res.entity.data);
+  };
 
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
     setLoading(true);
-    const { code } =
-      operation === Operation.Add
-        ? await addInvoicing(values)
-        : await updateInvoicing(editId, values);
+    const { code } = await updateInvoicing(editId, values);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getCustomersList(page, pageSize, searchValue);
+      const data = await getinvoicingCWList(page, pageSize);
       setLoading(false);
       setData(data);
       notification.success({
@@ -99,17 +92,20 @@ const InvoicingSubmit = () => {
 
   const handleApprove = async (invoicingId: string) => {
     await approveOne(invoicingId);
+    const data = await getinvoicingCWList(page, pageSize);
+    setLoading(false);
+    setData(data);
   };
 
   const handleReject = async (invoicingId: string) => {
     await rejectOne(invoicingId);
+    const data = await getinvoicingCWList(page, pageSize);
+    setLoading(false);
+    setData(data);
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getCustomersList(page, pageSize, searchValue);
-    setLoading(false);
-    setData(data);
+    
   };
 
   const validateName = () => {
@@ -210,33 +206,33 @@ const InvoicingSubmit = () => {
       key: "action",
       render: (record) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
               onClick={() => handleApprove(record.id)}
             >
               <CheckCircleTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center" ,padding: "3px 5px",}}
               onClick={() => handleReject(record.id)}
             >
               <StopTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleLogsOne(record.id)}
             >
               <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />

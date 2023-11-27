@@ -219,21 +219,32 @@ const Project = () => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-                
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               onClick={() => window.open(`/projectSubmit/${record.id}`)}
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
             >
               <ProfileTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               onClick={() => handleSubmitOne(record.id)}
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
             >
               <InteractionTwoTone twoToneColor="#198348" />
             </Button>
@@ -249,7 +260,11 @@ const Project = () => {
             </Button>
             <Button
               onClick={() => handleDeleteOne(record.id)}
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
             >
               <DeleteTwoTone twoToneColor="#198348" />
             </Button>
