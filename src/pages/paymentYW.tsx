@@ -9,11 +9,25 @@ import {
   Select,
   DatePicker,
   notification,
+  List,
+  Avatar,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getPaymentYWList, addPayment, updatePayment } from "@/restApi/payment";
+import {
+  EditTwoTone,
+  DeleteTwoTone,
+  CheckCircleTwoTone,
+  CalendarTwoTone,
+} from "@ant-design/icons";
+import {
+  getPaymentYWList,
+  addPayment,
+  updatePayment,
+  approveOne,
+  rejectOne,
+  logsOne,
+} from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 
@@ -27,6 +41,7 @@ const Role = () => {
   const [project, setProject] = useState();
   const [supplier, setSupplier] = useState();
 
+  const [logs, setLogs] = useState();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
@@ -56,6 +71,20 @@ const Role = () => {
     setEditId(record.id);
     form.setFieldsValue(record);
     setModalOpen(true);
+  };
+
+  const handleApproveOne = async (id: string) => {
+    const res = await approveOne(id);
+  };
+
+  const handleRejectOne = async (id: string) => {
+    const res = await rejectOne(id);
+  };
+
+  const handleLogsOne = async (id: string) => {
+    const res = await logsOne(id);
+
+    setLogs(res.entity.data)
   };
 
   const handleOk = async () => {
@@ -103,44 +132,54 @@ const Role = () => {
 
   const columns = [
     {
-      title: "projectName",
+      title: "项目名称",
       dataIndex: "projectName",
       key: "projectName",
     },
     {
-      title: "supplierName",
+      title: "供应商",
       dataIndex: "supplierName",
       key: "supplierName",
     },
     {
-      title: "fee",
+      title: "金额",
       dataIndex: "fee",
       key: "fee",
     },
     {
-      title: "moneyType",
+      title: "币种",
       dataIndex: "moneyType",
       key: "moneyType",
     },
     {
-      title: "state",
+      title: "审核状态",
       dataIndex: "state",
       key: "state",
     },
     {
-      title: "taxationNumber",
+      title: "税号",
       dataIndex: "taxationNumber",
       key: "taxationNumber",
     },
     {
-      title: "bankCard",
+      title: "银行卡号",
       dataIndex: "bankCard",
       key: "bankCard",
     },
     {
-      title: "bank",
+      title: "开户行",
       dataIndex: "bank",
       key: "bank",
+    },
+    {
+      title: "申请人",
+      dataIndex: "createBy",
+      key: "createBy",
+    },
+    {
+      title: "应付日期",
+      dataIndex: "yfDate",
+      key: "yfDate",
     },
     {
       title: "备注",
@@ -155,9 +194,27 @@ const Role = () => {
           <Space size="middle">
             <Button
               style={{ display: "flex", alignItems: "center" }}
-              onClick={() => handleEditOne(record)}
+              onClick={() => handleApproveOne(record.id)}
+            >
+              <CheckCircleTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleRejectOne(record.id)}
+            >
+              <CheckCircleTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleEditOne(record.id)}
             >
               <EditTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleLogsOne(record.id)}
+            >
+              <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               style={{ display: "flex", alignItems: "center" }}
@@ -283,10 +340,47 @@ const Role = () => {
           <Form.Item label="卡号" name="bankCard">
             <Input placeholder="卡号" />
           </Form.Item>
+          <Form.Item
+            label="应付日期"
+            name="yfDate"
+            getValueProps={(i) => ({ value: dayjs(i) })}
+          >
+            <DatePicker />
+          </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );

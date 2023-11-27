@@ -39,3 +39,7 @@ body {
 .ant-layout.ant-layout-has-sider >.ant-layout {
   width: auto !important;
 }
+
+.ant-menu-submenu-arrow {
+  color: white !important;
+}

@@ -103,44 +103,54 @@ const Role = () => {
 
   const columns = [
     {
-      title: "projectName",
+      title: "项目名称",
       dataIndex: "projectName",
       key: "projectName",
     },
     {
-      title: "supplierName",
+      title: "供应商",
       dataIndex: "supplierName",
       key: "supplierName",
     },
     {
-      title: "fee",
+      title: "金额",
       dataIndex: "fee",
       key: "fee",
     },
     {
-      title: "moneyType",
+      title: "币种",
       dataIndex: "moneyType",
       key: "moneyType",
     },
     {
-      title: "state",
+      title: "审核状态",
       dataIndex: "state",
       key: "state",
     },
     {
-      title: "taxationNumber",
+      title: "税号",
       dataIndex: "taxationNumber",
       key: "taxationNumber",
     },
     {
-      title: "bankCard",
+      title: "银行卡号",
       dataIndex: "bankCard",
       key: "bankCard",
     },
     {
-      title: "bank",
+      title: "开户行",
       dataIndex: "bank",
       key: "bank",
+    },
+    {
+      title: "申请人",
+      dataIndex: "createBy",
+      key: "createBy",
+    },
+    {
+      title: "应付日期",
+      dataIndex: "yfDate",
+      key: "yfDate",
     },
     {
       title: "备注",
@@ -282,6 +292,13 @@ const Role = () => {
           </Form.Item>
           <Form.Item label="卡号" name="bankCard">
             <Input placeholder="卡号" />
+          </Form.Item>
+          <Form.Item
+            label="应付日期"
+            name="yfDate"
+            getValueProps={(i) => ({ value: dayjs(i) })}
+          >
+            <DatePicker />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

@@ -16,20 +16,29 @@ import {
   EditTwoTone,
   ProfileTwoTone,
   DeleteTwoTone,
-  CheckCircleTwoTone,
-  StopTwoTone,
+  InteractionTwoTone,
   CalendarTwoTone,
+  CheckCircleTwoTone,
+  StopTwoTone
 } from "@ant-design/icons";
 import {
   getProjectsApproveList,
+  addProject,
+  updateProject,
+  getProjectType,
+  deleteProject,
+  exportProject,
+  submitOne,
   approveOne,
   rejectOne,
   logsOne,
-  getProjectType,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
+import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
+import { getDictById } from "@/restApi/dict";
+import { getCustomersList } from "@/restApi/customer";
 
 const initialValues = {
   name: "",
@@ -47,20 +56,30 @@ const Project = () => {
   const [searchValue, setSearchValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
+  const [logs, setLogs] = useState();
+
+  const [customer, setCustomer] = useState();
 
   const [fileName, setFileName] = useState();
 
   const [loading, setLoading] = useState(true);
 
+  const [dict, setDict] = useState();
+
   const [form] = Form.useForm();
 
   const [projectType, setProjectType] = useState();
-  const [logs, setLogs] = useState();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectsApproveList(page, pageSize, searchValue);
       const typelist = await getProjectType();
+      const customer = await getCustomersList(1, 1000);
+      const res = await getDictById();
+      console.log(customer, "customer");
+      setDict(res.entity);
+      setDict;
+      setCustomer(customer.entity.data);
       // const file = await exportProject();
       setLoading(false);
       setData(data);
@@ -68,6 +87,12 @@ const Project = () => {
       // setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
+
+  const handleAdd = async () => {
+    form.setFieldsValue(initialValues);
+    setOperation(Operation.Add);
+    setModalOpen(true);
+  };
 
   const handleEditOne = (record: Company) => {
     setOperation(Operation.Edit);
@@ -107,7 +132,7 @@ const Project = () => {
 
   const handleApproveOne = async (projectId: string) => {
     const res = await approveOne(projectId);
-    console.log(res, "res");
+    notification.success({message: '审核完成'})
     const data = await getProjectsApproveList(page, pageSize, searchValue);
     setData(data);
     setLoading(false);
@@ -115,7 +140,7 @@ const Project = () => {
 
   const handleRejectOne = async (projectId: string) => {
     const res = await rejectOne(projectId);
-    console.log(res, "res");
+    notification.success({message: '审核退回'})
     const data = await getProjectsApproveList(page, pageSize, searchValue);
     setData(data);
     setLoading(false);
@@ -123,8 +148,17 @@ const Project = () => {
 
   const handleLogs = async (id: string) => {
     const res = await logsOne(id);
-    console.log(res, "res");
     setLogs(res.entity.data);
+  };
+
+  const handleSubmitOne = async (id: string) => {
+    await submitOne(id);
+  };
+
+  const handleExport = async () => {
+    const file = await exportProject();
+    // const res = await downloadFile(data.msg);
+    // console.log(res, "res");
   };
 
   const columns = [
@@ -134,14 +168,34 @@ const Project = () => {
       key: "name",
     },
     {
-      title: "项目类型",
+      title: "产品",
       dataIndex: "typeName",
       key: "typeName",
     },
     {
-      title: "日期",
-      dataIndex: "projectDate",
-      key: "projectDate",
+      title: "客户",
+      dataIndex: "customName",
+      key: "customName",
+    },
+    {
+      title: "品牌",
+      dataIndex: "brandName",
+      key: "brandName",
+    },
+    {
+      title: "货物",
+      dataIndex: "productName",
+      key: "productName",
+    },
+    {
+      title: "服务内容",
+      dataIndex: "serviceName",
+      key: "serviceName",
+    },
+    {
+      title: "班列号/船名",
+      dataIndex: "trainNumName",
+      key: "trainNumName",
     },
     {
       title: "数量",
@@ -195,26 +249,6 @@ const Project = () => {
               <ProfileTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              onClick={() => handleLogs(record.id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-            >
-              <CalendarTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
               onClick={() => handleApproveOne(record.id)}
               style={{
                 display: "flex",
@@ -235,6 +269,27 @@ const Project = () => {
               <StopTwoTone twoToneColor="#198348" />
             </Button>
             <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleEditOne(record)}
+            >
+              <EditTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              onClick={() => handleLogs(record.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+            >
+              <CalendarTwoTone twoToneColor="#198348" />
+            </Button>
+            
+            <Button
               onClick={() => handleDeleteOne(record.id)}
               style={{
                 display: "flex",
@@ -249,6 +304,14 @@ const Project = () => {
       },
     },
   ];
+
+  const handleSelectChange = (value) => {
+    console.log(value, "change");
+  };
+
+  const handleSelectSearch = (value) => {
+    console.log(value, "search");
+  };
 
   const filterOption = (
     input: string,
@@ -268,7 +331,27 @@ const Project = () => {
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-row gap-y-3 justify-between my-2">
+      <div className="flex flex-row gap-y-3 justify-between">
+        <Space>
+          <Button
+            onClick={handleAdd}
+            type="primary"
+            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+          >
+            添加
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+          >
+            <Link
+              href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}
+            >
+              导出
+            </Link>
+          </Button>
+        </Space>
+
         <Space>
           <Input
             placeholder="名称"
@@ -333,24 +416,95 @@ const Project = () => {
             <Input placeholder="请输入项目名称" />
           </Form.Item>
           <Form.Item
-            label="类型"
-            name="type_id"
+            label="产品"
+            name="typeId"
             validateTrigger="onBlur"
-            rules={[{ required: true, message: "请选择项目类型" }]}
+            rules={[{ required: true, message: "请选择产品" }]}
             hasFeedback
           >
             <Select
               showSearch
-              placeholder="选择类型"
+              placeholder="选择产品"
               optionFilterProp="children"
-              // onChange={handleSelectChange}
-              // onSearch={handleSelectSearch}
+              onChange={handleSelectChange}
+              onSearch={handleSelectSearch}
               filterOption={filterOption}
-              options={projectType?.map((con) => ({
+              options={dict
+                ?.find((con) => con.id === "1")
+                .childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="客户" name="customId">
+            <Select
+              showSearch
+              placeholder="选择客户"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+              options={customer?.map((con) => ({
                 value: con.id,
                 label: con.name,
               }))}
             />
+          </Form.Item>
+          <Form.Item label="品牌" name="brandId">
+            <Select
+              showSearch
+              placeholder="选择品牌"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              options={dict
+                ?.find((con) => con.id === "2")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="货物" name="productId">
+            <Select
+              showSearch
+              placeholder="选择货物"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+              options={dict
+                ?.find((con) => con.id === "3")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="服务内容" name="serviceId">
+            <Select
+              showSearch
+              placeholder="选择服务内容"
+              optionFilterProp="children"
+              options={dict
+                ?.find((con) => con.id === "4")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+            />
+          </Form.Item>
+          <Form.Item label="班列号/船名" name="trainNumName">
+            <Input placeholder="数量" />
           </Form.Item>
           <Form.Item label="数量" name="num">
             <Input placeholder="数量" />

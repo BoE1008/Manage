@@ -9,8 +9,16 @@ import {
   Select,
   DatePicker,
   notification,
+  List,
+  Avatar,
 } from "antd";
-import { EditTwoTone, ProfileTwoTone, DeleteTwoTone, InteractionTwoTone } from "@ant-design/icons";
+import {
+  EditTwoTone,
+  ProfileTwoTone,
+  DeleteTwoTone,
+  InteractionTwoTone,
+  CalendarTwoTone,
+} from "@ant-design/icons";
 import {
   getProjectsSubmitList,
   addProject,
@@ -19,11 +27,14 @@ import {
   deleteProject,
   exportProject,
   submitOne,
+  logsOne,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
 import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
+import { getDictById } from "@/restApi/dict";
+import { getCustomersList } from "@/restApi/customer";
 
 const initialValues = {
   name: "",
@@ -41,10 +52,15 @@ const Project = () => {
   const [searchValue, setSearchValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
+  const [logs, setLogs] = useState();
+
+  const [customer, setCustomer] = useState();
 
   const [fileName, setFileName] = useState();
 
   const [loading, setLoading] = useState(true);
+
+  const [dict, setDict] = useState();
 
   const [form] = Form.useForm();
 
@@ -54,6 +70,12 @@ const Project = () => {
     (async () => {
       const data = await getProjectsSubmitList(page, pageSize, searchValue);
       const typelist = await getProjectType();
+      const customer = await getCustomersList(1, 1000);
+      const res = await getDictById();
+      console.log(customer, "customer");
+      setDict(res.entity);
+      setDict;
+      setCustomer(customer.entity.data);
       // const file = await exportProject();
       setLoading(false);
       setData(data);
@@ -104,9 +126,14 @@ const Project = () => {
     setLoading(false);
   };
 
-  const handleSubmitOne = async(id:string) => {
-    await submitOne(id)
-  }
+  const handleLogs = async (id: string) => {
+    const res = await logsOne(id);
+    setLogs(res.entity.data);
+  };
+
+  const handleSubmitOne = async (id: string) => {
+    await submitOne(id);
+  };
 
   const handleExport = async () => {
     const file = await exportProject();
@@ -121,14 +148,34 @@ const Project = () => {
       key: "name",
     },
     {
-      title: "typeId",
-      dataIndex: "typeId",
-      key: "typeId",
+      title: "产品",
+      dataIndex: "typeName",
+      key: "typeName",
     },
     {
-      title: "日期",
-      dataIndex: "projectDate",
-      key: "projectDate",
+      title: "客户",
+      dataIndex: "customName",
+      key: "customName",
+    },
+    {
+      title: "品牌",
+      dataIndex: "brandName",
+      key: "brandName",
+    },
+    {
+      title: "货物",
+      dataIndex: "productName",
+      key: "productName",
+    },
+    {
+      title: "服务内容",
+      dataIndex: "serviceName",
+      key: "serviceName",
+    },
+    {
+      title: "班列号/船名",
+      dataIndex: "trainNumName",
+      key: "trainNumName",
     },
     {
       title: "数量",
@@ -170,28 +217,39 @@ const Project = () => {
       key: "action",
       render: (record: Company) => {
         return (
-          <Space size="middle">
+          <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center" }}
+                
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               onClick={() => window.open(`/projectSubmit/${record.id}`)}
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
             >
               <ProfileTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              onClick={() =>handleSubmitOne(record.id)}
-              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleSubmitOne(record.id)}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
             >
               <InteractionTwoTone twoToneColor="#198348" />
             </Button>
             <Button
+              onClick={() => handleLogs(record.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+            >
+              <CalendarTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
               onClick={() => handleDeleteOne(record.id)}
-              style={{ display: "flex", alignItems: "center" }}
+              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
             >
               <DeleteTwoTone twoToneColor="#198348" />
             </Button>
@@ -240,7 +298,11 @@ const Project = () => {
             type="primary"
             style={{ marginBottom: 16, background: "#198348", width: "100px" }}
           >
-            <Link href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}>导出</Link>
+            <Link
+              href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}
+            >
+              导出
+            </Link>
           </Button>
         </Space>
 
@@ -308,24 +370,95 @@ const Project = () => {
             <Input placeholder="请输入项目名称" />
           </Form.Item>
           <Form.Item
-            label="类型"
-            name="type_id"
+            label="产品"
+            name="typeId"
             validateTrigger="onBlur"
-            rules={[{ required: true, message: "请选择项目类型" }]}
+            rules={[{ required: true, message: "请选择产品" }]}
             hasFeedback
           >
             <Select
               showSearch
-              placeholder="选择类型"
+              placeholder="选择产品"
               optionFilterProp="children"
               onChange={handleSelectChange}
               onSearch={handleSelectSearch}
               filterOption={filterOption}
-              options={projectType?.map((con) => ({
+              options={dict
+                ?.find((con) => con.id === "1")
+                .childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="客户" name="customId">
+            <Select
+              showSearch
+              placeholder="选择客户"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+              options={customer?.map((con) => ({
                 value: con.id,
                 label: con.name,
               }))}
             />
+          </Form.Item>
+          <Form.Item label="品牌" name="brandId">
+            <Select
+              showSearch
+              placeholder="选择品牌"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              options={dict
+                ?.find((con) => con.id === "2")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="货物" name="productId">
+            <Select
+              showSearch
+              placeholder="选择货物"
+              optionFilterProp="children"
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+              options={dict
+                ?.find((con) => con.id === "3")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
+          <Form.Item label="服务内容" name="serviceId">
+            <Select
+              showSearch
+              placeholder="选择服务内容"
+              optionFilterProp="children"
+              options={dict
+                ?.find((con) => con.id === "4")
+                ?.childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+              // filterOption={customerFilterOption}
+              // options={project?.map((con) => ({
+              //   label: con.name,
+              //   value: con.id,
+              // }))}
+            />
+          </Form.Item>
+          <Form.Item label="班列号/船名" name="trainNumName">
+            <Input placeholder="数量" />
           </Form.Item>
           <Form.Item label="数量" name="num">
             <Input placeholder="数量" />
@@ -341,6 +474,36 @@ const Project = () => {
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );

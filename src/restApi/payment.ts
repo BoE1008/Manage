@@ -57,5 +57,28 @@ export const getPaymentYWList = async (pageNo: number, pageSize: number) => {
     return res.data;
   };
 
+  export const approveOne = async (id:string) => {
+    const res = await axiosInstance.post(`/zc/payment/approve`, {
+      id
+    })
+  
+    return res.data;
+  }
+  
+  export const rejectOne = async (id:string) => {
+    const res = await axiosInstance.post(`/zc/payment/reject`, {
+      id
+    })
+  
+    return res.data;
+  }
+  
+  export const logsOne = async (id: string) => {
+    const res = await axiosInstance.get(
+      `/zc/payment/log/list?id=${id}`
+    );
+    return res.data;
+  }
+
 
 

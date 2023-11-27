@@ -2,6 +2,7 @@ import {
   getinvoicingList,
   addInvoicing,
   updateInvoicing,
+  logsOne,
 } from "@/restApi/invoicing";
 import { useEffect, useState } from "react";
 import {
@@ -14,18 +15,22 @@ import {
   Select,
   DatePicker,
   notification,
+  List,
+  Avatar,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { getCustomersList } from "@/restApi/customer";
-import { getProjectsSubmitList } from "@/restApi/project";
-import {EditTwoTone, DeleteTwoTone} from '@ant-design/icons'
+import { getProjectsApproveList } from "@/restApi/project";
+import { EditTwoTone, DeleteTwoTone,CalendarTwoTone } from '@ant-design/icons';
+import { getCustomersYSList } from "@/restApi/customer";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
   const [customer, setCustomer] = useState();
   const [project, setProject] = useState();
+  const [logs, setLogs] = useState();
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -38,7 +43,7 @@ const InvoicingSubmit = () => {
   useEffect(() => {
     (async () => {
       const res = await getinvoicingList(1, 10);
-      const projectData = await getProjectsSubmitList(1, 10000);
+      const projectData = await getProjectsApproveList(1, 10000);
       const customerData = await getCustomersList(1, 10000);
       setData(res);
       setCustomer(customerData.entity.data);
@@ -80,6 +85,12 @@ const InvoicingSubmit = () => {
     }
   };
 
+  const handleLogsOne = async (id:string) => {
+    const res = await logsOne(id);
+    console.log(res,'res')
+    setLogs(res.entity.data)
+  }
+
   const handleDeleteOne = async (id: string) => {
     await deleteCustomer(id);
     const data = await getCustomersList(page, pageSize, searchValue);
@@ -102,6 +113,12 @@ const InvoicingSubmit = () => {
     input: string,
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+
+  const handleProjectChanged = async(param:string) => {
+    const projectCustom = await getCustomersYSList(param)
+
+    console.log(projectCustom)
+  }
 
   const columns = [
     {
@@ -171,6 +188,11 @@ const InvoicingSubmit = () => {
       key: "createTime",
     },
     {
+      title: "审核状态",
+      dataIndex: "state",
+      key: "state",
+    },
+    {
       title: "备注",
       dataIndex: "remark",
       key: "remark",
@@ -183,9 +205,15 @@ const InvoicingSubmit = () => {
           <Space size="middle">
             <Button
               style={{ display: "flex", alignItems: "center" }}
-              onClick={() => handleEditOne(record)}
+              onClick={() => handleEditOne(record.id)}
             >
               <EditTwoTone twoToneColor="#198348" />
+            </Button>
+            <Button
+              style={{ display: "flex", alignItems: "center" }}
+              onClick={() => handleLogsOne(record.id)}
+            >
+              <CalendarTwoTone twoToneColor="#198348" />
             </Button>
             <Button
               style={{ display: "flex", alignItems: "center" }}
@@ -278,6 +306,7 @@ const InvoicingSubmit = () => {
                 label: con.name,
                 value: con.id,
               }))}
+              onChange={handleProjectChanged}
             />
           </Form.Item>
           <Form.Item
@@ -323,20 +352,39 @@ const InvoicingSubmit = () => {
           <Form.Item label="联系电话" name="phone">
             <Input placeholder="联系电话" />
           </Form.Item>
-          <Form.Item required label="申请人" name="createBy">
-            <Input placeholder="申请人" />
-          </Form.Item>
-          <Form.Item
-            label="申请时间"
-            name="projectDate"
-            getValueProps={(i) => ({ value: dayjs(i) })}
-          >
-            <DatePicker />
-          </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
+      </Modal>
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );

@@ -17,6 +17,16 @@ export const getCustomersList = async (
   return res.data;
 };
 
+export const getCustomersYSList = async (projectId: string) => {
+  const res = await axiosInstance.get(`/zc/custom/listYsCustom`, {
+    params: {
+      projectId,
+    },
+  });
+
+  return res.data;
+};
+
 export const addCustomer = async (info: Company) => {
   const res = await axiosInstance.post(`/zc/custom/add`, {
     ...info,
@@ -34,10 +44,10 @@ export const updateCustomer = async (id: string, info: Company) => {
   return res.data;
 };
 
-export const deleteCustomer = async(id:string) => {
+export const deleteCustomer = async (id: string) => {
   const res = await axiosInstance.post(`/zc/custom/delete`, {
     id,
   });
 
   return res.data;
-}
+};

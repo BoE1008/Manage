@@ -9,6 +9,9 @@ const nextConfig = {
     // !! WARN !!
     ignoreBuildErrors: true,
   },
+  images: {
+    unoptimized: true
+  },
   async rewrites() {
     return {
       fallback: [

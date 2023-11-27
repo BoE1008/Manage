@@ -68,7 +68,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         </Link>
         <User />
       </Header>
-      <Layout className="min-h-screen">
+      <Layout className="min-h-screen w-screen">
         <Sider
           width={200}
           style={{ position: "fixed", top: 120, left: 0, zIndex: 5 }}

@@ -1,6 +1,6 @@
-import { Input, Space, Button } from "antd";
+import { Input, Space, Button, Form } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { useSetRecoilState } from "recoil";
 import { userInfoState } from "@/store/userInfoState";
@@ -12,25 +12,40 @@ import { menuTreeState } from "@/store/userInfoState";
 import { getMenu } from "@/restApi/menu";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const setUserinfo = useSetRecoilState(userInfoState);
-  const setMenuTree = useSetRecoilState(menuTreeState);
-
   const router = useRouter();
 
-  const handleClick = async () => {
-    const { code, message } = await login(username, password);
+  const [form] = Form.useForm();
+
+  const userLogin = async () => {
+    const values = form.getFieldsValue();
+    const { code, message } = await login(values.username, values.password);
     if (code === 200) {
-      sessionStorage.setItem("username", username);
+      sessionStorage.setItem("username", values.username);
       const data = await getMenu();
-      sessionStorage.setItem("menu", (JSON.stringify(menuHandler(data.entity.data))));
+      sessionStorage.setItem(
+        "menu",
+        JSON.stringify(menuHandler(data.entity.data))
+      );
 
       router.push("/");
     } else {
       notification.error({ message });
     }
   };
+
+  const handleEnter = async (e) => {
+    if (e.key === "Enter") {
+      userLogin();
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("keydown", handleEnter);
+
+    return () => {
+      document.removeEventListener("keydown", handleEnter);
+    };
+  }, []);
 
   return (
     <div
@@ -42,32 +57,30 @@ const Login = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Space
-        direction="vertical"
-        size="large"
-        className="w-1/4 min-w-40 text-center"
-      >
-        <Input
-          size="large"
-          placeholder="请输入用户名"
-          prefix={<UserOutlined />}
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <Input.Password
-          size="large"
-          placeholder="请输入密码"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button
-          size="large"
-          className="!bg-pink-400 !text-white w-1/3"
-          onClick={handleClick}
-        >
-          {"登录"}
-        </Button>
-      </Space>
+      <Form form={form} className="w-1/4 min-w-40 text-center">
+        <Form.Item name="username">
+          <Input
+            size="large"
+            placeholder="请输入用户名"
+            prefix={<UserOutlined />}
+          />
+        </Form.Item>
+        <Form.Item name='password'>
+          <Input.Password
+            size="large"
+            placeholder="请输入密码"
+          />
+        </Form.Item>
+        <Form.Item>
+          <Button
+            size="large"
+            className="!bg-pink-400 !text-white w-1/3"
+            onClick={userLogin}
+          >
+            {"登录"}
+          </Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };

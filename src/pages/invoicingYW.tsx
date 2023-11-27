@@ -2,6 +2,8 @@ import {
     getinvoicingYWList,
     addInvoicing,
     updateInvoicing,
+    submitToCw,
+    logsOne,
   } from "@/restApi/invoicing";
   import { useEffect, useState } from "react";
   import {
@@ -14,12 +16,15 @@ import {
     Select,
     DatePicker,
     notification,
+    message,
+    List,
+    Avatar,
   } from "antd";
   import { Operation } from "@/types";
   import dayjs from "dayjs";
   import { getCustomersList } from "@/restApi/customer";
   import { getProjectsSubmitList } from "@/restApi/project";
-  import {EditTwoTone, DeleteTwoTone} from '@ant-design/icons'
+  import {EditTwoTone, DeleteTwoTone,CheckCircleTwoTone, CalendarTwoTone} from '@ant-design/icons'
   
   const InvoicingSubmit = () => {
     const [form] = Form.useForm();
@@ -29,6 +34,8 @@ import {
   
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+
+    const [logs, setLogs] = useState();
   
     const [modalOpen, setModalOpen] = useState(false);
     const [operation, setOperation] = useState<Operation>(Operation.Add);
@@ -59,6 +66,11 @@ import {
       form.setFieldsValue(record);
       setModalOpen(true);
     };
+
+    const handleLogsOne = async (id:string) => {
+      const res = await logsOne(id);
+      setLogs(res.entity.data)
+    }
   
     const handleOk = async () => {
       form.validateFields();
@@ -86,6 +98,11 @@ import {
       setLoading(false);
       setData(data);
     };
+
+    const handleSubmitToCW = async (id:string) => {
+      const res = await submitToCw(id);
+      notification.success({ message: '提交成功' })
+    }
   
     const validateName = () => {
       return {
@@ -171,6 +188,11 @@ import {
         key: "createTime",
       },
       {
+        title: "审核状态",
+        dataIndex: "state",
+        key: "state",
+      },
+      {
         title: "备注",
         dataIndex: "remark",
         key: "remark",
@@ -189,6 +211,18 @@ import {
               </Button>
               <Button
                 style={{ display: "flex", alignItems: "center" }}
+                onClick={() => handleSubmitToCW(record.id)}
+              >
+                <CheckCircleTwoTone twoToneColor="#198348" />
+              </Button>
+              <Button
+                style={{ display: "flex", alignItems: "center" }}
+                onClick={() => handleLogsOne(record.id)}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
+              <Button
+                style={{ display: "flex", alignItems: "center" }}
                 onClick={() => handleDeleteOne(record.id)}
               >
                 <DeleteTwoTone twoToneColor="#198348" />
@@ -202,16 +236,6 @@ import {
     return (
       <div className="p-2">
         <div className="flex flex-row gap-y-3 justify-between">
-          <Space>
-            <Button
-              onClick={handleAdd}
-              type="primary"
-              style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-            >
-              添加
-            </Button>
-          </Space>
-  
           <Space>
             <Input
               placeholder="名称"
@@ -338,6 +362,36 @@ import {
             </Form.Item>
           </Form>
         </Modal>
+
+        <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
+      </Modal>
       </div>
     );
   };
