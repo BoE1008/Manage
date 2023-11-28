@@ -29,10 +29,10 @@ const Dept = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getDeptList(1, 10);
+      const res = await getDeptList(page,pageSize);
       setData(res);
     })();
-  }, []);
+  }, [page,pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);

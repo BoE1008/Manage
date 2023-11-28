@@ -25,17 +25,6 @@ import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 
-const initialYSValues = {
-  customName: "",
-  ysRmb: "",
-  ysDollar: "",
-  ysExrate: "",
-  ysChecking: "",
-  ysInvoice: "",
-  ysCollection: "",
-  ysDate: "",
-};
-
 const Item = () => {
   const router = useRouter();
   const {

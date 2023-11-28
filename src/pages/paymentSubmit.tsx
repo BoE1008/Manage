@@ -35,7 +35,7 @@ const Role = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getPaymentList(1, 10);
+      const res = await getPaymentList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       const supplierData = await getSuppliersList(1, 10000);
       setData(res);
@@ -44,7 +44,7 @@ const Role = () => {
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, []);
+  }, [page, pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);

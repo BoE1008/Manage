@@ -44,14 +44,12 @@ const InvoicingSubmit = () => {
     (async () => {
       const res = await getinvoicingList(page, pageSize);
       const projectData = await getProjectsApproveList(1, 10000);
-      const customerData = await getCustomersList(1, 10000);
       setData(res);
-      setCustomer(customerData.entity.data);
       setProject(
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, []);
+  }, [page,pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -68,14 +66,21 @@ const InvoicingSubmit = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    const params = {
+      ...values,
+      projectId: values.projectName.value,
+      projectName: values.projectName.label,
+      customId: values.customName.value,
+      customName: values.customName.label,
+    }
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addInvoicing(values)
-        : await updateInvoicing(editId, values);
+        ? await addInvoicing(params)
+        : await updateInvoicing(editId, params);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getCustomersList(page, pageSize);
+      const data = await getinvoicingList(page, pageSize);
       setLoading(false);
       setData(data);
       notification.success({
@@ -92,10 +97,7 @@ const InvoicingSubmit = () => {
   }
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getCustomersList(page, pageSize);
-    setLoading(false);
-    setData(data);
+   
   };
 
   const validateName = () => {
@@ -109,16 +111,19 @@ const InvoicingSubmit = () => {
     };
   };
 
+  const handleProjectChanged = async(param) => {
+    const projectCustom = await getCustomersYSList(param.value)
+    setCustomer(projectCustom.entity.data)
+
+    console.log(projectCustom)
+  }
+
   const customerFilterOption = (
     input: string,
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
-  const handleProjectChanged = async(param:string) => {
-    const projectCustom = await getCustomersYSList(param)
-
-    console.log(projectCustom)
-  }
+  
 
   const columns = [
     {
@@ -299,6 +304,7 @@ const InvoicingSubmit = () => {
           >
             <Select
               showSearch
+              labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -316,6 +322,7 @@ const InvoicingSubmit = () => {
           >
             <Select
               showSearch
+              labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
               filterOption={customerFilterOption}

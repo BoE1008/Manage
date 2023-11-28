@@ -23,7 +23,6 @@ import {
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { getCustomersList } from "@/restApi/customer";
 import { getProjectsSubmitList } from "@/restApi/project";
 import {
   EditTwoTone,
@@ -32,6 +31,7 @@ import {
   CalendarTwoTone,
   StopTwoTone,
 } from "@ant-design/icons";
+import {getCustomersYSList} from '@/restApi/customer'
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -53,14 +53,12 @@ const InvoicingSubmit = () => {
     (async () => {
       const res = await getinvoicingYWList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
-      const customerData = await getCustomersList(1, 10000);
       setData(res);
-      setCustomer(customerData.entity.data);
       setProject(
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, []);
+  }, [page,pageSize]);
 
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);
@@ -77,8 +75,15 @@ const InvoicingSubmit = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    const params = {
+      ...values,
+      projectId: values.projectName.value,
+      projectName: values.projectName.label,
+      customId: values.customName.value,
+      customName: values.customName.label,
+    }
     setLoading(true);
-    const { code } = await updateInvoicing(editId, values);
+    const { code } = await updateInvoicing(editId, params);
     if (code === 200) {
       setModalOpen(false);
       const data = await getinvoicingYWList(page, pageSize);
@@ -94,6 +99,13 @@ const InvoicingSubmit = () => {
   const handleDeleteOne = async (id: string) => {
     
   };
+
+  const handleProjectChanged = async(param) => {
+    const projectCustom = await getCustomersYSList(param.value)
+    setCustomer(projectCustom.entity.data)
+
+    console.log(projectCustom)
+  }
 
   const handleSubmitToCW = async (id: string) => {
     await submitToCw(id);
@@ -293,6 +305,7 @@ const InvoicingSubmit = () => {
           >
             <Select
               showSearch
+              labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -300,6 +313,7 @@ const InvoicingSubmit = () => {
                 label: con.name,
                 value: con.id,
               }))}
+              onChange={handleProjectChanged}
             />
           </Form.Item>
           <Form.Item
@@ -309,6 +323,7 @@ const InvoicingSubmit = () => {
           >
             <Select
               showSearch
+              labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
               filterOption={customerFilterOption}

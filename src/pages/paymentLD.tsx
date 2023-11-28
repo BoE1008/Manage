@@ -43,7 +43,7 @@ const Role = () => {
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, []);
+  }, [page, pageSize]);
 
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);

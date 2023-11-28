@@ -104,6 +104,7 @@ const Project = () => {
       ...values,
       projectDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
     };
+    console.log(params, 'params')
     const { code } =
       operation === Operation.Add
         ? await addProject(params)

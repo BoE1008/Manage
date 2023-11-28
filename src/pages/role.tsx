@@ -29,10 +29,10 @@ const Role = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getRoleList(1, 10);
+      const res = await getRoleList(page, pageSize);
       setData(res);
     })();
-  }, []);
+  }, [page, pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -67,10 +67,7 @@ const Role = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getRoleList(page, pageSize);
-    setLoading(false);
-    setData(data);
+   
   };
 
   const validateName = () => {
