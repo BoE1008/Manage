@@ -11,6 +11,8 @@ import {
   notification,
   List,
   Avatar,
+  Popconfirm,
+  Tooltip,
 } from "antd";
 import {
   EditTwoTone,
@@ -104,7 +106,7 @@ const Project = () => {
       ...values,
       projectDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
     };
-    console.log(params, 'params')
+    console.log(params, "params");
     const { code } =
       operation === Operation.Add
         ? await addProject(params)
@@ -219,56 +221,76 @@ const Project = () => {
       render: (record: Company) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              onClick={() => window.open(`/projectSubmit/${record.id}`)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-            >
-              <ProfileTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              onClick={() => handleSubmitOne(record.id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-            >
-              <InteractionTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              onClick={() => handleLogs(record.id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-            >
-              <CalendarTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              onClick={() => handleDeleteOne(record.id)}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title={<span>编辑</span>}>
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title={<span>查看应收应付</span>}>
+              <Button
+                onClick={() => window.open(`/projectSubmit/${record.id}`)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <ProfileTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title={<span>提交业务审核</span>}>
+              <Popconfirm
+                title="是否提交审核？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleSubmitOne(record.id) }
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <InteractionTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
+            <Tooltip title={<span>查看审核日志</span>}>
+              <Button
+                onClick={() => handleLogs(record.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title={<span>删除</span>}>
+            <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id) }
+              >
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+                </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },

@@ -9,11 +9,22 @@ import {
   Select,
   DatePicker,
   notification,
+  Tooltip,
+  Popconfirm,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { EditTwoTone, DeleteTwoTone,CheckCircleTwoTone } from "@ant-design/icons";
-import { getPaymentLDList, addPayment, updatePayment, submitToCW } from "@/restApi/payment";
+import {
+  EditTwoTone,
+  DeleteTwoTone,
+  CheckCircleTwoTone,
+} from "@ant-design/icons";
+import {
+  getPaymentLDList,
+  addPayment,
+  updatePayment,
+  submitToCW,
+} from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 
@@ -72,9 +83,7 @@ const Role = () => {
     }
   };
 
-  const handleDeleteOne = async (id: string) => {
-   
-  };
+  const handleDeleteOne = async (id: string) => {};
 
   const handleSubmitToCW = async (id: string) => {
     await submitToCW(id);
@@ -160,16 +169,24 @@ const Role = () => {
       render: (record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleSubmitToCW(record.id)}
-            >
-              <CheckCircleTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title="提交至财务审核">
+              <Popconfirm
+                title="是否提交？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleSubmitToCW(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <CheckCircleTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
+
             <Button
               style={{
                 display: "flex",
@@ -180,16 +197,24 @@ const Role = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },

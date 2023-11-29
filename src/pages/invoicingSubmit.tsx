@@ -17,12 +17,14 @@ import {
   notification,
   List,
   Avatar,
+  Tooltip,
+  Popconfirm,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { getCustomersList } from "@/restApi/customer";
 import { getProjectsApproveList } from "@/restApi/project";
-import { EditTwoTone, DeleteTwoTone,CalendarTwoTone } from '@ant-design/icons';
+import { EditTwoTone, DeleteTwoTone, CalendarTwoTone } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
 
 const InvoicingSubmit = () => {
@@ -49,7 +51,7 @@ const InvoicingSubmit = () => {
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, [page,pageSize]);
+  }, [page, pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -72,7 +74,7 @@ const InvoicingSubmit = () => {
       projectName: values.projectName.label,
       customId: values.customName.value,
       customName: values.customName.label,
-    }
+    };
     setLoading(true);
     const { code } =
       operation === Operation.Add
@@ -90,15 +92,13 @@ const InvoicingSubmit = () => {
     }
   };
 
-  const handleLogsOne = async (id:string) => {
+  const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
-    console.log(res,'res')
-    setLogs(res.entity.data)
-  }
-
-  const handleDeleteOne = async (id: string) => {
-   
+    console.log(res, "res");
+    setLogs(res.entity.data);
   };
+
+  const handleDeleteOne = async (id: string) => {};
 
   const validateName = () => {
     return {
@@ -111,19 +111,17 @@ const InvoicingSubmit = () => {
     };
   };
 
-  const handleProjectChanged = async(param) => {
-    const projectCustom = await getCustomersYSList(param.value)
-    setCustomer(projectCustom.entity.data)
+  const handleProjectChanged = async (param) => {
+    const projectCustom = await getCustomersYSList(param.value);
+    setCustomer(projectCustom.entity.data);
 
-    console.log(projectCustom)
-  }
+    console.log(projectCustom);
+  };
 
   const customerFilterOption = (
     input: string,
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
-
-  
 
   const columns = [
     {
@@ -208,24 +206,47 @@ const InvoicingSubmit = () => {
       render: (record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleEditOne(record.id)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleLogsOne(record.id)}
-            >
-              <CalendarTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title="编辑">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record.id)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="查看审核日志">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleLogsOne(record.id)}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },

@@ -20,6 +20,8 @@ import {
   message,
   List,
   Avatar,
+  Tooltip,
+  Popconfirm,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -31,7 +33,7 @@ import {
   CalendarTwoTone,
   StopTwoTone,
 } from "@ant-design/icons";
-import {getCustomersYSList} from '@/restApi/customer'
+import { getCustomersYSList } from "@/restApi/customer";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -58,7 +60,7 @@ const InvoicingSubmit = () => {
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, [page,pageSize]);
+  }, [page, pageSize]);
 
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);
@@ -81,7 +83,7 @@ const InvoicingSubmit = () => {
       projectName: values.projectName.label,
       customId: values.customName.value,
       customName: values.customName.label,
-    }
+    };
     setLoading(true);
     const { code } = await updateInvoicing(editId, params);
     if (code === 200) {
@@ -96,16 +98,14 @@ const InvoicingSubmit = () => {
     }
   };
 
-  const handleDeleteOne = async (id: string) => {
-    
+  const handleDeleteOne = async (id: string) => {};
+
+  const handleProjectChanged = async (param) => {
+    const projectCustom = await getCustomersYSList(param.value);
+    setCustomer(projectCustom.entity.data);
+
+    console.log(projectCustom);
   };
-
-  const handleProjectChanged = async(param) => {
-    const projectCustom = await getCustomersYSList(param.value)
-    setCustomer(projectCustom.entity.data)
-
-    console.log(projectCustom)
-  }
 
   const handleSubmitToCW = async (id: string) => {
     await submitToCw(id);
@@ -213,30 +213,64 @@ const InvoicingSubmit = () => {
       render: (record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleSubmitToCW(record.id)}
-            >
-              <CheckCircleTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleLogsOne(record.id)}
-            >
-              <CalendarTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px", }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title="编辑">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="提交至财务审核">
+              <Popconfirm
+                title="提交至财务审核？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleSubmitToCW(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <CheckCircleTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
+            <Tooltip title="查看审核日志">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleLogsOne(record.id)}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="删除">
+            <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+                </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
