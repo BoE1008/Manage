@@ -37,3 +37,10 @@ export const deleteSupplyer = async(id:string) => {
 
   return res.data;
 }
+
+
+export const getSuppliersYFList = async (projectId: string) => {
+  const res = await axiosInstance.get(`/zc/supplier/listYfSupplier?projectId=${projectId}`);
+
+  return res.data;
+};

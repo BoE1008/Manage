@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Button,
@@ -41,6 +41,7 @@ import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
+import { debounce } from "lodash";
 
 const initialValues = {
   name: "",
@@ -132,29 +133,30 @@ const Project = () => {
     setLoading(false);
   };
 
-  const handleApproveOne = async (projectId: string) => {
-    const res = await approveOne(projectId);
-    notification.success({ message: "审核完成" });
-    const data = await getProjectsApproveList(page, pageSize, searchValue);
-    setData(data);
-    setLoading(false);
-  };
-
-  const handleRejectOne = async (projectId: string) => {
-    const res = await rejectOne(projectId);
-    notification.success({ message: "审核退回" });
-    const data = await getProjectsApproveList(page, pageSize, searchValue);
-    setData(data);
-    setLoading(false);
-  };
+  const handleApproveOne = useCallback(
+    debounce(async (projectId: string) => {
+      const res = await approveOne(projectId);
+      notification.success({ message: "审核完成" });
+      const data = await getProjectsApproveList(page, pageSize, searchValue);
+      setData(data);
+      setLoading(false);
+    }, 2000),
+    []
+  );
+  const handleRejectOne = useCallback(
+    debounce(async (projectId: string) => {
+      const res = await rejectOne(projectId);
+      notification.success({ message: "审核退回" });
+      const data = await getProjectsApproveList(page, pageSize, searchValue);
+      setData(data);
+      setLoading(false);
+    }, 2000),
+    []
+  );
 
   const handleLogs = async (id: string) => {
     const res = await logsOne(id);
     setLogs(res.entity.data);
-  };
-
-  const handleSubmitOne = async (id: string) => {
-    await submitOne(id);
   };
 
   const handleExport = async () => {
@@ -238,6 +240,7 @@ const Project = () => {
       title: "操作",
       key: "action",
       render: (record: Company) => {
+        const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Tooltip title="查看应收应付">
@@ -252,52 +255,58 @@ const Project = () => {
                 <ProfileTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            <Tooltip title="批准">
-              <Popconfirm
-                title="是否通过审批？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleApproveOne(record.id)}
-              >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                >
-                  <CheckCircleTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
-            </Tooltip>
-            <Tooltip title="退回">
-              <Popconfirm
-                title="是否退回申请？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleRejectOne(record.id)}
-              >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                >
-                  <StopTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
-            </Tooltip>
-            <Tooltip title="编辑">
-              <Button
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-                onClick={() => handleEditOne(record)}
-              >
-                <EditTwoTone twoToneColor="#198348" />
-              </Button>
-            </Tooltip>
+
+            {!isFinished && (
+              <>
+                <Tooltip title="批准">
+                  <Popconfirm
+                    title="是否通过审批？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    onConfirm={() => handleApproveOne(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <CheckCircleTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+                <Tooltip title="退回">
+                  <Popconfirm
+                    title="是否退回申请？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    onConfirm={() => handleRejectOne(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <StopTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+                <Tooltip title="编辑">
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleEditOne(record)}
+                  >
+                    <EditTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Tooltip>
+              </>
+            )}
+
             <Tooltip title="查看审核日志">
               <Button
                 onClick={() => handleLogs(record.id)}
@@ -310,6 +319,7 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
+
             <Tooltip title="删除">
               <Popconfirm
                 title="是否删除？"

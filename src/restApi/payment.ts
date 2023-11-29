@@ -65,7 +65,15 @@ export const getPaymentYWList = async (pageNo: number, pageSize: number) => {
     return res.data;
   }
 
-  export const submitToCW = async (paymentId:string) => {
+  export const submitLDToCW = async (paymentId:string) => {
+    const res = await axiosInstance.post(`/zc/payment/submitLDToCW`, {
+      paymentId
+    })
+  
+    return res.data;
+  }
+
+  export const submitYWToCW = async (paymentId:string) => {
     const res = await axiosInstance.post(`/zc/payment/submitYWToCW`, {
       paymentId
     })

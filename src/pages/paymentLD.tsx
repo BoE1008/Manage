@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Space,
@@ -11,6 +11,8 @@ import {
   notification,
   Tooltip,
   Popconfirm,
+  List,
+  Avatar,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -18,15 +20,20 @@ import {
   EditTwoTone,
   DeleteTwoTone,
   CheckCircleTwoTone,
+  StopTwoTone,
+  CalendarTwoTone,
 } from "@ant-design/icons";
 import {
   getPaymentLDList,
   addPayment,
   updatePayment,
-  submitToCW,
+  submitLDToCW,
+  rejectOne,
+  logsOne,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
+import { debounce } from "lodash";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -37,6 +44,7 @@ const Role = () => {
 
   const [project, setProject] = useState();
   const [supplier, setSupplier] = useState();
+  const [logs, setLogs] = useState();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
@@ -85,10 +93,27 @@ const Role = () => {
 
   const handleDeleteOne = async (id: string) => {};
 
-  const handleSubmitToCW = async (id: string) => {
-    await submitToCW(id);
-    const res = await getPaymentLDList(page, pageSize);
-    setData(res);
+  const handleSubmitToCW = useCallback(
+    debounce(async (id: string) => {
+      await submitLDToCW(id);
+      const res = await getPaymentLDList(page, pageSize);
+      setData(res);
+    }, 2000),
+    []
+  );
+
+  const handleRejectOne = useCallback(
+    debounce(async (id: string) => {
+      await rejectOne(id);
+      const res = await getPaymentLDList(page, pageSize);
+      setData(res);
+    }, 2000),
+    []
+  );
+
+  const handleLogsOne = async (id: string) => {
+    const res = await logsOne(id);
+    setLogs(res.entity.data);
   };
 
   const validateName = () => {
@@ -167,54 +192,92 @@ const Role = () => {
       title: "操作",
       key: "action",
       render: (record) => {
+        const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Tooltip title="提交至财务审核">
-              <Popconfirm
-                title="是否提交？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleSubmitToCW(record.id)}
-              >
+            {!isFinished && (
+              <Tooltip title="审核通过">
+                <Popconfirm
+                  title="是否批准？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleSubmitToCW(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <CheckCircleTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
+            {!isFinished && (
+              <Tooltip title="退回申请">
+                <Popconfirm
+                  title="是否退回？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleRejectOne(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <StopTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
+            {!isFinished && (
+              <Tooltip title="编辑">
                 <Button
                   style={{
                     display: "flex",
                     alignItems: "center",
                     padding: "3px 5px",
                   }}
+                  onClick={() => handleEditOne(record.id)}
                 >
-                  <CheckCircleTwoTone twoToneColor="#198348" />
+                  <EditTwoTone twoToneColor="#198348" />
                 </Button>
-              </Popconfirm>
-            </Tooltip>
-
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-
-            <Tooltip title="删除">
-              <Popconfirm
-                title="是否删除？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleDeleteOne(record.id)}
+              </Tooltip>
+            )}
+            <Tooltip title="查看审核日志">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleLogsOne(record.id)}
               >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                >
-                  <DeleteTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
             </Tooltip>
+            {!isFinished && (
+              <Tooltip title="删除">
+                <Popconfirm
+                  title="是否删除？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleDeleteOne(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <DeleteTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
           </Space>
         );
       },
@@ -334,6 +397,36 @@ const Role = () => {
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );

@@ -18,11 +18,7 @@ export const getCustomersList = async (
 };
 
 export const getCustomersYSList = async (projectId: string) => {
-  const res = await axiosInstance.get(`/zc/custom/listYsCustom`, {
-    params: {
-      projectId,
-    },
-  });
+  const res = await axiosInstance.get(`/zc/custom/listYsCustom?projectId=${projectId}`);
 
   return res.data;
 };

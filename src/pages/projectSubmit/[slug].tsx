@@ -4,6 +4,7 @@ import {
   updateProjectYS,
   addProjectYf,
   updateProjectYf,
+  getProjectsSubmitList,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -16,7 +17,7 @@ import {
   Select,
   InputNumber,
   DatePicker,
-  notification
+  notification,
 } from "antd";
 import { useRouter } from "next/router";
 import { EditTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
@@ -244,13 +245,21 @@ const Item = () => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditYsOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleYfAddClick(record)}
             >
               <PlusSquareTwoTone twoToneColor="#198348" />
@@ -278,8 +287,8 @@ const Item = () => {
     const values = form.getFieldsValue();
     const params = {
       ...values,
-      ysDate: dayjs(values.ysDate).format('YYYY-MM-DD')
-    }
+      ysDate: dayjs(values.ysDate).format("YYYY-MM-DD"),
+    };
     const { code } =
       operation === Operation.Add
         ? await addProjectYS({ ...params, projectId: slug })
@@ -421,7 +430,11 @@ const Item = () => {
           <Form.Item label="收款" name="ysCollection">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="日期" name="ysDate" getValueProps={(i) => ({ value: dayjs(i) })}>
+          <Form.Item
+            label="日期"
+            name="ysDate"
+            getValueProps={(i) => ({ value: dayjs(i) })}
+          >
             <DatePicker />
           </Form.Item>
           <Form.Item label="备注" name="remark">
@@ -485,7 +498,11 @@ const Item = () => {
           <Form.Item label="付款" name="yfCollection">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="日期" name="yfDate" getValueProps={(i) => ({ value: dayjs(i) })} >
+          <Form.Item
+            label="日期"
+            name="yfDate"
+            getValueProps={(i) => ({ value: dayjs(i) })}
+          >
             <Input />
           </Form.Item>
           <Form.Item label="备注" name="remark">
@@ -498,3 +515,19 @@ const Item = () => {
 };
 
 export default Item;
+
+// export async function getStaticPaths() {
+//   const res = await getProjectsSubmitList(1, 10);
+
+//   console.log(res, 'res')
+
+//   const paths = res?.entity?.data?.map((con) => ({
+//     params: { slug: con.id },
+//   }));
+
+//   return { paths, fallback: false };
+// }
+
+// export async function getStaticProps({ params }) {
+//   return { props: {} };
+// }

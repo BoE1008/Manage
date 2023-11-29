@@ -43,3 +43,7 @@ body {
 .ant-menu-submenu-arrow {
   color: white !important;
 }
+
+.ant-layout .ant-layout-sider {
+  background-color: #198348 !important;
+}

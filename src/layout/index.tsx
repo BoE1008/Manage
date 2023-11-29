@@ -64,8 +64,8 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
       <Layout className="min-h-screen w-screen">
         <Sider
           width={200}
-          style={{ position: "fixed", top: 120, left: 0, zIndex: 5 }}
-          className="h-screen"
+          style={{ position: "fixed", top: 120, left: 0, zIndex: 5, height: 'calc(100vh - 120px)' }}
+          className="overflow-y-auto"
         >
           <Menu
             mode="inline"

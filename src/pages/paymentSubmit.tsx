@@ -11,13 +11,20 @@ import {
   notification,
   Tooltip,
   Popconfirm,
+  List,
+  Avatar,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getPaymentList, addPayment, updatePayment } from "@/restApi/payment";
+import { EditTwoTone, DeleteTwoTone, CalendarTwoTone } from "@ant-design/icons";
+import {
+  getPaymentList,
+  addPayment,
+  updatePayment,
+  logsOne,
+} from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
-import { getSuppliersList } from "@/restApi/supplyer";
+import { getSuppliersYFList } from "@/restApi/supplyer";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -33,14 +40,13 @@ const Role = () => {
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
+  const [logs, setLogs] = useState();
 
   useEffect(() => {
     (async () => {
       const res = await getPaymentList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
-      const supplierData = await getSuppliersList(1, 10000);
       setData(res);
-      setSupplier(supplierData.entity.data);
       setProject(
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
@@ -79,11 +85,19 @@ const Role = () => {
     }
   };
 
-  const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
-    const data = await getPaymentList(page, pageSize);
-    setLoading(false);
-    setData(data);
+  const handleLogsOne = async (id: string) => {
+    const res = await logsOne(id);
+    setLogs(res.entity.data);
+  };
+
+  const handleDeleteOne = async (id: string) => {};
+
+  const handleProjectChanged = async (param) => {
+    console.log(param.value);
+    const projectCustom = await getSuppliersYFList(param.value);
+    setSupplier(projectCustom.entity.data);
+
+    console.log(projectCustom);
   };
 
   const validateName = () => {
@@ -162,37 +176,54 @@ const Role = () => {
       title: "操作",
       key: "action",
       render: (record) => {
+        const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Tooltip title="编辑">
-              <Button
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-                onClick={() => handleEditOne(record)}
-              >
-                <EditTwoTone twoToneColor="#198348" />
-              </Button>
-            </Tooltip>
-            <Tooltip title="删除">
-              <Popconfirm
-                title="是否删除？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleDeleteOne(record.id)}
-              >
+            {!isFinished && (
+              <Tooltip title="编辑">
                 <Button
                   style={{
                     display: "flex",
                     alignItems: "center",
                     padding: "3px 5px",
                   }}
+                  onClick={() => handleEditOne(record)}
                 >
-                  <DeleteTwoTone twoToneColor="#198348" />
+                  <EditTwoTone twoToneColor="#198348" />
                 </Button>
-              </Popconfirm>
+              </Tooltip>
+            )}
+            <Tooltip title="查看审核日志">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleLogsOne(record.id)}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
             </Tooltip>
+            {!isFinished && (
+              <Tooltip title="删除">
+                <Popconfirm
+                  title="是否删除？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleDeleteOne(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <DeleteTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
           </Space>
         );
       },
@@ -271,6 +302,7 @@ const Role = () => {
           >
             <Select
               showSearch
+              labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -278,6 +310,7 @@ const Role = () => {
                 label: con.name,
                 value: con.id,
               }))}
+              onChange={handleProjectChanged}
             />
           </Form.Item>
           <Form.Item
@@ -322,6 +355,36 @@ const Role = () => {
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
     </div>
   );

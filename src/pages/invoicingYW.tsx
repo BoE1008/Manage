@@ -6,7 +6,7 @@ import {
   rejectOne,
   logsOne,
 } from "@/restApi/invoicing";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Space,
@@ -34,6 +34,7 @@ import {
   StopTwoTone,
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
+import { debounce } from "lodash";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -100,19 +101,26 @@ const InvoicingSubmit = () => {
 
   const handleDeleteOne = async (id: string) => {};
 
-  const handleProjectChanged = async (param) => {
+  const handleProjectChanged = async  (param) => {
     const projectCustom = await getCustomersYSList(param.value);
     setCustomer(projectCustom.entity.data);
-
-    console.log(projectCustom);
   };
 
-  const handleSubmitToCW = async (id: string) => {
-    await submitToCw(id);
-    const res = await getinvoicingYWList(page, pageSize);
-    setData(res);
-    notification.success({ message: "提交成功" });
-  };
+  const handleSubmitToCW = useCallback(
+    debounce(
+      async (id: string) => {
+        await submitToCw(id);
+        notification.success({ message: "已提交至财务审核" });
+        const res = await getinvoicingYWList(page, pageSize);
+        setData(res);
+      },
+      2000,
+      {
+        leading: true,
+        trailing: false,
+      }
+    ),[]
+  );
 
   const validateName = () => {
     return {
@@ -211,9 +219,11 @@ const InvoicingSubmit = () => {
       title: "操作",
       key: "action",
       render: (record) => {
+        const isFinished = record.state === "审批通过";
+
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Tooltip title="编辑">
+            {!isFinished&&<Tooltip title="编辑">
               <Button
                 style={{
                   display: "flex",
@@ -224,8 +234,8 @@ const InvoicingSubmit = () => {
               >
                 <EditTwoTone twoToneColor="#198348" />
               </Button>
-            </Tooltip>
-            <Tooltip title="提交至财务审核">
+            </Tooltip>}
+            {!isFinished&&<Tooltip title="提交至财务审核">
               <Popconfirm
                 title="提交至财务审核？"
                 okButtonProps={{ style: { backgroundColor: "#198348" } }}
@@ -241,7 +251,7 @@ const InvoicingSubmit = () => {
                   <CheckCircleTwoTone twoToneColor="#198348" />
                 </Button>
               </Popconfirm>
-            </Tooltip>
+            </Tooltip>}
             <Tooltip title="查看审核日志">
               <Button
                 style={{
@@ -254,7 +264,7 @@ const InvoicingSubmit = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            <Tooltip title="删除">
+            {!isFinished &&<Tooltip title="删除">
             <Popconfirm
                 title="是否删除？"
                 okButtonProps={{ style: { backgroundColor: "#198348" } }}
@@ -270,7 +280,7 @@ const InvoicingSubmit = () => {
                 <DeleteTwoTone twoToneColor="#198348" />
                 </Button>
                 </Popconfirm>
-            </Tooltip>
+            </Tooltip>}
           </Space>
         );
       },
