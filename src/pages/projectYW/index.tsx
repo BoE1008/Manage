@@ -42,6 +42,7 @@ import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import { debounce } from "lodash";
+import YSYFModal from '@/components/YSYFModal'
 
 const initialValues = {
   name: "",
@@ -72,6 +73,8 @@ const Project = () => {
   const [form] = Form.useForm();
 
   const [projectType, setProjectType] = useState();
+
+  const [projectId, setProjectId] = useState();
 
   useEffect(() => {
     (async () => {
@@ -250,7 +253,7 @@ const Project = () => {
                   alignItems: "center",
                   padding: "3px 5px",
                 }}
-                onClick={() => window.open(`/projectYW/${record.id}`)}
+                onClick={() => setProjectId(record.id)}
               >
                 <ProfileTwoTone twoToneColor="#198348" />
               </Button>
@@ -589,6 +592,8 @@ const Project = () => {
           )}
         />
       </Modal>
+
+      <YSYFModal projectId={projectId} onClose={() => setProjectId(undefined)} />
     </div>
   );
 };

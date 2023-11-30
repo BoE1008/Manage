@@ -38,6 +38,7 @@ import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import { debounce } from "lodash";
+import YSYFModal from '@/components/YSYFModal'
 
 const initialValues = {
   name: "",
@@ -68,6 +69,7 @@ const Project = () => {
   const [form] = Form.useForm();
 
   const [projectType, setProjectType] = useState();
+  const [projectId, setProjectId] = useState();
 
   useEffect(() => {
     (async () => {
@@ -79,11 +81,11 @@ const Project = () => {
       setDict(res.entity);
       setDict;
       setCustomer(customer.entity.data);
-      // const file = await exportProject();
+      const file = await exportProject();
       setLoading(false);
       setData(data);
       setProjectType(typelist.entity.data);
-      // setFileName(file.msg);
+      setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -243,7 +245,7 @@ const Project = () => {
             )}
             <Tooltip title={<span>查看应收应付</span>}>
               <Button
-                onClick={() => window.open(`/projectSubmit/${record.id}`)}
+                onClick={() => setProjectId(record.id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -557,6 +559,8 @@ const Project = () => {
           )}
         />
       </Modal>
+
+      <YSYFModal projectId={projectId} onClose={() => setProjectId(undefined)}/>
     </div>
   );
 };

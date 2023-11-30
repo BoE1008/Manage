@@ -26,11 +26,7 @@ import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 
-const Item = () => {
-  const router = useRouter();
-  const {
-    query: { slug },
-  } = router;
+const Item = ({ projectId, onClose }) => {
   const [data, setData] = useState();
   const [ysModalOpen, setYsModalOpen] = useState(false);
   const [yfModalOpen, setYfModalOpen] = useState(false);
@@ -51,7 +47,7 @@ const Item = () => {
 
   useEffect(() => {
     (async () => {
-      const data = await getProjectYSList(slug as string, page, pageSize);
+      const data = await getProjectYSList(projectId as string, page, pageSize);
       const customerData = await getCustomersList(1, 10000);
       const supplierData = await getSuppliersList(1, 10000);
       setLoading(false);
@@ -68,7 +64,7 @@ const Item = () => {
       setCustomer(customerData.entity.data);
       setSuppliers(supplierData.entity.data);
     })();
-  }, [slug, page, pageSize]);
+  }, [projectId, page, pageSize]);
 
   const handleYfAddClick = (record) => {
     setYsEditId(record.id);
@@ -86,16 +82,19 @@ const Item = () => {
   const handleYfOk = async () => {
     form1.validateFields();
     const values = form1.getFieldsValue();
-    console.log(values, "values");
+    const params = {
+      ...values,
+      yfDate: dayjs(values.yfDate).format("YYYY-MM-DD"),
+    };
 
     const { code } =
       operation === Operation.Add
-        ? await addProjectYf({ ...values, projectId: slug, ysId: ysEditId })
-        : await updateProjectYf(yfEditId, values);
+        ? await addProjectYf({ ...params, projectId, ysId: ysEditId })
+        : await updateProjectYf(yfEditId, params);
 
     if (code === 200) {
       setYfModalOpen(false);
-      const data = await getProjectYSList(slug as string, page, pageSize);
+      const data = await getProjectYSList(projectId as string, page, pageSize);
       setData({
         ...data,
         entity: {
@@ -132,8 +131,8 @@ const Item = () => {
       },
       {
         title: "汇率",
-        dataIndex: "yfExRate",
-        key: "yfExRate",
+        dataIndex: "yfExrate",
+        key: "yfExrate",
       },
       {
         title: "对账",
@@ -144,6 +143,21 @@ const Item = () => {
         key: "yfInvoice",
         title: "开票",
         dataIndex: "yfInvoice",
+      },
+      {
+        title: "预留利润名称",
+        dataIndex: "ylProfitName",
+        key: "ylProfitName",
+      },
+      {
+        title: "预留利润金额",
+        dataIndex: "ylProfitMoney",
+        key: "ylProfitMoney",
+      },
+      {
+        title: "是否支付",
+        dataIndex: "isPay",
+        key: "isPay",
       },
       {
         title: "付款",
@@ -291,12 +305,12 @@ const Item = () => {
     };
     const { code } =
       operation === Operation.Add
-        ? await addProjectYS({ ...params, projectId: slug })
+        ? await addProjectYS({ ...params, projectId: projectId })
         : await updateProjectYS(ysEditId, params);
 
     if (code === 200) {
       setYsModalOpen(false);
-      const data = await getProjectYSList(slug as string, page, pageSize);
+      const data = await getProjectYSList(projectId as string, page, pageSize);
       setData({
         ...data,
         entity: {
@@ -333,7 +347,16 @@ const Item = () => {
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   return (
-    <div>
+    <Modal
+      open={!!projectId}
+      onCancel={onClose}
+      centered
+      footer={null}
+      destroyOnClose
+      title="应收应付列表"
+      style={{ minWidth: "650px" }}
+      className="!w-max"
+    >
       <Button
         onClick={handleYsAddClick}
         type="primary"
@@ -464,6 +487,7 @@ const Item = () => {
         >
           <Form.Item
             label="供应商"
+            labelCol={{ span: 5 }}
             name="supplierId"
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
@@ -480,54 +504,56 @@ const Item = () => {
               }))}
             />
           </Form.Item>
-          <Form.Item label="人民币" name="yfRmb">
+          <Form.Item label="人民币" labelCol={{ span: 5 }} name="yfRmb">
             <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item label="美金" name="yfDollar">
+          <Form.Item label="美金" labelCol={{ span: 5 }} name="yfDollar">
             <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item label="汇率" name="yfExRate">
+          <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">
             <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
-          <Form.Item label="对账" name="yfChecking">
+          <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="开票" name="yfInvoice">
+          <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
             <Input placeholder="是否" />
           </Form.Item>
-          <Form.Item label="付款" name="yfCollection">
+          <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
+            <Input placeholder="是否" />
+          </Form.Item>
+          <Form.Item
+            label="预留利润名称"
+            labelCol={{ span: 5 }}
+            name="ylProfitName"
+          >
+            <Input placeholder="预留利润名称" />
+          </Form.Item>
+          <Form.Item
+            label="预留利润金额"
+            labelCol={{ span: 5 }}
+            name="ylProfitMoney"
+          >
+            <Input placeholder="预留利润名称" />
+          </Form.Item>
+          <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
             <Input placeholder="是否" />
           </Form.Item>
           <Form.Item
             label="日期"
+            labelCol={{ span: 5 }}
             name="yfDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <Input />
+            <DatePicker />
           </Form.Item>
-          <Form.Item label="备注" name="remark">
+          <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </Modal>
   );
 };
 
 export default Item;
-
-// export async function getStaticPaths() {
-//   const res = await getProjectsSubmitList(1, 10);
-
-//   console.log(res, 'res')
-
-//   const paths = res?.entity?.data?.map((con) => ({
-//     params: { slug: con.id },
-//   }));
-
-//   return { paths, fallback: false };
-// }
-
-// export async function getStaticProps({ params }) {
-//   return { props: {} };
-// }

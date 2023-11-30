@@ -12,6 +12,10 @@ if (typeof window === undefined) {
   axiosInstance.interceptors.response.use(
     (value) => {
       if (value.data.code !== 200) {
+        if(value.data.code === 401) {
+          window.location.href = '/login'
+          return Promise.reject()
+        }
         notification.error({ message: value.data.message });
         return Promise.reject()
       } else {
