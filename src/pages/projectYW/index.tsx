@@ -242,7 +242,7 @@ const Project = () => {
     {
       title: "操作",
       key: "action",
-      render: (record: Company) => {
+      render: (_,record: Company) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -295,7 +295,7 @@ const Project = () => {
                     </Button>
                   </Popconfirm>
                 </Tooltip>
-                <Tooltip title="编辑">
+                {/* <Tooltip title="编辑">
                   <Button
                     style={{
                       display: "flex",
@@ -306,7 +306,7 @@ const Project = () => {
                   >
                     <EditTwoTone twoToneColor="#198348" />
                   </Button>
-                </Tooltip>
+                </Tooltip> */}
               </>
             )}
 
@@ -464,7 +464,7 @@ const Project = () => {
             hasFeedback
           >
             <Select
-              showSearch
+              
               placeholder="选择产品"
               optionFilterProp="children"
               onChange={handleSelectChange}
@@ -480,7 +480,7 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="客户" name="customId">
             <Select
-              showSearch
+              
               placeholder="选择客户"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -496,7 +496,7 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="品牌" name="brandId">
             <Select
-              showSearch
+              
               placeholder="选择品牌"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -510,7 +510,7 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="货物" name="productId">
             <Select
-              showSearch
+              
               placeholder="选择货物"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -528,7 +528,7 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="服务内容" name="serviceId">
             <Select
-              showSearch
+              
               placeholder="选择服务内容"
               optionFilterProp="children"
               options={dict
@@ -555,7 +555,7 @@ const Project = () => {
             name="projectDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

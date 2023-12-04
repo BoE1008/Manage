@@ -25,6 +25,7 @@ import {
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
+import { MoneytypeArr } from "@/utils/const";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -68,11 +69,23 @@ const Role = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+
+    const parmas = {
+      ...values,
+      moneyType:values.moneyType.value,
+      projectName:values.projectName.label,
+      projectId:values.projectName.value,
+      supplierName: values.supplierName.label,
+      supplierId: values.supplierName.value,
+    }
+
+    console.log(parmas,'parmas')
+
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addPayment(values)
-        : await updatePayment(editId, values);
+        ? await addPayment(parmas)
+        : await updatePayment(editId, parmas);
     if (code === 200) {
       setModalOpen(false);
       const data = await getPaymentList(page, pageSize);
@@ -175,7 +188,7 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (record) => {
+      render: (_,record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -301,12 +314,12 @@ const Role = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              showSearch
+              
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              options={project?.map((con) => ({
+              options={ project?.map((con) => ({
                 label: con.name,
                 value: con.id,
               }))}
@@ -319,7 +332,8 @@ const Role = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              showSearch
+              
+              labelInValue
               placeholder="选择供应商"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -330,7 +344,16 @@ const Role = () => {
             />
           </Form.Item>
           <Form.Item required label="币种" name="moneyType">
-            <Input placeholder="币种" />
+            <Select
+              labelInValue
+              placeholder="选择币种"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={MoneytypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item required label="金额" name="fee">
             <Input placeholder="金额" />
@@ -349,7 +372,7 @@ const Role = () => {
             name="yfDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

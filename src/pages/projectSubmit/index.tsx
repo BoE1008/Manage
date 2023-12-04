@@ -38,7 +38,7 @@ import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import { debounce } from "lodash";
-import YSYFModal from '@/components/YSYFModal'
+import YSYFModal from "@/components/YSYFModal";
 
 const initialValues = {
   name: "",
@@ -74,18 +74,9 @@ const Project = () => {
   useEffect(() => {
     (async () => {
       const data = await getProjectsSubmitList(page, pageSize, searchValue);
-      const typelist = await getProjectType();
-      const customer = await getCustomersList(1, 1000);
-      const res = await getDictById();
-      console.log(customer, "customer");
-      setDict(res.entity);
-      setDict;
-      setCustomer(customer.entity.data);
-      const file = await exportProject();
-      setLoading(false);
       setData(data);
-      setProjectType(typelist.entity.data);
-      setFileName(file.msg);
+
+      setLoading(false);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -93,13 +84,26 @@ const Project = () => {
     form.setFieldsValue(initialValues);
     setOperation(Operation.Add);
     setModalOpen(true);
+    const typelist = await getProjectType();
+    const customer = await getCustomersList(1, 1000);
+    const res = await getDictById();
+    setDict(res.entity);
+    setCustomer(customer.entity.data);
+    setProjectType(typelist.entity.data);
   };
 
-  const handleEditOne = (record: Company) => {
+  const handleEditOne = async (record: Company) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
+    console.log(record,'record')
     form.setFieldsValue(record);
     setModalOpen(true);
+    const typelist = await getProjectType();
+    const customer = await getCustomersList(1, 1000);
+    const res = await getDictById();
+    setDict(res.entity);
+    setCustomer(customer.entity.data);
+    setProjectType(typelist.entity.data);
   };
 
   const handleOk = async () => {
@@ -109,7 +113,6 @@ const Project = () => {
       ...values,
       projectDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
     };
-    console.log(params, "params");
     const { code } =
       operation === Operation.Add
         ? await addProject(params)
@@ -225,7 +228,7 @@ const Project = () => {
     {
       title: "操作",
       key: "action",
-      render: (record: Company) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -406,7 +409,7 @@ const Project = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
@@ -431,7 +434,6 @@ const Project = () => {
             hasFeedback
           >
             <Select
-              showSearch
               placeholder="选择产品"
               optionFilterProp="children"
               onChange={handleSelectChange}
@@ -447,7 +449,6 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="客户" name="customId">
             <Select
-              showSearch
               placeholder="选择客户"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -463,7 +464,6 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="品牌" name="brandId">
             <Select
-              showSearch
               placeholder="选择品牌"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -477,7 +477,6 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="货物" name="productId">
             <Select
-              showSearch
               placeholder="选择货物"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -495,7 +494,6 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="服务内容" name="serviceId">
             <Select
-              showSearch
               placeholder="选择服务内容"
               optionFilterProp="children"
               options={dict
@@ -522,7 +520,7 @@ const Project = () => {
             name="projectDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
@@ -560,7 +558,10 @@ const Project = () => {
         />
       </Modal>
 
-      <YSYFModal projectId={projectId} onClose={() => setProjectId(undefined)}/>
+      <YSYFModal
+        projectId={projectId}
+        onClose={() => setProjectId(undefined)}
+      />
     </div>
   );
 };

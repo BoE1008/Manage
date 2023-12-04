@@ -66,3 +66,11 @@ export const getDictDetail = async (
 
   return res.data;
 };
+
+export const getDictByCode = async (code) => {
+  const res = await axiosInstance.get("/zc/dict/data/list/code", {
+    params: { code },
+  });
+
+  return res.data;
+};

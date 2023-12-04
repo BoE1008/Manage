@@ -191,7 +191,7 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (record) => {
+      render: (_,record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -233,7 +233,7 @@ const Role = () => {
                 </Popconfirm>
               </Tooltip>
             )}
-            {!isFinished && (
+            {/* {!isFinished && (
               <Tooltip title="编辑">
                 <Button
                   style={{
@@ -246,7 +246,7 @@ const Role = () => {
                   <EditTwoTone twoToneColor="#198348" />
                 </Button>
               </Tooltip>
-            )}
+            )} */}
             <Tooltip title="查看审核日志">
               <Button
                 style={{
@@ -345,7 +345,7 @@ const Role = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              showSearch
+              
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -361,7 +361,7 @@ const Role = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              showSearch
+              
               placeholder="选择供应商"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -391,7 +391,7 @@ const Role = () => {
             name="yfDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

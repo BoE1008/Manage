@@ -121,7 +121,7 @@ const Dict = () => {
     setDictDetail(res.entity.data);
   };
 
-    const handleDataAdd = () => {
+  const handleDataAdd = () => {
     form1.setFieldsValue(initialValues);
     setDataModalOpen(true);
     setDataOperation(Operation.Add);
@@ -138,10 +138,10 @@ const Dict = () => {
     {
       title: "字典名称",
       key: "dictName",
-      render: (record) => {
+      render: (_, record) => {
         return (
           <span
-            className="cursor-pointer"
+            className="cursor-pointer text-[#198348]"
             onClick={() => handleDetail(record.id)}
           >
             {record.dictName}
@@ -152,13 +152,18 @@ const Dict = () => {
     {
       title: "状态",
       key: "status",
-      render: (record) => {
+      render: (_, record) => {
         if (record.status === "0") {
           return <Tag color="#87d068">正常</Tag>;
         } else {
           return <Tag color="#cd201f">停用</Tag>;
         }
       },
+    },
+    {
+      title: "CODE",
+      dataIndex: "code",
+      key: "code",
     },
     {
       title: "备注",
@@ -168,17 +173,25 @@ const Dict = () => {
     {
       title: "操作",
       key: "action",
-      render: (record: Company) => {
+      render: (_, record: Company) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -208,7 +221,7 @@ const Dict = () => {
     {
       title: "状态",
       key: "status",
-      render: (record) => {
+      render: (_, record) => {
         if (record.status === "0") {
           return <Tag color="#87d068">正常</Tag>;
         } else {
@@ -224,17 +237,25 @@ const Dict = () => {
     {
       title: "操作",
       key: "action",
-      render: (record: Company) => {
+      render: (_, record: Company) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDataEdit(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -312,7 +333,7 @@ const Dict = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 5 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
@@ -331,7 +352,6 @@ const Dict = () => {
           </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
-              showSearch
               placeholder="选择项目"
               optionFilterProp="children"
               //   filterOption={customerFilterOption}
@@ -409,7 +429,7 @@ const Dict = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 5 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form1}
@@ -437,7 +457,6 @@ const Dict = () => {
           </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
-              showSearch
               placeholder="选择项目"
               optionFilterProp="children"
               //   filterOption={customerFilterOption}

@@ -127,7 +127,7 @@ const Supplyer = () => {
     {
       title: "操作",
       key: "action",
-      render: (record: Company) => {
+      render: (_,record: Company) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button

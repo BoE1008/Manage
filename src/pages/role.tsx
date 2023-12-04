@@ -115,7 +115,7 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (record) => {
+      render: (_,record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button

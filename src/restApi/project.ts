@@ -57,7 +57,7 @@ export const updateProject = async (id: string, info: Project) => {
 };
 
 export const deleteProject = async (id: string) => {
-  const res = await axiosInstance.post(`/zc/project/delete`, { id });
+  const res = await axiosInstance.get(`/zc/project/del`, {params: {id} });
   return res.data;
 };
 

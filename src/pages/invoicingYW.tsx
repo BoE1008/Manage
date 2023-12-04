@@ -218,12 +218,12 @@ const InvoicingSubmit = () => {
     {
       title: "操作",
       key: "action",
-      render: (record) => {
+      render: (_,record) => {
         const isFinished = record.state === "审批通过";
 
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            {!isFinished&&<Tooltip title="编辑">
+            {/* {!isFinished&&<Tooltip title="编辑">
               <Button
                 style={{
                   display: "flex",
@@ -234,7 +234,7 @@ const InvoicingSubmit = () => {
               >
                 <EditTwoTone twoToneColor="#198348" />
               </Button>
-            </Tooltip>}
+            </Tooltip>} */}
             {!isFinished&&<Tooltip title="提交至财务审核">
               <Popconfirm
                 title="提交至财务审核？"
@@ -348,7 +348,7 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              showSearch
+              
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
@@ -366,7 +366,7 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              showSearch
+              
               labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
@@ -412,7 +412,7 @@ const InvoicingSubmit = () => {
             name="projectDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker />
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

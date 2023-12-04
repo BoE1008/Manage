@@ -26,6 +26,7 @@ import { getCustomersList } from "@/restApi/customer";
 import { getProjectsApproveList } from "@/restApi/project";
 import { EditTwoTone, DeleteTwoTone, CalendarTwoTone } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
+import { InvoicingTypeArr, MoneytypeArr } from "@/utils/const";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -61,20 +62,25 @@ const InvoicingSubmit = () => {
   const handleEditOne = (record) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
-    form.setFieldsValue(record);
+    console.log(record, 'record')
+    form.setFieldsValue(record)
     setModalOpen(true);
   };
 
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log(values, "values");
     const params = {
       ...values,
-      projectId: values.projectName.value,
-      projectName: values.projectName.label,
-      customId: values.customName.value,
-      customName: values.customName.label,
+      invoicingType: values.invoicingType?.value,
+      moneyType: values.moneyType?.value,
+      projectId: values.projectName?.value,
+      projectName: values.projectName?.label,
+      customId: values.customName?.value,
+      customName: values.customName?.label,
     };
+
     setLoading(true);
     const { code } =
       operation === Operation.Add
@@ -203,7 +209,7 @@ const InvoicingSubmit = () => {
     {
       title: "操作",
       key: "action",
-      render: (record) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -215,7 +221,7 @@ const InvoicingSubmit = () => {
                     alignItems: "center",
                     padding: "3px 5px",
                   }}
-                  onClick={() => handleEditOne(record.id)}
+                  onClick={() => handleEditOne(record)}
                 >
                   <EditTwoTone twoToneColor="#198348" />
                 </Button>
@@ -329,11 +335,11 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              showSearch
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
+              optionLabelProp="label"
               options={project?.map((con) => ({
                 label: con.name,
                 value: con.id,
@@ -347,7 +353,6 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              showSearch
               labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
@@ -359,13 +364,31 @@ const InvoicingSubmit = () => {
             />
           </Form.Item>
           <Form.Item required label="票种" name="invoicingType">
-            <Input placeholder="票种" />
+            <Select
+              labelInValue
+              placeholder="选择票种"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={InvoicingTypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
+          </Form.Item>
+          <Form.Item required label="币种" name="moneyType">
+            <Select
+              labelInValue
+              placeholder="选择币种"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={MoneytypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item required label="内容" name="content">
             <Input placeholder="内容" />
-          </Form.Item>
-          <Form.Item required label="币种" name="moneyType">
-            <Input placeholder="币种" />
           </Form.Item>
           <Form.Item required label="金额" name="fee">
             <Input placeholder="金额" />
