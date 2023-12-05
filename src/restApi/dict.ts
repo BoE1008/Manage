@@ -51,6 +51,22 @@ export const updateDictData = async (id: string, info) => {
   return res.data;
 };
 
+export const deleteDict = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/dict/del`, {
+    params: { id },
+  });
+
+  return res.data;
+};
+
+export const deleteDictData = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/dict/data/del`, {
+    params: { id },
+  });
+
+  return res.data;
+};
+
 export const getDictDetail = async (
   dictTypeId: string,
   pageNo: number,

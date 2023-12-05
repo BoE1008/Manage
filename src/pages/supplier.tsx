@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, notification } from "antd";
-import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  notification,
+  Tooltip,
+  Select,
+} from "antd";
+import { EditTwoTone, DeleteTwoTone, ProfileTwoTone } from "@ant-design/icons";
 import {
   getSuppliersList,
   addSupplyer,
@@ -8,6 +18,14 @@ import {
   deleteSupplyer,
 } from "@/restApi/supplyer";
 import { Company, Operation } from "@/types";
+import {
+  getSupplierBankList,
+  addSupplierBank,
+  updateSupplierBank,
+  deleteBank,
+} from "@/restApi/account";
+import { getDictByCode } from "@/restApi/dict";
+
 
 const initialValues = {
   name: "",
@@ -28,7 +46,11 @@ const Supplyer = () => {
 
   const [loading, setLoading] = useState(true);
 
+  const [supplierId, setSupplierId] = useState();
+  const [bankData, setBankData] = useState();
+
   const [form] = Form.useForm();
+  const [form1] = Form.useForm();
 
   useEffect(() => {
     (async () => {
@@ -78,6 +100,89 @@ const Supplyer = () => {
     setData(data);
   };
 
+  
+
+  const validateName = () => {
+    return {
+      validator: (_, value) => {
+        if (value.trim() !== "") {
+          return Promise.resolve();
+        }
+        return Promise.reject(new Error("请输入供应商名称"));
+      },
+    };
+  };
+
+  const customerFilterOption = (
+    input: string,
+    option?: { label: string; value: string }
+  ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
+
+  const [bankOperation, setBankOperation] = useState<Operation>();
+  const [bankModalState, setBankModalState] = useState<boolean>(false);
+  const [moneyTypes, setMoneyTypes] = useState();
+  const [bankId, setBankId] = useState();
+
+  const handleCheckBank = async (id) => {
+    console.log(id)
+    const data = await getSupplierBankList(id)
+    setBankData(data)
+    setSupplierId(id);
+  }
+
+  const handleAddBank = async () => {
+    setBankModalState(true);
+    setBankOperation(Operation.Add);
+    const res = await getDictByCode("sys_money_type");
+    setMoneyTypes(res.entity);
+  };
+
+  const handleEditBank = async (record) => {
+    const res = await getDictByCode("sys_money_type");
+    setMoneyTypes(res.entity);
+    setBankModalState(true);
+    setBankOperation(Operation.Edit);
+    form1.setFieldsValue(record)
+    setBankId(record.id)
+  };
+
+  const handleBankOk = async () => {
+    form1.validateFields();
+    const values = form1.getFieldsValue();
+    const params ={
+      ...values,
+      moneyType: values.moneyType.label,
+      moneyTypeId: values.moneyType.value,
+    }
+    console.log(values,'values')
+    setLoading(true);
+    const { code } =
+      bankOperation === Operation.Add
+        ? await addSupplierBank(supplierId, params)
+        : await updateSupplierBank(supplierId, bankId, params);
+    if (code === 200) {
+      form1.resetFields()
+      setBankModalState(false);
+      const res = await getSupplierBankList(supplierId)
+      setBankData(res)
+      setLoading(false);
+      notification.success({
+        message: bankOperation === Operation.Add ? "添加成功" : "编辑成功",
+        duration: 3,
+      });
+    }
+  };
+
+  const handleDeleteBank = async (id) => {
+    await deleteBank(id);
+    const res = await getSupplierBankList(supplierId)
+    setBankData(res)
+    notification.success({
+      message:  "删除成功" ,
+      duration: 3,
+    });
+  }
+
   const columns = [
     {
       title: "供应商名称",
@@ -100,6 +205,61 @@ const Supplyer = () => {
       key: "contactsMobile",
     },
     {
+      title: "税号",
+      dataIndex: "taxationNumber",
+      key: "taxationNumber",
+    },
+    {
+      title: "备注",
+      dataIndex: "remark",
+      key: "remark",
+    },
+    {
+      title: "操作",
+      key: "action",
+      render: (_, record: Company) => {
+        return (
+          <Space size="middle" className="flex flex-row !gap-x-1">
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleEditOne(record)}
+            >
+              <EditTwoTone twoToneColor="#198348" />
+            </Button>
+            <Tooltip title={<span>查看银行账户信息</span>}>
+              <Button
+                onClick={() =>handleCheckBank(record.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <ProfileTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Button
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleDeleteOne(record.id)}
+            >
+              <DeleteTwoTone twoToneColor="#198348" />
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
+
+  const bankColumns = [
+    {
       title: "银行账户",
       dataIndex: "bank",
       key: "bank",
@@ -115,11 +275,6 @@ const Supplyer = () => {
       key: "moneyType",
     },
     {
-      title: "税号",
-      dataIndex: "taxationNumber",
-      key: "taxationNumber",
-    },
-    {
       title: "备注",
       dataIndex: "remark",
       key: "remark",
@@ -127,18 +282,26 @@ const Supplyer = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record: Company) => {
+      render: (_, record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
-              onClick={() => handleEditOne(record)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleEditBank(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
-              onClick={() => handleDeleteOne(record.id)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
+              onClick={() => handleDeleteBank(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
             </Button>
@@ -147,17 +310,6 @@ const Supplyer = () => {
       },
     },
   ];
-
-  const validateName = () => {
-    return {
-      validator: (_, value) => {
-        if (value.trim() !== "") {
-          return Promise.resolve();
-        }
-        return Promise.reject(new Error("请输入供应商名称"));
-      },
-    };
-  };
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
@@ -241,6 +393,63 @@ const Supplyer = () => {
           <Form.Item label="电话" name="contactsMobile">
             <Input placeholder="请输入供应商联系人电话" />
           </Form.Item>
+          <Form.Item label="税号" name="taxationNumber">
+            <Input placeholder="请输入税号" />
+          </Form.Item>
+          <Form.Item label="备注" name="remark">
+            <Input.TextArea placeholder="备注信息" maxLength={6} />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        title={"银行账户"}
+        open={!!supplierId}
+        onOk={handleOk}
+        okButtonProps={{ style: { background: "#198348" } }}
+        // confirmLoading={confirmLoading}
+        onCancel={() => setSupplierId(undefined)}
+        afterClose={() => form.resetFields()}
+        style={{ minWidth: "650px" }}
+        footer={null}
+      >
+        <Button
+          onClick={handleAddBank}
+          type="primary"
+          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
+        >
+          添加
+        </Button>
+        <Table
+          bordered
+          loading={loading}
+          dataSource={bankData?.entity.data}
+          columns={bankColumns}
+        />
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        title={bankOperation === Operation.Add ? "添加账户" : "编辑账户"}
+        open={bankModalState}
+        onOk={handleBankOk}
+        okButtonProps={{ style: { background: "#198348" } }}
+        // confirmLoading={confirmLoading}
+        onCancel={() => setBankModalState(false)}
+        afterClose={() => form.resetFields()}
+        style={{ minWidth: "650px" }}
+      >
+        <Form
+          labelCol={{ span: 3 }}
+          wrapperCol={{ span: 20 }}
+          layout={"horizontal"}
+          form={form1}
+          initialValues={initialValues}
+          style={{ minWidth: 600, color: "#000" }}
+        >
           <Form.Item label="银行账户" name="bank">
             <Input placeholder="请输入银行账户" />
           </Form.Item>
@@ -248,13 +457,16 @@ const Supplyer = () => {
             <Input placeholder="请输入开户银行" />
           </Form.Item>
           <Form.Item label="币种" name="moneyType">
-            <Input placeholder="请输入币种" />
-          </Form.Item>
-          <Form.Item label="税号" name="taxationNumber">
-            <Input placeholder="请输入税号" />
-          </Form.Item>
-          <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注信息" maxLength={6} />
+            <Select
+              labelInValue
+              placeholder="币种"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={moneyTypes?.map((con) => ({
+                label: con.dictLabel,
+                value: con.id,
+              }))}
+            ></Select>
           </Form.Item>
         </Form>
       </Modal>

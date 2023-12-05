@@ -18,6 +18,8 @@ import {
   updateDict,
   updateDictData,
   getDictDetail,
+  deleteDict,
+  deleteDictData,
 } from "@/restApi/dict";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
@@ -133,6 +135,18 @@ const Dict = () => {
     form1.setFieldsValue(record);
     setDataModalOpen(true);
   };
+
+  const handleDeleteOne = async (id) => {
+    await deleteDict(id)
+    const data = await getDictList(page, pageSize);
+    setData(data);
+  }
+
+  const handleDeleteDataOne = async (id) => {
+    await deleteDictData(id)
+    const data = await getDictDetail(typeId, 1, 20);
+    setDictDetail(data.entity.data);
+  }
 
   const columns = [
     {
@@ -256,7 +270,7 @@ const Dict = () => {
                 alignItems: "center",
                 padding: "3px 5px",
               }}
-              onClick={() => handleDeleteOne(record.id)}
+              onClick={() => handleDeleteDataOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
             </Button>
@@ -445,19 +459,9 @@ const Dict = () => {
           >
             <Input placeholder="请输入数据标签" />
           </Form.Item>
-          <Form.Item
-            required
-            label="显示顺序"
-            name="dictSort"
-            rules={[validateName]}
-            validateTrigger="onBlur"
-            hasFeedback
-          >
-            <Input placeholder="请输入显示顺序" />
-          </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
-              placeholder="选择项目"
+              placeholder="选择状态"
               optionFilterProp="children"
               //   filterOption={customerFilterOption}
               options={[

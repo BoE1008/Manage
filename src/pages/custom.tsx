@@ -19,7 +19,7 @@ import {
 } from "@/restApi/customer";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
-import { addCustomBank, updateCustomBank } from "@/restApi/account";
+import { addCustomBank, getCustomBankList, updateCustomBank , deleteBank} from "@/restApi/account";
 import { getDictByCode } from "@/restApi/dict";
 
 const initialValues = {
@@ -119,6 +119,14 @@ const Customer = () => {
   const [bankOperation, setBankOperation] = useState<Operation>();
   const [bankModalState, setBankModalState] = useState<boolean>(false);
   const [moneyTypes, setMoneyTypes] = useState();
+  const [bankId, setBankId] = useState();
+
+  const handleCheckBank = async (id) => {
+    console.log(id)
+    const data = await getCustomBankList(id)
+    setBankData(data)
+    setCustomId(id);
+  }
 
   const handleAddBank = async () => {
     setBankModalState(true);
@@ -126,9 +134,14 @@ const Customer = () => {
     const res = await getDictByCode("sys_money_type");
     setMoneyTypes(res.entity);
   };
+
   const handleEditBank = async (record) => {
+    const res = await getDictByCode("sys_money_type");
+    setMoneyTypes(res.entity);
     setBankModalState(true);
     setBankOperation(Operation.Edit);
+    form1.setFieldsValue(record)
+    setBankId(record.id)
   };
 
   const handleBankOk = async () => {
@@ -142,20 +155,31 @@ const Customer = () => {
     console.log(values,'values')
     setLoading(true);
     const { code } =
-      operation === Operation.Add
+      bankOperation === Operation.Add
         ? await addCustomBank(customId, params)
-        : await updateCustomBank(customId, params);
+        : await updateCustomBank(customId, bankId, params);
     if (code === 200) {
-      setModalOpen(false);
-      const data = await getCustomersList(page, pageSize, searchValue);
+      form1.resetFields()
+      setBankModalState(false);
+      const res = await getCustomBankList(customId)
+      setBankData(res)
       setLoading(false);
-      setData(data);
       notification.success({
-        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        message: bankOperation === Operation.Add ? "添加成功" : "编辑成功",
         duration: 3,
       });
     }
   };
+
+  const handleDeleteBank = async (id) => {
+    await deleteBank(id);
+    const res = await getCustomBankList(customId)
+    setBankData(res)
+    notification.success({
+      message:  "删除成功" ,
+      duration: 3,
+    });
+  }
 
   const columns = [
     {
@@ -206,7 +230,7 @@ const Customer = () => {
             </Button>
             <Tooltip title={<span>查看银行账户信息</span>}>
               <Button
-                onClick={() => setCustomId(record.id)}
+                onClick={() =>handleCheckBank(record.id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -269,25 +293,13 @@ const Customer = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
-            <Tooltip title={<span>查看银行账户信息</span>}>
-              <Button
-                onClick={() => setCustomId(record.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-              >
-                <ProfileTwoTone twoToneColor="#198348" />
-              </Button>
-            </Tooltip>
             <Button
               style={{
                 display: "flex",
                 alignItems: "center",
                 padding: "3px 5px",
               }}
-              onClick={() => handleDeleteOne(record.id)}
+              onClick={() => handleDeleteBank(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
             </Button>
@@ -379,15 +391,6 @@ const Customer = () => {
           <Form.Item label="电话" name="contactsMobile">
             <Input placeholder="请输入客户联系人电话" />
           </Form.Item>
-          {/* <Form.Item label="银行账户" name="bank">
-            <Input placeholder="请输入银行账户" />
-          </Form.Item>
-          <Form.Item label="开户银行" name="bankCard">
-            <Input placeholder="请输入开户银行" />
-          </Form.Item>
-          <Form.Item label="币种" name="moneyType">
-            <Input placeholder="请输入币种" />
-          </Form.Item> */}
           <Form.Item label="税号" name="taxationNumber">
             <Input placeholder="请输入税号" />
           </Form.Item>
@@ -408,6 +411,7 @@ const Customer = () => {
         onCancel={() => setCustomId(undefined)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        footer={null}
       >
         <Button
           onClick={handleAddBank}
@@ -453,7 +457,7 @@ const Customer = () => {
           <Form.Item label="币种" name="moneyType">
             <Select
               labelInValue
-              placeholder="是否对账"
+              placeholder="币种"
               optionFilterProp="children"
               filterOption={customerFilterOption}
               options={moneyTypes?.map((con) => ({
