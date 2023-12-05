@@ -86,6 +86,10 @@ const Item = ({ projectId, onClose }) => {
     const params = {
       ...values,
       yfDate: dayjs(values.yfDate).format("YYYY-MM-DD"),
+      yfChecking: values.yfChecking.value,
+      isPay: values.isPay.value,
+      yfCollection: values.yfCollection.value,
+      yfInvoice: values.yfInvoice.value,
     };
 
     const { code } =
@@ -178,7 +182,7 @@ const Item = ({ projectId, onClose }) => {
       {
         title: "操作",
         key: "operation",
-        render: (_,record) => {
+        render: (_, record) => {
           return (
             <Button
               style={{ display: "flex", alignItems: "center" }}
@@ -256,7 +260,7 @@ const Item = ({ projectId, onClose }) => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
@@ -300,9 +304,13 @@ const Item = ({ projectId, onClose }) => {
   const handleYsOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+    console.log(values, " values");
     const params = {
       ...values,
       ysDate: dayjs(values.ysDate).format("YYYY-MM-DD"),
+      ysChecking: values.ysChecking.value,
+      ysCollection: values.ysCollection.value,
+      ysInvoice: values.ysInvoice.value,
     };
     const { code } =
       operation === Operation.Add
@@ -426,7 +434,6 @@ const Item = ({ projectId, onClose }) => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择客户"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -520,7 +527,6 @@ const Item = ({ projectId, onClose }) => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择供应商"
               optionFilterProp="children"
               onChange={handleSupplierSelectChange}
@@ -542,13 +548,40 @@ const Item = ({ projectId, onClose }) => {
             <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
-            <Input placeholder="是否" />
+            <Select
+              labelInValue
+              placeholder="是否对账"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={BooltypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
-            <Input placeholder="是否" />
+            <Select
+              labelInValue
+              placeholder="是否开票"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={BooltypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
-            <Input placeholder="是否" />
+            <Select
+              labelInValue
+              placeholder="是否付款"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={BooltypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item
             label="预留利润名称"
@@ -565,7 +598,16 @@ const Item = ({ projectId, onClose }) => {
             <Input placeholder="预留利润名称" />
           </Form.Item>
           <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
-            <Input placeholder="是否" />
+            <Select
+              labelInValue
+              placeholder="是否支付"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              options={BooltypeArr?.map((con) => ({
+                label: con,
+                value: con,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item
             label="日期"
@@ -573,7 +615,7 @@ const Item = ({ projectId, onClose }) => {
             name="yfDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
-            <DatePicker allowClear={false}/>
+            <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />

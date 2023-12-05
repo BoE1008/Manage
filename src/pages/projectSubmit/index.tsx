@@ -60,8 +60,6 @@ const Project = () => {
 
   const [customer, setCustomer] = useState();
 
-  const [fileName, setFileName] = useState();
-
   const [loading, setLoading] = useState(true);
 
   const [dict, setDict] = useState();
@@ -75,7 +73,6 @@ const Project = () => {
     (async () => {
       const data = await getProjectsSubmitList(page, pageSize, searchValue);
       setData(data);
-
       setLoading(false);
     })();
   }, [page, pageSize, searchValue]);
@@ -95,7 +92,6 @@ const Project = () => {
   const handleEditOne = async (record: Company) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
-    console.log(record,'record')
     form.setFieldsValue(record);
     setModalOpen(true);
     const typelist = await getProjectType();
@@ -150,8 +146,9 @@ const Project = () => {
 
   const handleExport = async () => {
     const file = await exportProject();
-    // const res = await downloadFile(data.msg);
-    // console.log(res, "res");
+    window.open(
+      `http://123.60.88.8/zc/common/download?fileName=${file.msg}&delete=false`
+    );
   };
 
   const columns = [
@@ -352,14 +349,11 @@ const Project = () => {
             添加
           </Button>
           <Button
+            onClick={handleExport}
             type="primary"
             style={{ marginBottom: 16, background: "#198348", width: "100px" }}
           >
-            <Link
-              href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}
-            >
-              导出
-            </Link>
+            导出
           </Button>
         </Space>
 
