@@ -41,8 +41,10 @@ export const updateCustomer = async (id: string, info: Company) => {
 };
 
 export const deleteCustomer = async (id: string) => {
-  const res = await axiosInstance.post(`/zc/custom/delete`, {
-    id,
+  const res = await axiosInstance.get(`/zc/custom/del`, {
+    params: {
+      id,
+    }
   });
 
   return res.data;

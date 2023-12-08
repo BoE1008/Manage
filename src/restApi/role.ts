@@ -26,3 +26,11 @@ export const updateRole = async (id: string, info) => {
 
   return res.data;
 };
+
+export const deleteRole = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/role/del`, {
+    params: {id}
+  });
+
+  return res.data;
+};

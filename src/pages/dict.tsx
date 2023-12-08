@@ -364,6 +364,13 @@ const Dict = () => {
           >
             <Input placeholder="请输入字典名称" />
           </Form.Item>
+          <Form.Item
+            required
+            label="code"
+            name="code"
+          >
+            <Input placeholder="请输入编码" />
+          </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
               placeholder="选择项目"

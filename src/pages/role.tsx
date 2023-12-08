@@ -13,7 +13,7 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getRoleList, addRole, updateRole } from "@/restApi/role";
+import { getRoleList, addRole, updateRole, deleteRole } from "@/restApi/role";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -67,7 +67,9 @@ const Role = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-   
+    await deleteRole(id)
+    const res = await getRoleList(page, pageSize);
+    setData(res);
   };
 
   const validateName = () => {

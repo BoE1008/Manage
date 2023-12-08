@@ -25,7 +25,6 @@ import {
   getProjectsSubmitList,
   addProject,
   updateProject,
-  getProjectType,
   deleteProject,
   exportProject,
   submitOne,
@@ -33,8 +32,6 @@ import {
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
-import { downloadFile } from "@/restApi/download";
-import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import { debounce } from "lodash";
@@ -66,7 +63,6 @@ const Project = () => {
 
   const [form] = Form.useForm();
 
-  const [projectType, setProjectType] = useState();
   const [projectId, setProjectId] = useState();
 
   useEffect(() => {
@@ -81,12 +77,10 @@ const Project = () => {
     form.setFieldsValue(initialValues);
     setOperation(Operation.Add);
     setModalOpen(true);
-    const typelist = await getProjectType();
     const customer = await getCustomersList(1, 1000);
     const res = await getDictById();
     setDict(res.entity);
     setCustomer(customer.entity.data);
-    setProjectType(typelist.entity.data);
   };
 
   const handleEditOne = async (record: Company) => {
@@ -94,12 +88,10 @@ const Project = () => {
     setEditId(record.id);
     form.setFieldsValue(record);
     setModalOpen(true);
-    const typelist = await getProjectType();
     const customer = await getCustomersList(1, 1000);
     const res = await getDictById();
     setDict(res.entity);
     setCustomer(customer.entity.data);
-    setProjectType(typelist.entity.data);
   };
 
   const handleOk = async () => {
@@ -313,14 +305,6 @@ const Project = () => {
     },
   ];
 
-  const handleSelectChange = (value) => {
-    console.log(value, "change");
-  };
-
-  const handleSelectSearch = (value) => {
-    console.log(value, "search");
-  };
-
   const filterOption = (
     input: string,
     option?: { label: string; value: string }
@@ -420,27 +404,6 @@ const Project = () => {
           >
             <Input placeholder="请输入项目名称" />
           </Form.Item>
-          <Form.Item
-            label="产品"
-            name="typeId"
-            validateTrigger="onBlur"
-            rules={[{ required: true, message: "请选择产品" }]}
-            hasFeedback
-          >
-            <Select
-              placeholder="选择产品"
-              optionFilterProp="children"
-              onChange={handleSelectChange}
-              onSearch={handleSelectSearch}
-              filterOption={filterOption}
-              options={dict
-                ?.find((con) => con.id === "1")
-                .childList?.map((con) => ({
-                  value: con.id,
-                  label: con.dictLabel,
-                }))}
-            />
-          </Form.Item>
           <Form.Item label="客户" name="customId">
             <Select
               placeholder="选择客户"
@@ -456,13 +419,32 @@ const Project = () => {
               }))}
             />
           </Form.Item>
+          <Form.Item
+            label="产品"
+            name="typeId"
+            validateTrigger="onBlur"
+            rules={[{ required: true, message: "请选择产品" }]}
+            hasFeedback
+          >
+            <Select
+              placeholder="选择产品"
+              optionFilterProp="children"
+              filterOption={filterOption}
+              options={dict
+                ?.find((con) => con.code === "sys_project_type")
+                .childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
           <Form.Item label="品牌" name="brandId">
             <Select
               placeholder="选择品牌"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
               options={dict
-                ?.find((con) => con.id === "2")
+                ?.find((con) => con.code === "sys_project_brand")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
@@ -479,7 +461,7 @@ const Project = () => {
               //   value: con.id,
               // }))}
               options={dict
-                ?.find((con) => con.id === "3")
+                ?.find((con) => con.code === "sys_product_type")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
@@ -491,7 +473,7 @@ const Project = () => {
               placeholder="选择服务内容"
               optionFilterProp="children"
               options={dict
-                ?.find((con) => con.id === "4")
+                ?.find((con) => con.code === "sys_service_content")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
