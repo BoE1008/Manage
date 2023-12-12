@@ -65,11 +65,8 @@ const Login = () => {
             prefix={<UserOutlined />}
           />
         </Form.Item>
-        <Form.Item name='password'>
-          <Input.Password
-            size="large"
-            placeholder="请输入密码"
-          />
+        <Form.Item name="password">
+          <Input.Password size="large" placeholder="请输入密码" />
         </Form.Item>
         <Form.Item>
           <Button

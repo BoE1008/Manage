@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Table,
   Space,
@@ -13,21 +13,34 @@ import {
   Popconfirm,
   List,
   Avatar,
+  Typography,
+  Upload,
+  message,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
-import { EditTwoTone, DeleteTwoTone, CalendarTwoTone } from "@ant-design/icons";
+import {
+  EditTwoTone,
+  DeleteTwoTone,
+  CalendarTwoTone,
+  InteractionTwoTone,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   getPaymentList,
   addPayment,
   updatePayment,
   logsOne,
+  submitToYW,
+  getPaymentDetailById,
+  deleteOne,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
-import { MoneytypeArr } from "@/utils/const";
+import { getDictByCode } from "@/restApi/dict";
+import DetailModal from "@/components/DetailModal";
 
-const Role = () => {
+const Payment = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
 
@@ -43,6 +56,13 @@ const Role = () => {
   const [loading, setLoading] = useState(true);
   const [logs, setLogs] = useState();
 
+  const [bank, setBank] = useState();
+  const [dict, setDict] = useState();
+  const [selectSupplier, setSelectSupplier] = useState();
+  const [bankcards, setBankcards] = useState();
+
+  const [detail, setDetail] = useState();
+
   useEffect(() => {
     (async () => {
       const res = await getPaymentList(page, pageSize);
@@ -56,12 +76,21 @@ const Role = () => {
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
+    const res = await getDictByCode("sys_money_type");
+    setDict(res.entity);
     setModalOpen(true);
   };
 
-  const handleEditOne = (record) => {
+  const handleEditOne = async (record) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
+    const projectCustom = await getSuppliersYFList(record.projectId);
+    setSupplier(projectCustom.entity.data);
+    setSelectSupplier(
+      projectCustom.entity?.data?.find((c) => record.supplierId === c.id)
+    );
+    const res = await getDictByCode("sys_money_type");
+    setDict(res.entity);
     form.setFieldsValue(record);
     setModalOpen(true);
   };
@@ -72,14 +101,15 @@ const Role = () => {
 
     const parmas = {
       ...values,
-      moneyType:values.moneyType.value,
-      projectName:values.projectName.label,
-      projectId:values.projectName.value,
+      moneyType: values.moneyType.value,
+      projectName: values.projectName.label,
+      projectId: values.projectName.value,
       supplierName: values.supplierName.label,
       supplierId: values.supplierName.value,
-    }
-
-    console.log(parmas,'parmas')
+      bank: values.bank.value,
+      bankCard: values.bankCard.value,
+      taxationNumber: selectSupplier?.taxationNumber,
+    };
 
     setLoading(true);
     const { code } =
@@ -98,19 +128,61 @@ const Role = () => {
     }
   };
 
+  const handleDetail = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setDetail(res.entity.data);
+  };
+
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
     setLogs(res.entity.data);
   };
 
-  const handleDeleteOne = async (id: string) => {};
+  const handleDeleteOne = async (id: string) => {
+    await deleteOne(id);
+    const data = await getPaymentList(page, pageSize);
+    setData(data);
+  };
+
+  const handleSubmitOne = async () => {
+    await submitToYW(detail.id);
+    notification.success({ message: "提交成功" });
+    setDetail(undefined);
+    const data = await getPaymentList(page, pageSize);
+    setData(data);
+  };
 
   const handleProjectChanged = async (param) => {
-    console.log(param.value);
+    form.setFieldValue("supplierName", {});
+    form.setFieldValue("moneyType", {});
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
     const projectCustom = await getSuppliersYFList(param.value);
     setSupplier(projectCustom.entity.data);
+  };
 
-    console.log(projectCustom);
+  const handleSupplierChange = async (value) => {
+    form.setFieldValue("moneyType", {});
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
+    setSelectSupplier(supplier?.find((c) => c.id === value.value));
+  };
+
+  const onSearch = () => {};
+
+  const handleMoneyTypeChnage = (value) => {
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
+    const res = selectSupplier?.accountList?.filter(
+      (c) => c.moneyType === value.value
+    );
+    setBankcards(res);
+  };
+
+  const handleBankCardChange = (value) => {
+    form.setFieldValue("bank", {});
+    const res = bankcards?.filter((c) => c.bankCard === value.value);
+    setBank(res);
   };
 
   const validateName = () => {
@@ -188,10 +260,29 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
+            {!isFinished && (
+              <Tooltip title={<span>提交业务审核</span>}>
+                <Popconfirm
+                  title="是否提交审核？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleDetail(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <InteractionTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
             {!isFinished && (
               <Tooltip title="编辑">
                 <Button
@@ -242,6 +333,32 @@ const Role = () => {
       },
     },
   ];
+
+  const uploadProps = {
+    name: "file",
+    action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
+    headers: {
+      authorization: "authorization-text",
+    },
+    onChange(info) {
+      if (info.file.status !== "uploading") {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === "done") {
+        message.success(`${info.file.name} 上传成功`);
+      } else if (info.file.status === "error") {
+        message.error(`${info.file.name} 上传失败`);
+      }
+    },
+    progress: {
+      strokeColor: {
+        "0%": "#108ee9",
+        "100%": "#87d068",
+      },
+      strokeWidth: 3,
+      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    },
+  };
 
   return (
     <div className="p-2">
@@ -298,7 +415,10 @@ const Role = () => {
         okButtonProps={{ style: { background: "#198348" } }}
         // confirmLoading={confirmLoading}
         onCancel={() => setModalOpen(false)}
-        afterClose={() => form.resetFields()}
+        afterClose={() => {
+          form.resetFields();
+          setSelectSupplier(undefined);
+        }}
         style={{ minWidth: "650px" }}
       >
         <Form
@@ -314,12 +434,13 @@ const Role = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              
+              showSearch
+              onSearch={onSearch}
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              options={ project?.map((con) => ({
+              options={project?.map((con) => ({
                 label: con.name,
                 value: con.id,
               }))}
@@ -332,41 +453,69 @@ const Role = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               labelInValue
               placeholder="选择供应商"
               optionFilterProp="children"
               filterOption={customerFilterOption}
+              onChange={handleSupplierChange}
               options={supplier?.map((con) => ({
                 label: con.name,
                 value: con.id,
               }))}
             />
           </Form.Item>
+
+          <Form.Item required label="金额" name="fee">
+            <Input placeholder="金额" />
+          </Form.Item>
+          <Form.Item label="税号" name="taxationNumber">
+            {/* <Input placeholder="税号" /> */}
+            <Typography>
+              <code>{selectSupplier?.taxationNumber}</code>
+            </Typography>
+          </Form.Item>
+
           <Form.Item required label="币种" name="moneyType">
             <Select
               labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              options={MoneytypeArr?.map((con) => ({
-                label: con,
-                value: con,
+              onChange={handleMoneyTypeChnage}
+              options={dict?.map((con) => ({
+                label: con.dictLabel,
+                value: con.dictLabel,
               }))}
             ></Select>
           </Form.Item>
-          <Form.Item required label="金额" name="fee">
-            <Input placeholder="金额" />
-          </Form.Item>
-          <Form.Item label="税号" name="taxationNumber">
-            <Input placeholder="税号" />
+          <Form.Item label="卡号" name="bankCard">
+            <Select
+              labelInValue
+              placeholder="选择银行卡"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              onChange={handleBankCardChange}
+              options={bankcards?.map((con) => ({
+                label: con.bankCard,
+                value: con.bankCard,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item label="开户行" name="bank">
-            <Input placeholder="开户行" />
+            <Select
+              labelInValue
+              placeholder="选择开户行"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              defaultActiveFirstOption
+              defaultValue={{ label: bank?.[0].bank, value: bank?.[0].bank }}
+              options={bank?.map((con) => ({
+                label: con.bank,
+                value: con.bank,
+              }))}
+            ></Select>
           </Form.Item>
-          <Form.Item label="卡号" name="bankCard">
-            <Input placeholder="卡号" />
-          </Form.Item>
+
           <Form.Item
             label="应付日期"
             name="yfDate"
@@ -376,6 +525,12 @@ const Role = () => {
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
+          </Form.Item>
+
+          <Form.Item label="附件" name="annex">
+            <Upload {...uploadProps}>
+              <Button icon={<UploadOutlined />}>点击上传</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
@@ -409,8 +564,14 @@ const Role = () => {
           )}
         />
       </Modal>
+
+      <DetailModal
+        data={detail}
+        onConfirm={handleSubmitOne}
+        onClose={() => setDetail(undefined)}
+      />
     </div>
   );
 };
 
-export default Role;
+export default Payment;

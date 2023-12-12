@@ -30,10 +30,12 @@ import {
   approveOne,
   rejectOne,
   logsOne,
+  getPaymentDetailById,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
-import { debounce } from "lodash";
+import RejectModal from "@/components/RejectModal";
+import DetailModal from "@/components/DetailModal";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -50,6 +52,9 @@ const Role = () => {
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const [rejectId, setRejectId] = useState();
+  const [detail, setDetail] = useState();
 
   useEffect(() => {
     (async () => {
@@ -96,23 +101,26 @@ const Role = () => {
     }
   };
 
-  const handleApproveOne = useCallback(
-    debounce(async (id: string) => {
-      await approveOne(id);
-      const res = await getPaymentCWList(page, pageSize);
-      setData(res);
-    }, 2000),
-    []
-  );
+  const handleDetail = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setDetail(res.entity.data);
+  };
 
-  const handleRejectOne = useCallback(
-    debounce(async (id: string) => {
-      await rejectOne(id);
-      const res = await getPaymentCWList(page, pageSize);
-      setData(res);
-    }, 2000),
-    []
-  );
+  const handleApproveOne = async () => {
+    await approveOne(detail.id);
+    const res = await getPaymentCWList(page, pageSize);
+    setData(res);
+    notification.success({ message: "审批通过" });
+    setDetail(undefined);
+  };
+
+  const handleRejectOne = async (id: string, remark) => {
+    await rejectOne(id, remark, 3);
+    setRejectId(undefined);
+    const res = await getPaymentCWList(page, pageSize);
+    setData(res);
+    notification.success({ message: "申请已退回" });
+  };
 
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
@@ -196,7 +204,7 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -205,7 +213,7 @@ const Role = () => {
                 <Popconfirm
                   title="是否批准？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleApproveOne(record.id)}
+                  onConfirm={() => handleDetail(record.id)}
                 >
                   <Button
                     style={{
@@ -224,7 +232,7 @@ const Role = () => {
                 <Popconfirm
                   title="是否退回？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleRejectOne(record.id)}
+                  onConfirm={() => setRejectId(record.id)}
                 >
                   <Button
                     style={{
@@ -264,7 +272,7 @@ const Role = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            {!isFinished && (
+            {/* {!isFinished && (
               <Tooltip title="删除">
                 <Popconfirm
                   title="是否删除？"
@@ -282,7 +290,7 @@ const Role = () => {
                   </Button>
                 </Popconfirm>
               </Tooltip>
-            )}
+            )} */}
           </Space>
         );
       },
@@ -360,7 +368,6 @@ const Role = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -376,7 +383,6 @@ const Role = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择供应商"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -443,6 +449,18 @@ const Role = () => {
           )}
         />
       </Modal>
+
+      <DetailModal
+        data={detail}
+        onConfirm={handleApproveOne}
+        onClose={() => setDetail(undefined)}
+      />
+
+      <RejectModal
+        open={!!rejectId}
+        onClose={() => setRejectId(undefined)}
+        onReject={(value) => handleRejectOne(rejectId, value)}
+      />
     </div>
   );
 };

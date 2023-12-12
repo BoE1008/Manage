@@ -9,6 +9,7 @@ import {
   Select,
   DatePicker,
   notification,
+  Tag,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -67,7 +68,7 @@ const Role = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteRole(id)
+    await deleteRole(id);
     const res = await getRoleList(page, pageSize);
     setData(res);
   };
@@ -105,9 +106,15 @@ const Role = () => {
       key: "roleKey",
     },
     {
-      title: "status",
-      dataIndex: "status",
+      title: "状态",
       key: "status",
+      render: (_, record) => {
+        if (record.status === "0") {
+          return <Tag color="#87d068">正常</Tag>;
+        } else {
+          return <Tag color="#cd201f">停用</Tag>;
+        }
+      },
     },
     {
       title: "备注",
@@ -117,17 +124,25 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -212,6 +227,7 @@ const Role = () => {
           <Form.Item required label="status" name="status">
             <Input placeholder="status" />
           </Form.Item>
+          <Form.Item></Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>

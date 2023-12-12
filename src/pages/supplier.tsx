@@ -26,7 +26,6 @@ import {
 } from "@/restApi/account";
 import { getDictByCode } from "@/restApi/dict";
 
-
 const initialValues = {
   name: "",
   address: "",
@@ -76,7 +75,6 @@ const Supplyer = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    setLoading(true);
     const { code } =
       operation === Operation.Add
         ? await addSupplyer(values)
@@ -84,7 +82,6 @@ const Supplyer = () => {
     if (code === 200) {
       setModalOpen(false);
       const data = await getSuppliersList(page, pageSize, searchValue);
-      setLoading(false);
       setData(data);
       notification.success({
         message: operation === Operation.Add ? "添加成功" : "编辑成功",
@@ -99,8 +96,6 @@ const Supplyer = () => {
     setLoading(false);
     setData(data);
   };
-
-  
 
   const validateName = () => {
     return {
@@ -124,11 +119,10 @@ const Supplyer = () => {
   const [bankId, setBankId] = useState();
 
   const handleCheckBank = async (id) => {
-    console.log(id)
-    const data = await getSupplierBankList(id)
-    setBankData(data)
+    const data = await getSupplierBankList(id);
+    setBankData(data);
     setSupplierId(id);
-  }
+  };
 
   const handleAddBank = async () => {
     setBankModalState(true);
@@ -142,30 +136,27 @@ const Supplyer = () => {
     setMoneyTypes(res.entity);
     setBankModalState(true);
     setBankOperation(Operation.Edit);
-    form1.setFieldsValue(record)
-    setBankId(record.id)
+    form1.setFieldsValue(record);
+    setBankId(record.id);
   };
 
   const handleBankOk = async () => {
     form1.validateFields();
     const values = form1.getFieldsValue();
-    const params ={
+    const params = {
       ...values,
       moneyType: values.moneyType.label,
       moneyTypeId: values.moneyType.value,
-    }
-    console.log(values,'values')
-    setLoading(true);
+    };
     const { code } =
       bankOperation === Operation.Add
         ? await addSupplierBank(supplierId, params)
         : await updateSupplierBank(supplierId, bankId, params);
     if (code === 200) {
-      form1.resetFields()
+      form1.resetFields();
       setBankModalState(false);
-      const res = await getSupplierBankList(supplierId)
-      setBankData(res)
-      setLoading(false);
+      const res = await getSupplierBankList(supplierId);
+      setBankData(res);
       notification.success({
         message: bankOperation === Operation.Add ? "添加成功" : "编辑成功",
         duration: 3,
@@ -175,13 +166,13 @@ const Supplyer = () => {
 
   const handleDeleteBank = async (id) => {
     await deleteBank(id);
-    const res = await getSupplierBankList(supplierId)
-    setBankData(res)
+    const res = await getSupplierBankList(supplierId);
+    setBankData(res);
     notification.success({
-      message:  "删除成功" ,
+      message: "删除成功",
       duration: 3,
     });
-  }
+  };
 
   const columns = [
     {
@@ -232,7 +223,7 @@ const Supplyer = () => {
             </Button>
             <Tooltip title={<span>查看银行账户信息</span>}>
               <Button
-                onClick={() =>handleCheckBank(record.id)}
+                onClick={() => handleCheckBank(record.id)}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -261,13 +252,13 @@ const Supplyer = () => {
   const bankColumns = [
     {
       title: "银行账户",
-      dataIndex: "bank",
-      key: "bank",
+      dataIndex: "bankCard",
+      key: "bankCard",
     },
     {
       title: "开户银行",
-      dataIndex: "bankCard",
-      key: "bankCard",
+      dataIndex: "bank",
+      key: "bank",
     },
     {
       title: "币种",
@@ -450,10 +441,10 @@ const Supplyer = () => {
           initialValues={initialValues}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item label="银行账户" name="bank">
+          <Form.Item label="银行账户" name="bankCard">
             <Input placeholder="请输入银行账户" />
           </Form.Item>
-          <Form.Item label="开户银行" name="bankCard">
+          <Form.Item label="开户银行" name="bank">
             <Input placeholder="请输入开户银行" />
           </Form.Item>
           <Form.Item label="币种" name="moneyType">

@@ -1,12 +1,16 @@
 import { Company } from "@/types";
 import axiosInstance from "./axiosInstance";
 
-export const getSuppliersList = async (pageNo: number, pageSize: number, name?: string) => {
+export const getSuppliersList = async (
+  pageNo: number,
+  pageSize: number,
+  name?: string
+) => {
   const res = await axiosInstance.get(`/zc/supplier/list`, {
     params: {
       pageNo,
       pageSize,
-      name
+      name,
     },
   });
 
@@ -21,28 +25,29 @@ export const addSupplyer = async (info: Company) => {
   return res.data;
 };
 
-export const updateSupplyer = async (id: string, info: Company) => { 
-    const res = await axiosInstance.post(`/zc/supplier/update`, {
-        ...info,
-        id,
-    })
-
-    return res.data;
-}
-
-export const deleteSupplyer = async(id:string) => {
-  const res = await axiosInstance.get(`/zc/supplier/del`, {
-    params: {
-      id,
-    }
+export const updateSupplyer = async (id: string, info: Company) => {
+  const res = await axiosInstance.post(`/zc/supplier/update`, {
+    ...info,
+    id,
   });
 
   return res.data;
-}
+};
 
+export const deleteSupplyer = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/supplier/del`, {
+    params: {
+      id,
+    },
+  });
+
+  return res.data;
+};
 
 export const getSuppliersYFList = async (projectId: string) => {
-  const res = await axiosInstance.get(`/zc/supplier/listYfSupplier?projectId=${projectId}`);
+  const res = await axiosInstance.get(
+    `/zc/supplier/listYfSupplier?projectId=${projectId}`
+  );
 
   return res.data;
 };

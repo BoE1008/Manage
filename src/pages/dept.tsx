@@ -29,10 +29,10 @@ const Dept = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getDeptList(page,pageSize);
+      const res = await getDeptList(page, pageSize);
       setData(res);
     })();
-  }, [page,pageSize]);
+  }, [page, pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -113,17 +113,25 @@ const Dept = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleEditOne(record)}
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
             <Button
-              style={{ display: "flex", alignItems: "center",padding: "3px 5px" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                padding: "3px 5px",
+              }}
               onClick={() => handleDeleteOne(record.id)}
             >
               <DeleteTwoTone twoToneColor="#198348" />
@@ -202,7 +210,7 @@ const Dept = () => {
           <Form.Item required label="部门名称" name="name">
             <Input placeholder="部门名称" />
           </Form.Item>
-          
+
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
           </Form.Item>

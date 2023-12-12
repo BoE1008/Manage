@@ -1,10 +1,10 @@
 import {
   getinvoicingYWList,
-  addInvoicing,
   updateInvoicing,
   submitToCw,
   rejectOne,
   logsOne,
+  getInvoicingDetailById,
 } from "@/restApi/invoicing";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -17,7 +17,6 @@ import {
   Select,
   DatePicker,
   notification,
-  message,
   List,
   Avatar,
   Tooltip,
@@ -27,14 +26,14 @@ import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { getProjectsSubmitList } from "@/restApi/project";
 import {
-  EditTwoTone,
   DeleteTwoTone,
   CheckCircleTwoTone,
   CalendarTwoTone,
   StopTwoTone,
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
-import { debounce } from "lodash";
+import RejectModal from "@/components/RejectModal";
+import DetailModal from "@/components/DetailModal";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -51,6 +50,10 @@ const InvoicingSubmit = () => {
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const [rejectId, setRejectId] = useState();
+
+  const [detail, setDetail] = useState();
 
   useEffect(() => {
     (async () => {
@@ -99,28 +102,34 @@ const InvoicingSubmit = () => {
     }
   };
 
+  const handleReject = async (invoicingId: string, remark: string) => {
+    await rejectOne(invoicingId, remark, 1);
+    setRejectId(undefined);
+    notification.success({ message: "申请已退回" });
+    const data = await getinvoicingYWList(page, pageSize);
+    setLoading(false);
+    setData(data);
+  };
+
   const handleDeleteOne = async (id: string) => {};
 
-  const handleProjectChanged = async  (param) => {
+  const handleProjectChanged = async (param) => {
     const projectCustom = await getCustomersYSList(param.value);
     setCustomer(projectCustom.entity.data);
   };
 
-  const handleSubmitToCW = useCallback(
-    debounce(
-      async (id: string) => {
-        await submitToCw(id);
-        notification.success({ message: "已提交至财务审核" });
-        const res = await getinvoicingYWList(page, pageSize);
-        setData(res);
-      },
-      2000,
-      {
-        leading: true,
-        trailing: false,
-      }
-    ),[]
-  );
+  const handleDetail = async (id) => {
+    const res = await getInvoicingDetailById(id);
+    setDetail(res.entity.data);
+  };
+
+  const handleSubmitToCW = async () => {
+    await submitToCw(detail.id);
+    notification.success({ message: "已提交至财务审核" });
+    setDetail(undefined);
+    const res = await getinvoicingYWList(page, pageSize);
+    setData(res);
+  };
 
   const validateName = () => {
     return {
@@ -218,7 +227,7 @@ const InvoicingSubmit = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
 
         return (
@@ -235,23 +244,45 @@ const InvoicingSubmit = () => {
                 <EditTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>} */}
-            {!isFinished&&<Tooltip title="提交至财务审核">
-              <Popconfirm
-                title="提交至财务审核？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleSubmitToCW(record.id)}
-              >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
+            {!isFinished && (
+              <Tooltip title="提交至财务审核">
+                <Popconfirm
+                  title="提交至财务审核？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  // onConfirm={() => handleSubmitToCW(record.id)}
+                  onConfirm={() => handleDetail(record.id)}
                 >
-                  <CheckCircleTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
-            </Tooltip>}
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <CheckCircleTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
+            {!isFinished && (
+              <Tooltip title="退回申请">
+                <Popconfirm
+                  title="是否退回申请？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => setRejectId(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <StopTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
             <Tooltip title="查看审核日志">
               <Button
                 style={{
@@ -264,23 +295,25 @@ const InvoicingSubmit = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            {!isFinished &&<Tooltip title="删除">
-            <Popconfirm
-                title="是否删除？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleDeleteOne(record.id)}
-              >
-              <Button
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-              >
-                <DeleteTwoTone twoToneColor="#198348" />
-                </Button>
+            {/* {!isFinished && (
+              <Tooltip title="删除">
+                <Popconfirm
+                  title="是否删除？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleDeleteOne(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <DeleteTwoTone twoToneColor="#198348" />
+                  </Button>
                 </Popconfirm>
-            </Tooltip>}
+              </Tooltip>
+            )} */}
           </Space>
         );
       },
@@ -348,7 +381,6 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
@@ -366,7 +398,6 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
@@ -449,6 +480,18 @@ const InvoicingSubmit = () => {
           )}
         />
       </Modal>
+
+      <DetailModal
+        data={detail}
+        onConfirm={handleSubmitToCW}
+        onClose={() => setDetail(undefined)}
+      />
+
+      <RejectModal
+        open={!!rejectId}
+        onClose={() => setRejectId(undefined)}
+        onReject={(value) => handleReject(rejectId, value)}
+      />
     </div>
   );
 };

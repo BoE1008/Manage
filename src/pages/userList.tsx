@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
-import { Table, Button, Modal, Form, Input, Space, notification } from "antd";
-import { EditTwoTone } from "@ant-design/icons";
-import { getUserList, updateUser, addUser } from "@/restApi/user";
+import {
+  Table,
+  Button,
+  Modal,
+  Form,
+  Input,
+  Space,
+  notification,
+  Tooltip,
+  Popconfirm,
+} from "antd";
+import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
+import { getUserList, updateUser, addUser, deleteUser } from "@/restApi/user";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
 
@@ -54,24 +64,32 @@ const User = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    setLoading(true);
-    const { code } =
-      operation === Operation.Add
-        ? await addUser(values)
-        : await updateUser(values, editId);
-    if (code === 200) {
-      setModalOpen(false);
-      const data = await getUserList(page, pageSize, searchValue);
-      setLoading(false);
-      setData(data);
-      notification.success({
-        message: operation === Operation.Add ? "添加成功" : "编辑成功",
-        duration: 3,
-      });
-    }
+    // setLoading(true);
+    operation === Operation.Add
+      ? await addUser(values)
+      : await updateUser(values, editId);
+    setModalOpen(false);
+    const data = await getUserList(page, pageSize, searchValue);
+    setLoading(false);
+    setData(data);
+    notification.success({
+      message: operation === Operation.Add ? "添加成功" : "编辑成功",
+      duration: 3,
+    });
+  };
+
+  const handleDelete = async (id) => {
+    await deleteUser(id);
+    const data = await getUserList(page, pageSize, searchValue);
+    setData(data);
   };
 
   const columns = [
+    {
+      title: "用户编号",
+      dataIndex: "userNum",
+      key: "userNum",
+    },
     {
       title: "用户名",
       dataIndex: "userName",
@@ -95,7 +113,7 @@ const User = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record: Company) => {
+      render: (_, record: Company) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Button
@@ -108,6 +126,24 @@ const User = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDelete(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                  onClick={() => handleDelete(record.id)}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
@@ -170,7 +206,7 @@ const User = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
@@ -185,6 +221,9 @@ const User = () => {
               <Input placeholder="请输入登录名" />
             </Form.Item>
           )}
+          <Form.Item required label="用户编号" name="userNum">
+            <Input placeholder="请输入用户编号" />
+          </Form.Item>
           <Form.Item label="邮箱" name="email">
             <Input placeholder="请输入邮箱地址" />
           </Form.Item>

@@ -137,16 +137,16 @@ const Dict = () => {
   };
 
   const handleDeleteOne = async (id) => {
-    await deleteDict(id)
+    await deleteDict(id);
     const data = await getDictList(page, pageSize);
     setData(data);
-  }
+  };
 
   const handleDeleteDataOne = async (id) => {
-    await deleteDictData(id)
+    await deleteDictData(id);
     const data = await getDictDetail(typeId, 1, 20);
     setDictDetail(data.entity.data);
-  }
+  };
 
   const columns = [
     {
@@ -364,11 +364,7 @@ const Dict = () => {
           >
             <Input placeholder="请输入字典名称" />
           </Form.Item>
-          <Form.Item
-            required
-            label="code"
-            name="code"
-          >
+          <Form.Item required label="code" name="code">
             <Input placeholder="请输入编码" />
           </Form.Item>
           <Form.Item label="状态" name="status">

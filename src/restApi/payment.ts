@@ -28,81 +28,103 @@ export const updatePayment = async (id: string, info) => {
 };
 
 export const getPaymentYWList = async (pageNo: number, pageSize: number) => {
-    const res = await axiosInstance.get(`/zc/payment/yw/list`, {
-      params: {
-        pageNo,
-        pageSize,
-      },
-    });
-    return res.data;
-  };
+  const res = await axiosInstance.get(`/zc/payment/yw/list`, {
+    params: {
+      pageNo,
+      pageSize,
+    },
+  });
+  return res.data;
+};
 
-  export const getPaymentCWList = async (pageNo: number, pageSize: number) => {
-    const res = await axiosInstance.get(`/zc/payment/cw/list`, {
-      params: {
-        pageNo,
-        pageSize,
-      },
-    });
-    return res.data;
-  };
+export const getPaymentCWList = async (pageNo: number, pageSize: number) => {
+  const res = await axiosInstance.get(`/zc/payment/cw/list`, {
+    params: {
+      pageNo,
+      pageSize,
+    },
+  });
+  return res.data;
+};
 
-  export const getPaymentLDList = async (pageNo: number, pageSize: number) => {
-    const res = await axiosInstance.get(`/zc/payment/ld/list`, {
-      params: {
-        pageNo,
-        pageSize,
-      },
-    });
-    return res.data;
-  };
+export const getPaymentLDList = async (pageNo: number, pageSize: number) => {
+  const res = await axiosInstance.get(`/zc/payment/ld/list`, {
+    params: {
+      pageNo,
+      pageSize,
+    },
+  });
+  return res.data;
+};
 
-  export const submitToLD = async (paymentId:string) => {
-    const res = await axiosInstance.post(`/zc/payment/submitLeader`, {
-      paymentId
-    })
-  
-    return res.data;
-  }
+export const submitToYW = async (paymentId: string) => {
+  const res = await axiosInstance.post(`/zc/payment/submitYW`, {
+    paymentId,
+  });
 
-  export const submitLDToCW = async (paymentId:string) => {
-    const res = await axiosInstance.post(`/zc/payment/submitLDToCW`, {
-      paymentId
-    })
-  
-    return res.data;
-  }
+  return res.data;
+};
 
-  export const submitYWToCW = async (paymentId:string) => {
-    const res = await axiosInstance.post(`/zc/payment/submitYWToCW`, {
-      paymentId
-    })
-  
-    return res.data;
-  }
+export const submitToLD = async (paymentId: string) => {
+  const res = await axiosInstance.post(`/zc/payment/submitLeader`, {
+    paymentId,
+  });
 
-  export const approveOne = async (paymentId:string) => {
-    const res = await axiosInstance.post(`/zc/payment/approve`, {
-      paymentId
-    })
-  
-    return res.data;
-  }
-  
-  export const rejectOne = async (paymentId:string) => {
-    const res = await axiosInstance.post(`/zc/payment/reject`, {
-      paymentId
-    })
-  
-    return res.data;
-  }
-  
-  export const logsOne = async (paymentId: string) => {
-    const res = await axiosInstance.get(
-      `/zc/payment/log/list?paymentId=${paymentId}`
-    );
-    return res.data;
-  }
+  return res.data;
+};
 
+export const submitLDToCW = async (paymentId: string) => {
+  const res = await axiosInstance.post(`/zc/payment/submitLDToCW`, {
+    paymentId,
+  });
 
+  return res.data;
+};
 
+export const submitYWToCW = async (paymentId: string) => {
+  const res = await axiosInstance.post(`/zc/payment/submitYWToCW`, {
+    paymentId,
+  });
+
+  return res.data;
+};
+
+export const approveOne = async (paymentId: string) => {
+  const res = await axiosInstance.post(`/zc/payment/approve`, {
+    paymentId,
+  });
+
+  return res.data;
+};
+
+export const rejectOne = async (paymentId: string, remark, approveState) => {
+  const res = await axiosInstance.post(`/zc/payment/reject`, {
+    paymentId,
+    remark,
+    approveState,
+  });
+
+  return res.data;
+};
+
+export const deleteOne = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/payment/del`, {
+    params: {
+      id,
+    },
+  });
+  return res.data;
+};
+
+export const logsOne = async (paymentId: string) => {
+  const res = await axiosInstance.get(
+    `/zc/payment/log/list?paymentId=${paymentId}`
+  );
+  return res.data;
+};
+
+export const getPaymentDetailById = async (id) => {
+  const res = await axiosInstance.get("/zc/payment/detail", { params: { id } });
+
+  return res.data;
+};

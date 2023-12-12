@@ -27,3 +27,5 @@ export interface User {
   status?: string;
   userName: string;
 }
+
+enum DictRecord {}

@@ -27,22 +27,21 @@ import {
   getProjectsApproveList,
   addProject,
   updateProject,
-  getProjectType,
   deleteProject,
   exportProject,
-  submitOne,
   approveOne,
   rejectOne,
   logsOne,
+  getProjectDetailById,
 } from "@/restApi/project";
 import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
-import { downloadFile } from "@/restApi/download";
 import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
-import { debounce } from "lodash";
-import YSYFModal from '@/components/YSYFModal'
+import YSYFModal from "@/components/YSYFModal";
+import RejectModal from "@/components/RejectModal";
+import ProjectDetailModal from "@/components/DetailModal";
 
 const initialValues = {
   name: "",
@@ -72,24 +71,22 @@ const Project = () => {
 
   const [form] = Form.useForm();
 
-  const [projectType, setProjectType] = useState();
-
   const [projectId, setProjectId] = useState();
+
+  const [rejectId, setRejectId] = useState();
+  const [detail, setDetail] = useState();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectsApproveList(page, pageSize, searchValue);
-      const typelist = await getProjectType();
       const customer = await getCustomersList(1, 1000);
       const res = await getDictById();
-      console.log(customer, "customer");
       setDict(res.entity);
       setDict;
       setCustomer(customer.entity.data);
       // const file = await exportProject();
       setLoading(false);
       setData(data);
-      setProjectType(typelist.entity.data);
       // setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
@@ -136,26 +133,28 @@ const Project = () => {
     setLoading(false);
   };
 
-  const handleApproveOne = useCallback(
-    debounce(async (projectId: string) => {
-      const res = await approveOne(projectId);
-      notification.success({ message: "审核完成" });
-      const data = await getProjectsApproveList(page, pageSize, searchValue);
-      setData(data);
-      setLoading(false);
-    }, 2000),
-    []
-  );
-  const handleRejectOne = useCallback(
-    debounce(async (projectId: string) => {
-      const res = await rejectOne(projectId);
-      notification.success({ message: "审核退回" });
-      const data = await getProjectsApproveList(page, pageSize, searchValue);
-      setData(data);
-      setLoading(false);
-    }, 2000),
-    []
-  );
+  const handleDetail = async (id) => {
+    const res = await getProjectDetailById(id);
+    setDetail(res.entity.data);
+  };
+
+  const handleApproveOne = async () => {
+    await approveOne(detail.id);
+    notification.success({ message: "审核完成" });
+    setDetail(undefined);
+    const data = await getProjectsApproveList(page, pageSize, searchValue);
+    setData(data);
+    setLoading(false);
+  };
+
+  const handleRejectOne = async (projectId: string, remark) => {
+    await rejectOne(projectId, remark);
+    notification.success({ message: "审核退回" });
+    setRejectId(undefined);
+    const data = await getProjectsApproveList(page, pageSize, searchValue);
+    setData(data);
+    setLoading(false);
+  };
 
   const handleLogs = async (id: string) => {
     const res = await logsOne(id);
@@ -164,8 +163,9 @@ const Project = () => {
 
   const handleExport = async () => {
     const file = await exportProject();
-    // const res = await downloadFile(data.msg);
-    // console.log(res, "res");
+    window.open(
+      `http://123.60.88.8/zc/common/download?fileName=${file.msg}&delete=false`
+    );
   };
 
   const columns = [
@@ -242,7 +242,7 @@ const Project = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record: Company) => {
+      render: (_, record: Company) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -265,7 +265,8 @@ const Project = () => {
                   <Popconfirm
                     title="是否通过审批？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    onConfirm={() => handleApproveOne(record.id)}
+                    // onConfirm={() => handleApproveOne(record.id)}
+                    onConfirm={() => handleDetail(record.id)}
                   >
                     <Button
                       style={{
@@ -282,7 +283,7 @@ const Project = () => {
                   <Popconfirm
                     title="是否退回申请？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    onConfirm={() => handleRejectOne(record.id)}
+                    onConfirm={() => setRejectId(record.id)}
                   >
                     <Button
                       style={{
@@ -323,7 +324,7 @@ const Project = () => {
               </Button>
             </Tooltip>
 
-            <Tooltip title="删除">
+            {/* <Tooltip title="删除">
               <Popconfirm
                 title="是否删除？"
                 okButtonProps={{ style: { backgroundColor: "#198348" } }}
@@ -339,20 +340,12 @@ const Project = () => {
                   <DeleteTwoTone twoToneColor="#198348" />
                 </Button>
               </Popconfirm>
-            </Tooltip>
+            </Tooltip> */}
           </Space>
         );
       },
     },
   ];
-
-  const handleSelectChange = (value) => {
-    console.log(value, "change");
-  };
-
-  const handleSelectSearch = (value) => {
-    console.log(value, "search");
-  };
 
   const filterOption = (
     input: string,
@@ -382,14 +375,11 @@ const Project = () => {
             添加
           </Button>
           <Button
+            onClick={handleExport}
             type="primary"
             style={{ marginBottom: 16, background: "#198348", width: "100px" }}
           >
-            <Link
-              href={`http://123.60.88.8:8080/zc/common/download?fileName=${fileName}&delete=false`}
-            >
-              导出
-            </Link>
+            导出
           </Button>
         </Space>
 
@@ -456,31 +446,8 @@ const Project = () => {
           >
             <Input placeholder="请输入项目名称" />
           </Form.Item>
-          <Form.Item
-            label="产品"
-            name="typeId"
-            validateTrigger="onBlur"
-            rules={[{ required: true, message: "请选择产品" }]}
-            hasFeedback
-          >
-            <Select
-              
-              placeholder="选择产品"
-              optionFilterProp="children"
-              onChange={handleSelectChange}
-              onSearch={handleSelectSearch}
-              filterOption={filterOption}
-              options={dict
-                ?.find((con) => con.id === "1")
-                .childList?.map((con) => ({
-                  value: con.id,
-                  label: con.dictLabel,
-                }))}
-            />
-          </Form.Item>
           <Form.Item label="客户" name="customId">
             <Select
-              
               placeholder="选择客户"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -494,14 +461,32 @@ const Project = () => {
               }))}
             />
           </Form.Item>
+          <Form.Item
+            label="产品"
+            name="typeId"
+            validateTrigger="onBlur"
+            rules={[{ required: true, message: "请选择产品" }]}
+            hasFeedback
+          >
+            <Select
+              placeholder="选择产品"
+              optionFilterProp="children"
+              filterOption={filterOption}
+              options={dict
+                ?.find((con) => con.code === "sys_project_type")
+                .childList?.map((con) => ({
+                  value: con.id,
+                  label: con.dictLabel,
+                }))}
+            />
+          </Form.Item>
           <Form.Item label="品牌" name="brandId">
             <Select
-              
               placeholder="选择品牌"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
               options={dict
-                ?.find((con) => con.id === "2")
+                ?.find((con) => con.code === "sys_project_brand")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
@@ -510,7 +495,6 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="货物" name="productId">
             <Select
-              
               placeholder="选择货物"
               optionFilterProp="children"
               // filterOption={customerFilterOption}
@@ -519,7 +503,7 @@ const Project = () => {
               //   value: con.id,
               // }))}
               options={dict
-                ?.find((con) => con.id === "3")
+                ?.find((con) => con.code === "sys_product_type")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
@@ -528,11 +512,10 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="服务内容" name="serviceId">
             <Select
-              
               placeholder="选择服务内容"
               optionFilterProp="children"
               options={dict
-                ?.find((con) => con.id === "4")
+                ?.find((con) => con.code === "sys_service_content")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
@@ -593,7 +576,22 @@ const Project = () => {
         />
       </Modal>
 
-      <YSYFModal projectId={projectId} onClose={() => setProjectId(undefined)} />
+      <YSYFModal
+        projectId={projectId}
+        onClose={() => setProjectId(undefined)}
+      />
+
+      <ProjectDetailModal
+        data={detail}
+        onConfirm={handleApproveOne}
+        onClose={() => setDetail(undefined)}
+      />
+
+      <RejectModal
+        open={!!rejectId}
+        onClose={() => setRejectId(undefined)}
+        onReject={(value) => handleRejectOne(rejectId, value)}
+      />
     </div>
   );
 };

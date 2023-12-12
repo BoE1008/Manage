@@ -3,6 +3,9 @@ import {
   addInvoicing,
   updateInvoicing,
   logsOne,
+  submitToYw,
+  getInvoicingDetailById,
+  deleteOne,
 } from "@/restApi/invoicing";
 import { useEffect, useState } from "react";
 import {
@@ -19,14 +22,23 @@ import {
   Avatar,
   Tooltip,
   Popconfirm,
+  Typography,
+  Upload,
+  message,
 } from "antd";
 import { Operation } from "@/types";
-import dayjs from "dayjs";
-import { getCustomersList } from "@/restApi/customer";
-import { getProjectsApproveList } from "@/restApi/project";
-import { EditTwoTone, DeleteTwoTone, CalendarTwoTone } from "@ant-design/icons";
+import { getProjectsSubmitList } from "@/restApi/project";
+import {
+  EditTwoTone,
+  DeleteTwoTone,
+  CalendarTwoTone,
+  InteractionTwoTone,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
-import { InvoicingTypeArr, MoneytypeArr } from "@/utils/const";
+import { InvoicingTypeArr } from "@/utils/const";
+import { getDictByCode } from "@/restApi/dict";
+import DetailModal from "@/components/DetailModal";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -34,6 +46,7 @@ const InvoicingSubmit = () => {
   const [customer, setCustomer] = useState();
   const [project, setProject] = useState();
   const [logs, setLogs] = useState();
+  const [searchValue, setSearchValue] = useState("");
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -43,34 +56,54 @@ const InvoicingSubmit = () => {
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [dict, setDict] = useState();
+  const [invoicingContent, setinvoicingContent] = useState();
+  const [bankcards, setBankcards] = useState();
+  const [bank, setBank] = useState();
+
+  const [selectCustomer, setSelectCustomer] = useState();
+
+  const [detail, setDetail] = useState();
+
   useEffect(() => {
     (async () => {
-      const res = await getinvoicingList(page, pageSize);
-      const projectData = await getProjectsApproveList(1, 10000);
+      const res = await getinvoicingList(page, pageSize, searchValue);
+      const projectData = await getProjectsSubmitList(1, 10000);
       setData(res);
       setProject(
         projectData.entity.data.filter((item) => item.state === "审批通过")
       );
     })();
-  }, [page, pageSize]);
+  }, [page, pageSize, searchValue]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
+    const res = await getDictByCode("sys_money_type");
+    const data = await getDictByCode("sys_invoicing_content");
+    setDict(res.entity);
+    setinvoicingContent(data.entity);
     setModalOpen(true);
   };
 
-  const handleEditOne = (record) => {
+  const handleEditOne = async (record) => {
     setOperation(Operation.Edit);
     setEditId(record.id);
-    console.log(record, 'record')
-    form.setFieldsValue(record)
+    const projectCustom = await getCustomersYSList(record.projectId);
+    setCustomer(projectCustom.entity.data);
+    setSelectCustomer(
+      projectCustom.entity?.data?.find((c) => record.customId === c.id)
+    );
+    const res = await getDictByCode("sys_money_type");
+    setDict(res.entity);
+    const data = await getDictByCode("sys_invoicing_content");
+    setinvoicingContent(data.entity);
+    form.setFieldsValue(record);
     setModalOpen(true);
   };
 
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values, "values");
     const params = {
       ...values,
       invoicingType: values.invoicingType?.value,
@@ -79,6 +112,10 @@ const InvoicingSubmit = () => {
       projectName: values.projectName?.label,
       customId: values.customName?.value,
       customName: values.customName?.label,
+      bankCard: values.bankCard.value,
+      bank: values.bank.value,
+      taxationNumber: selectCustomer?.taxationNumber,
+      content: values.content?.value,
     };
 
     setLoading(true);
@@ -98,13 +135,29 @@ const InvoicingSubmit = () => {
     }
   };
 
+  const handleDetail = async (id) => {
+    const res = await getInvoicingDetailById(id);
+    setDetail(res.entity.data);
+  };
+
+  const handleSubmitOne = async () => {
+    await submitToYw(detail.id);
+    notification.success({ message: "提交成功" });
+    setDetail(undefined);
+    const data = await getinvoicingList(page, pageSize);
+    setData(data);
+  };
+
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
-    console.log(res, "res");
     setLogs(res.entity.data);
   };
 
-  const handleDeleteOne = async (id: string) => {};
+  const handleDeleteOne = async (id: string) => {
+    await deleteOne(id);
+    const data = await getinvoicingList(page, pageSize);
+    setData(data);
+  };
 
   const validateName = () => {
     return {
@@ -118,10 +171,36 @@ const InvoicingSubmit = () => {
   };
 
   const handleProjectChanged = async (param) => {
+    form.setFieldValue("customName", {});
+    form.setFieldValue("moneyType", {});
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
     const projectCustom = await getCustomersYSList(param.value);
     setCustomer(projectCustom.entity.data);
+  };
 
-    console.log(projectCustom);
+  const handleCustomerChange = async (value) => {
+    form.setFieldValue("moneyType", {});
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
+    setSelectCustomer(customer?.find((c) => c.id === value.value));
+  };
+
+  const onSearch = () => {};
+
+  const handleMoneyTypeChnage = (value) => {
+    form.setFieldValue("bankCard", {});
+    form.setFieldValue("bank", {});
+    const res = selectCustomer?.accountList?.filter(
+      (c) => c.moneyType === value.value
+    );
+    setBankcards(res);
+  };
+
+  const handleBankCardChange = (value) => {
+    form.setFieldValue("bank", {});
+    const res = bankcards?.filter((c) => c.bankCard === value.value);
+    setBank(res);
   };
 
   const customerFilterOption = (
@@ -214,6 +293,25 @@ const InvoicingSubmit = () => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             {!isFinished && (
+              <Tooltip title={<span>提交业务审核</span>}>
+                <Popconfirm
+                  title="是否提交审核？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => handleDetail(record.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <InteractionTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
+            {!isFinished && (
               <Tooltip title="编辑">
                 <Button
                   style={{
@@ -264,6 +362,32 @@ const InvoicingSubmit = () => {
     },
   ];
 
+  const uploadProps = {
+    name: "file",
+    action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
+    headers: {
+      authorization: "authorization-text",
+    },
+    onChange(info) {
+      if (info.file.status !== "uploading") {
+        console.log(info.file, info.fileList);
+      }
+      if (info.file.status === "done") {
+        message.success(`${info.file.name} 上传成功`);
+      } else if (info.file.status === "error") {
+        message.error(`${info.file.name} 上传失败`);
+      }
+    },
+    progress: {
+      strokeColor: {
+        "0%": "#108ee9",
+        "100%": "#87d068",
+      },
+      strokeWidth: 3,
+      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    },
+  };
+
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
@@ -280,8 +404,8 @@ const InvoicingSubmit = () => {
         <Space>
           <Input
             placeholder="名称"
-            // value={searchValue}
-            // onChange={(e) => setSearchValue(e.target.value)}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
           />
         </Space>
       </div>
@@ -319,7 +443,10 @@ const InvoicingSubmit = () => {
         okButtonProps={{ style: { background: "#198348" } }}
         // confirmLoading={confirmLoading}
         onCancel={() => setModalOpen(false)}
-        afterClose={() => form.resetFields()}
+        afterClose={() => {
+          form.resetFields();
+          setSelectCustomer(undefined);
+        }}
         style={{ minWidth: "650px" }}
       >
         <Form
@@ -335,10 +462,12 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
+              showSearch
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
+              onSearch={onSearch}
               optionLabelProp="label"
               options={project?.map((con) => ({
                 label: con.name,
@@ -350,6 +479,7 @@ const InvoicingSubmit = () => {
           <Form.Item
             label="客户"
             name="customName"
+            dependencies={["projectName"]}
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
@@ -357,6 +487,7 @@ const InvoicingSubmit = () => {
               placeholder="选择客户"
               optionFilterProp="children"
               filterOption={customerFilterOption}
+              onChange={handleCustomerChange}
               options={customer?.map((con) => ({
                 label: con.name,
                 value: con.id,
@@ -375,41 +506,77 @@ const InvoicingSubmit = () => {
               }))}
             ></Select>
           </Form.Item>
+
+          <Form.Item required label="内容" name="content">
+            <Select
+              labelInValue
+              placeholder="选择开票内容"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              onChange={handleMoneyTypeChnage}
+              options={invoicingContent?.map((con) => ({
+                label: con.dictLabel,
+                value: con.dictLabel,
+              }))}
+            ></Select>
+          </Form.Item>
+          <Form.Item required label="金额" name="fee">
+            <Input placeholder="金额" />
+          </Form.Item>
+          <Form.Item label="税号" name="taxationNumber">
+            {/* <Input placeholder="税号" /> */}
+            <Typography>
+              <code>{selectCustomer?.taxationNumber}</code>
+            </Typography>
+          </Form.Item>
           <Form.Item required label="币种" name="moneyType">
             <Select
               labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              options={MoneytypeArr?.map((con) => ({
-                label: con,
-                value: con,
+              onChange={handleMoneyTypeChnage}
+              options={dict?.map((con) => ({
+                label: con.dictLabel,
+                value: con.dictLabel,
               }))}
             ></Select>
           </Form.Item>
-          <Form.Item required label="内容" name="content">
-            <Input placeholder="内容" />
-          </Form.Item>
-          <Form.Item required label="金额" name="fee">
-            <Input placeholder="金额" />
-          </Form.Item>
-          <Form.Item label="税号" name="taxationNumber">
-            <Input placeholder="税号" />
+          <Form.Item label="卡号" name="bankCard">
+            <Select
+              labelInValue
+              placeholder="选择银行卡"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              onChange={handleBankCardChange}
+              options={bankcards?.map((con) => ({
+                label: con.bankCard,
+                value: con.bankCard,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item label="开户行" name="bank">
-            <Input placeholder="开户行" />
-          </Form.Item>
-          <Form.Item label="卡号" name="bankCard">
-            <Input placeholder="卡号" />
-          </Form.Item>
-          <Form.Item label="地址" name="address">
-            <Input placeholder="地址" />
-          </Form.Item>
-          <Form.Item label="联系电话" name="phone">
-            <Input placeholder="联系电话" />
+            <Select
+              labelInValue
+              placeholder="选择开户行"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              defaultActiveFirstOption
+              defaultValue={{ label: bank?.[0].bank, value: bank?.[0].bank }}
+              options={bank?.map((con) => ({
+                label: con.bank,
+                value: con.bank,
+              }))}
+            ></Select>
           </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={6} />
+          </Form.Item>
+
+          <Form.Item label="附件" name="annex">
+            <Upload {...uploadProps}>
+              <Button icon={<UploadOutlined />}>点击上传</Button>
+            </Upload>
           </Form.Item>
         </Form>
       </Modal>
@@ -442,6 +609,12 @@ const InvoicingSubmit = () => {
           )}
         />
       </Modal>
+
+      <DetailModal
+        data={detail}
+        onConfirm={handleSubmitOne}
+        onClose={() => setDetail(undefined)}
+      />
     </div>
   );
 };

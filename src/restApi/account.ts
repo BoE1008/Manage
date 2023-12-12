@@ -31,7 +31,6 @@ export const updateCustomBank = async (customSupplierId, id, info) => {
   return res.data;
 };
 
-
 export const getSupplierBankList = async (customSupplierId) => {
   const res = await axiosInstance.get(`/zc/account/supplier/list`, {
     params: {
@@ -64,6 +63,6 @@ export const updateSupplierBank = async (customSupplierId, id, info) => {
 };
 
 export const deleteBank = async (id) => {
-  const res = await axiosInstance.get('/zc/account/del', { params: { id } })
-  return res.data
-}
+  const res = await axiosInstance.get("/zc/account/del", { params: { id } });
+  return res.data;
+};

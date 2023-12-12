@@ -18,7 +18,9 @@ export const getCustomersList = async (
 };
 
 export const getCustomersYSList = async (projectId: string) => {
-  const res = await axiosInstance.get(`/zc/custom/listYsCustom?projectId=${projectId}`);
+  const res = await axiosInstance.get(
+    `/zc/custom/listYsCustom?projectId=${projectId}`
+  );
 
   return res.data;
 };
@@ -44,7 +46,7 @@ export const deleteCustomer = async (id: string) => {
   const res = await axiosInstance.get(`/zc/custom/del`, {
     params: {
       id,
-    }
+    },
   });
 
   return res.data;

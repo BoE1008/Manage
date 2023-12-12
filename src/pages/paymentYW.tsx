@@ -32,10 +32,12 @@ import {
   submitYWToCW,
   logsOne,
   rejectOne,
+  getPaymentDetailById,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
-import { debounce } from "lodash";
+import RejectModal from "@/components/RejectModal";
+import DetailModal from "@/components/DetailModal";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -53,6 +55,11 @@ const Role = () => {
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const [rejectId, setRejectId] = useState();
+
+  const [detail, setDetail] = useState();
+  const [submitType, setSubmitType] = useState();
 
   useEffect(() => {
     (async () => {
@@ -79,35 +86,34 @@ const Role = () => {
     setModalOpen(true);
   };
 
-  const handleSubmitToLD = useCallback(
-    debounce(async (id: string) => {
-      await submitToLD(id);
-      notification.success({ message: "已提交至领导审核" });
-      const res = await getPaymentYWList(page, pageSize);
-      setData(res);
-    }, 2000),
-    []
-  );
+  const handleDetail = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setDetail(res.entity.data);
+  };
 
-  const handleSubmitToCW = useCallback(
-    debounce(async (id: string) => {
-      await submitYWToCW(id);
-      notification.success({ message: "已提交至财务审核" });
-      const res = await getPaymentYWList(page, pageSize);
-      setData(res);
-    }, 2000),
-    []
-  );
+  const handleSubmitToLD = async () => {
+    await submitToLD(detail.id);
+    notification.success({ message: "已提交至领导审核" });
+    setDetail(undefined);
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
+  };
 
-  const handleRejectOne = useCallback(
-    debounce(async (id: string) => {
-      await rejectOne(id);
-      notification.success({ message: "申请已退回" });
-      const res = await getPaymentYWList(page, pageSize);
-      setData(res);
-    }, 2000),
-    []
-  );
+  const handleSubmitToCW = async () => {
+    await submitYWToCW(detail.id);
+    notification.success({ message: "已提交至财务审核" });
+    setDetail(undefined);
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
+  };
+
+  const handleRejectOne = async (id: string, remark: string) => {
+    await rejectOne(id, remark, 1);
+    setRejectId(undefined);
+    notification.success({ message: "申请已退回" });
+    const res = await getPaymentYWList(page, pageSize);
+    setData(res);
+  };
 
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
@@ -211,7 +217,7 @@ const Role = () => {
     {
       title: "操作",
       key: "action",
-      render: (_,record) => {
+      render: (_, record) => {
         const isFinished = record.state === "审批通过";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
@@ -220,7 +226,10 @@ const Role = () => {
                 <Popconfirm
                   title="是否提交？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleSubmitToLD(record.id)}
+                  onConfirm={() => {
+                    setSubmitType(0);
+                    handleDetail(record.id);
+                  }}
                 >
                   <Button
                     style={{
@@ -239,7 +248,10 @@ const Role = () => {
                 <Popconfirm
                   title="是否提交？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleSubmitToCW(record.id)}
+                  onConfirm={() => {
+                    setSubmitType(1);
+                    handleDetail(record.id);
+                  }}
                 >
                   <Button
                     style={{
@@ -259,7 +271,7 @@ const Role = () => {
                 <Popconfirm
                   title="是否退回？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleRejectOne(record.id)}
+                  onConfirm={() => setRejectId(record.id)}
                 >
                   <Button
                     style={{
@@ -299,7 +311,7 @@ const Role = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            {!isFinished && (
+            {/* {!isFinished && (
               <Tooltip title="删除">
                 <Popconfirm
                   title="是否删除？"
@@ -317,7 +329,7 @@ const Role = () => {
                   </Button>
                 </Popconfirm>
               </Tooltip>
-            )}
+            )} */}
           </Space>
         );
       },
@@ -395,7 +407,6 @@ const Role = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -411,7 +422,6 @@ const Role = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
-              
               placeholder="选择供应商"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -478,6 +488,20 @@ const Role = () => {
           )}
         />
       </Modal>
+
+      <DetailModal
+        data={detail}
+        onConfirm={() => {
+          submitType === 0 ? handleSubmitToLD() : handleSubmitToCW();
+        }}
+        onClose={() => setDetail(undefined)}
+      />
+
+      <RejectModal
+        open={!!rejectId}
+        onClose={() => setRejectId(undefined)}
+        onReject={(value) => handleRejectOne(rejectId, value)}
+      />
     </div>
   );
 };

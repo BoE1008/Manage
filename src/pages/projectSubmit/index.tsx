@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Button,
@@ -26,7 +26,7 @@ import {
   addProject,
   updateProject,
   deleteProject,
-  exportProject,
+  exportMyProject,
   submitOne,
   logsOne,
 } from "@/restApi/project";
@@ -34,7 +34,6 @@ import { Company, Operation } from "@/types";
 import dayjs from "dayjs";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
-import { debounce } from "lodash";
 import YSYFModal from "@/components/YSYFModal";
 
 const initialValues = {
@@ -128,16 +127,13 @@ const Project = () => {
     setLogs(res.entity.data);
   };
 
-  const handleSubmitOne = useCallback(
-    debounce(async (id: string) => {
-      await submitOne(id);
-      notification.success({ message: "提交成功" });
-    }, 2000),
-    []
-  );
+  const handleSubmitOne = async (id: string) => {
+    await submitOne(id);
+    notification.success({ message: "提交成功" });
+  };
 
   const handleExport = async () => {
-    const file = await exportProject();
+    const file = await exportMyProject();
     window.open(
       `http://123.60.88.8/zc/common/download?fileName=${file.msg}&delete=false`
     );

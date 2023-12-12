@@ -16,7 +16,6 @@ const System = () => {
     })();
   }, [pageSize, page]);
 
-
   const columns = [
     {
       title: "用户名",
@@ -45,8 +44,9 @@ const System = () => {
     },
   ];
 
-  return <div>
-    <Table
+  return (
+    <div>
+      <Table
         bordered
         loading={loading}
         dataSource={data?.entity.data}
@@ -70,7 +70,8 @@ const System = () => {
           },
         }}
       />
-  </div>;
+    </div>
+  );
 };
 
 export default System;

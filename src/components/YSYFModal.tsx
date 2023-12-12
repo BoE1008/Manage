@@ -86,10 +86,10 @@ const Item = ({ projectId, onClose }) => {
     const params = {
       ...values,
       yfDate: dayjs(values.yfDate).format("YYYY-MM-DD"),
-      yfChecking: values.yfChecking.value,
-      isPay: values.isPay.value,
-      yfCollection: values.yfCollection.value,
-      yfInvoice: values.yfInvoice.value,
+      yfChecking: values.yfChecking?.value || "x",
+      isPay: values.isPay?.value || "x",
+      yfCollection: values.yfCollection?.value || "x",
+      yfInvoice: values.yfInvoice?.value || "x",
     };
 
     const { code } =
@@ -135,6 +135,11 @@ const Item = ({ projectId, onClose }) => {
         key: "yfDollar",
       },
       {
+        title: "明细",
+        dataIndex: "yfPurpose",
+        key: "yfPurpose",
+      },
+      {
         title: "汇率",
         dataIndex: "yfExrate",
         key: "yfExrate",
@@ -169,11 +174,11 @@ const Item = ({ projectId, onClose }) => {
         dataIndex: "yfCollection",
         key: "yfCollection",
       },
-      {
-        title: "时间",
-        dataIndex: "yfDate",
-        key: "yfDate",
-      },
+      // {
+      //   title: "时间",
+      //   dataIndex: "yfDate",
+      //   key: "yfDate",
+      // },
       {
         title: "备注",
         dataIndex: "remark",
@@ -228,6 +233,11 @@ const Item = ({ projectId, onClose }) => {
       key: "ysDollar",
     },
     {
+      title: "明细",
+      dataIndex: "ysPurpose",
+      key: "ysPurpose",
+    },
+    {
       title: "汇率",
       dataIndex: "ysExrate",
       key: "ysExrate",
@@ -247,11 +257,11 @@ const Item = ({ projectId, onClose }) => {
       dataIndex: "ysCollection",
       key: "ysCollection",
     },
-    {
-      title: "时间",
-      dataIndex: "ysDate",
-      key: "ysDate",
-    },
+    // {
+    //   title: "时间",
+    //   dataIndex: "ysDate",
+    //   key: "ysDate",
+    // },
     {
       title: "备注",
       dataIndex: "remark",
@@ -304,13 +314,12 @@ const Item = ({ projectId, onClose }) => {
   const handleYsOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    console.log(values, " values");
     const params = {
       ...values,
       ysDate: dayjs(values.ysDate).format("YYYY-MM-DD"),
-      ysChecking: values.ysChecking.value,
-      ysCollection: values.ysCollection.value,
-      ysInvoice: values.ysInvoice.value,
+      ysChecking: values.ysChecking?.value || "x",
+      ysCollection: values.ysCollection?.value || "x",
+      ysInvoice: values.ysInvoice?.value || "x",
     };
     const { code } =
       operation === Operation.Add
@@ -342,13 +351,9 @@ const Item = ({ projectId, onClose }) => {
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
-  const handleSupplierSelectChange = (value) => {
-    console.log(value, "change");
-  };
+  const handleSupplierSelectChange = (value) => {};
 
-  const handleSupplierSelectSearch = (value) => {
-    console.log(value, "search");
-  };
+  const handleSupplierSelectSearch = (value) => {};
 
   const supplierFilterOption = (
     input: string,
@@ -452,6 +457,9 @@ const Item = ({ projectId, onClose }) => {
           <Form.Item label="汇率" name="ysExrate">
             <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
+          <Form.Item label="明细" name="ysPurpose">
+            <Input.TextArea placeholder="明细" maxLength={50} />
+          </Form.Item>
           <Form.Item label="对账" name="ysChecking">
             <Select
               labelInValue
@@ -488,15 +496,15 @@ const Item = ({ projectId, onClose }) => {
               }))}
             ></Select>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="日期"
             name="ysDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
             <DatePicker allowClear={false} />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={50} />
           </Form.Item>
         </Form>
       </Modal>
@@ -595,7 +603,7 @@ const Item = ({ projectId, onClose }) => {
             labelCol={{ span: 5 }}
             name="ylProfitMoney"
           >
-            <Input placeholder="预留利润名称" />
+            <Input placeholder="预留利润金额" />
           </Form.Item>
           <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
             <Select
@@ -609,16 +617,16 @@ const Item = ({ projectId, onClose }) => {
               }))}
             ></Select>
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="日期"
             labelCol={{ span: 5 }}
             name="yfDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
             <DatePicker allowClear={false} />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={50} />
           </Form.Item>
         </Form>
       </Modal>

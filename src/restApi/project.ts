@@ -57,7 +57,7 @@ export const updateProject = async (id: string, info: Project) => {
 };
 
 export const deleteProject = async (id: string) => {
-  const res = await axiosInstance.get(`/zc/project/del`, {params: {id} });
+  const res = await axiosInstance.get(`/zc/project/del`, { params: { id } });
   return res.data;
 };
 
@@ -111,6 +111,11 @@ export const updateProjectYf = async (id: string, info) => {
   return res.data;
 };
 
+export const exportMyProject = async () => {
+  const res = await axios.get(`/zc/project/exportMy`);
+  return res.data;
+};
+
 export const exportProject = async () => {
   const res = await axios.get(`/zc/project/export`);
   return res.data;
@@ -132,9 +137,10 @@ export const approveOne = async (projectId: string) => {
   return res.data;
 };
 
-export const rejectOne = async (projectId: string) => {
+export const rejectOne = async (projectId: string, remark: string) => {
   const res = await axiosInstance.post(`/zc/project/reject`, {
     projectId,
+    remark,
   });
 
   return res.data;
@@ -144,6 +150,12 @@ export const logsOne = async (projectId: string) => {
   const res = await axiosInstance.get(
     `/zc/project/log/list?projectId=${projectId}`
   );
+
+  return res.data;
+};
+
+export const getProjectDetailById = async (id) => {
+  const res = await axiosInstance.get("/zc/project/detail", { params: { id } });
 
   return res.data;
 };

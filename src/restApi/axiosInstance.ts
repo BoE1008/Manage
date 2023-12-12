@@ -7,24 +7,23 @@ const axiosInstance = axios.create({
 });
 
 if (typeof window === undefined) {
- 
 } else {
   axiosInstance.interceptors.response.use(
     (value) => {
       if (value.data.code !== 200) {
-        if(value.data.code === 401) {
-          window.location.href = '/login'
-          return Promise.reject()
+        if (value.data.code === 401) {
+          window.location.href = "/login";
+          return Promise.reject();
         }
         notification.error({ message: value.data.message });
-        return Promise.reject()
+        return Promise.reject(null);
       } else {
         return value;
       }
     },
-    () => {
+    (err) => {
       notification.error({ message: "服务器异常" });
-      return Promise.reject()
+      return Promise.reject(err);
     }
   );
 }

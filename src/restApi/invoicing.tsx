@@ -1,6 +1,10 @@
 import axiosInstance from "./axiosInstance";
 
-export const getinvoicingList = async (pageNo: number, pageSize: number) => {
+export const getinvoicingList = async (
+  pageNo: number,
+  pageSize: number,
+  name?: string
+) => {
   const res = await axiosInstance.get(`/zc/invoicing/list`, {
     params: {
       pageNo,
@@ -47,33 +51,64 @@ export const getinvoicingCWList = async (pageNo: number, pageSize: number) => {
   return res.data;
 };
 
-export const submitToCw = async (invoicingId:string) => {
+export const submitToYw = async (invoicingId: string) => {
+  const res = await axiosInstance.post(`/zc/invoicing/submitYW`, {
+    invoicingId,
+  });
+
+  return res.data;
+};
+
+export const submitToCw = async (invoicingId: string) => {
   const res = await axiosInstance.post(`/zc/invoicing/submitCW`, {
     invoicingId,
   });
 
   return res.data;
-}
+};
 
-export const approveOne = async (invoicingId:string) => {
+export const approveOne = async (invoicingId: string) => {
   const res = await axiosInstance.post(`/zc/invoicing/approve`, {
-    invoicingId
-  })
+    invoicingId,
+  });
 
   return res.data;
-}
+};
 
-export const rejectOne = async (invoicingId:string) => {
+export const rejectOne = async (
+  invoicingId: string,
+  remark: string,
+  approveState: number
+) => {
   const res = await axiosInstance.post(`/zc/invoicing/reject`, {
-    invoicingId
-  })
+    invoicingId,
+    remark,
+    approveState,
+  });
 
   return res.data;
-}
+};
+
+export const deleteOne = async (id: string) => {
+  const res = await axiosInstance.get(`/zc/invoicing/del`, {
+    params: {
+      id,
+    },
+  });
+  return res.data;
+};
 
 export const logsOne = async (invoicingId: string) => {
   const res = await axiosInstance.get(
     `/zc/invoicing/log/list?invoicingId=${invoicingId}`
   );
   return res.data;
-}
+};
+
+export const getInvoicingDetailById = async (id) => {
+  const res = await axiosInstance.get("/zc/invoicing/detail", {
+    params: { id },
+  });
+
+  return res.data;
+};
