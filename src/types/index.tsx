@@ -28,4 +28,9 @@ export interface User {
   userName: string;
 }
 
+export enum ModalType {
+  Submit,
+  Approve,
+}
+
 enum DictRecord {}

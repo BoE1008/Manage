@@ -388,7 +388,7 @@ const Supplyer = () => {
             <Input placeholder="请输入税号" />
           </Form.Item>
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注信息" maxLength={6} />
+            <Input.TextArea placeholder="备注信息" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>

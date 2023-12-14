@@ -65,6 +65,8 @@ const InvoicingSubmit = () => {
 
   const [detail, setDetail] = useState();
 
+  const [files, setFiles] = useState([]);
+
   useEffect(() => {
     (async () => {
       const res = await getinvoicingList(page, pageSize, searchValue);
@@ -116,6 +118,7 @@ const InvoicingSubmit = () => {
       bank: values.bank.value,
       taxationNumber: selectCustomer?.taxationNumber,
       content: values.content?.value,
+      files,
     };
 
     setLoading(true);
@@ -363,20 +366,16 @@ const InvoicingSubmit = () => {
   ];
 
   const uploadProps = {
+    accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
     name: "file",
-    action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
-    headers: {
-      authorization: "authorization-text",
-    },
-    onChange(info) {
-      if (info.file.status !== "uploading") {
-        console.log(info.file, info.fileList);
-      }
-      if (info.file.status === "done") {
-        message.success(`${info.file.name} 上传成功`);
-      } else if (info.file.status === "error") {
-        message.error(`${info.file.name} 上传失败`);
-      }
+    // multiple: true,
+    fileList: files,
+    // headers: {
+    //   authorization: "authorization-text",
+    // },
+    // beforeUpload: (f, fList) => false,
+    onChange: ({ file, fileList }) => {
+      setFiles(fileList);
     },
     progress: {
       strokeColor: {
@@ -442,7 +441,10 @@ const InvoicingSubmit = () => {
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
         // confirmLoading={confirmLoading}
-        onCancel={() => setModalOpen(false)}
+        onCancel={() => {
+          setFiles([]);
+          setModalOpen(false);
+        }}
         afterClose={() => {
           form.resetFields();
           setSelectCustomer(undefined);
@@ -570,7 +572,7 @@ const InvoicingSubmit = () => {
             ></Select>
           </Form.Item>
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
 
           <Form.Item label="附件" name="annex">

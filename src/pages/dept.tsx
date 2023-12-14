@@ -212,7 +212,7 @@ const Dept = () => {
           </Form.Item>
 
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>

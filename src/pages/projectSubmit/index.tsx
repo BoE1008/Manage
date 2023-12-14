@@ -30,7 +30,7 @@ import {
   submitOne,
   logsOne,
 } from "@/restApi/project";
-import { Company, Operation } from "@/types";
+import { Company, ModalType, Operation } from "@/types";
 import dayjs from "dayjs";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
@@ -495,7 +495,7 @@ const Project = () => {
             <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>
@@ -531,6 +531,7 @@ const Project = () => {
       </Modal>
 
       <YSYFModal
+        modalType={ModalType.Submit}
         projectId={projectId}
         onClose={() => setProjectId(undefined)}
       />

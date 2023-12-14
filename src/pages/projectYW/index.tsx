@@ -34,7 +34,7 @@ import {
   logsOne,
   getProjectDetailById,
 } from "@/restApi/project";
-import { Company, Operation } from "@/types";
+import { Company, ModalType, Operation } from "@/types";
 import dayjs from "dayjs";
 import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
@@ -261,7 +261,7 @@ const Project = () => {
 
             {!isFinished && (
               <>
-                <Tooltip title="批准">
+                {/* <Tooltip title="批准">
                   <Popconfirm
                     title="是否通过审批？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
@@ -278,7 +278,7 @@ const Project = () => {
                       <CheckCircleTwoTone twoToneColor="#198348" />
                     </Button>
                   </Popconfirm>
-                </Tooltip>
+                </Tooltip> */}
                 <Tooltip title="退回">
                   <Popconfirm
                     title="是否退回申请？"
@@ -541,7 +541,7 @@ const Project = () => {
             <DatePicker allowClear={false} />
           </Form.Item>
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={6} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>
@@ -577,6 +577,7 @@ const Project = () => {
       </Modal>
 
       <YSYFModal
+        modalType={ModalType.Approve}
         projectId={projectId}
         onClose={() => setProjectId(undefined)}
       />

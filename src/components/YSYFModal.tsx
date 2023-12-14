@@ -4,7 +4,6 @@ import {
   updateProjectYS,
   addProjectYf,
   updateProjectYf,
-  getProjectsSubmitList,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -16,18 +15,25 @@ import {
   Space,
   Select,
   InputNumber,
-  DatePicker,
   notification,
+  Tooltip,
+  Popconfirm,
 } from "antd";
-import { useRouter } from "next/router";
-import { EditTwoTone, PlusSquareTwoTone } from "@ant-design/icons";
-import { Operation } from "@/types";
+import {
+  EditTwoTone,
+  PlusSquareTwoTone,
+  InteractionTwoTone,
+  DeleteTwoTone,
+  CheckCircleTwoTone,
+  StopTwoTone,
+} from "@ant-design/icons";
+import { Operation, ModalType } from "@/types";
 import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 import { BooltypeArr } from "@/utils/const";
 
-const Item = ({ projectId, onClose }) => {
+const Item = ({ projectId, onClose, modalType }) => {
   const [data, setData] = useState();
   const [ysModalOpen, setYsModalOpen] = useState(false);
   const [yfModalOpen, setYfModalOpen] = useState(false);
@@ -174,11 +180,6 @@ const Item = ({ projectId, onClose }) => {
         dataIndex: "yfCollection",
         key: "yfCollection",
       },
-      // {
-      //   title: "时间",
-      //   dataIndex: "yfDate",
-      //   key: "yfDate",
-      // },
       {
         title: "备注",
         dataIndex: "remark",
@@ -189,12 +190,107 @@ const Item = ({ projectId, onClose }) => {
         key: "operation",
         render: (_, record) => {
           return (
-            <Button
-              style={{ display: "flex", alignItems: "center" }}
-              onClick={() => handleEditYfOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
+            <Space size="middle" className="flex flex-row !gap-x-1">
+              {modalType === ModalType.Submit && (
+                <>
+                  <Tooltip title={<span>提交业务审核</span>}>
+                    <Popconfirm
+                      title="是否提交审核？"
+                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                      // onConfirm={() => handleDetail(record.id)}
+                    >
+                      <Button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "3px 5px",
+                        }}
+                      >
+                        <InteractionTwoTone twoToneColor="#198348" />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleEditYsOne(record)}
+                  >
+                    <EditTwoTone twoToneColor="#198348" />
+                  </Button>
+                  <Tooltip title="删除">
+                    <Popconfirm
+                      title="是否删除？"
+                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                      // onConfirm={() => handleDeleteOne(record.id)}
+                    >
+                      <Button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "3px 5px",
+                        }}
+                      >
+                        <DeleteTwoTone twoToneColor="#198348" />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                </>
+              )}
+              {modalType === ModalType.Approve && (
+                <>
+                  <Tooltip title="批准">
+                    <Popconfirm
+                      title="是否通过审批？"
+                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                      // onConfirm={() => handleApproveOne(record.id)}
+                      // onConfirm={() => handleDetail(record.id)}
+                    >
+                      <Button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "3px 5px",
+                        }}
+                      >
+                        <CheckCircleTwoTone twoToneColor="#198348" />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                  <Tooltip title="退回">
+                    <Popconfirm
+                      title="是否退回申请？"
+                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                      // onConfirm={() => setRejectId(record.id)}
+                    >
+                      <Button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "3px 5px",
+                        }}
+                      >
+                        <StopTwoTone twoToneColor="#198348" />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                  {/* <Tooltip title="编辑">
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleEditOne(record)}
+                  >
+                    <EditTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Tooltip> */}
+                </>
+              )}
+            </Space>
           );
         },
       },
@@ -273,26 +369,115 @@ const Item = ({ projectId, onClose }) => {
       render: (_, record) => {
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditYsOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleYfAddClick(record)}
-            >
-              <PlusSquareTwoTone twoToneColor="#198348" />
-            </Button>
+            {modalType === ModalType.Submit && (
+              <>
+                <Tooltip title={<span>提交业务审核</span>}>
+                  <Popconfirm
+                    title="是否提交审核？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    // onConfirm={() => handleDetail(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <InteractionTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                  onClick={() => handleEditYsOne(record)}
+                >
+                  <EditTwoTone twoToneColor="#198348" />
+                </Button>
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                  onClick={() => handleYfAddClick(record)}
+                >
+                  <PlusSquareTwoTone twoToneColor="#198348" />
+                </Button>
+                <Tooltip title="删除">
+                  <Popconfirm
+                    title="是否删除？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    // onConfirm={() => handleDeleteOne(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <DeleteTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+              </>
+            )}
+            {modalType === ModalType.Approve && (
+              <>
+                <Tooltip title="批准">
+                  <Popconfirm
+                    title="是否通过审批？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    // onConfirm={() => handleApproveOne(record.id)}
+                    // onConfirm={() => handleDetail(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <CheckCircleTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+                <Tooltip title="退回">
+                  <Popconfirm
+                    title="是否退回申请？"
+                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                    // onConfirm={() => setRejectId(record.id)}
+                  >
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                    >
+                      <StopTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Popconfirm>
+                </Tooltip>
+                {/* <Tooltip title="编辑">
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleEditOne(record)}
+                  >
+                    <EditTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Tooltip> */}
+              </>
+            )}
           </Space>
         );
       },
@@ -368,21 +553,22 @@ const Item = ({ projectId, onClose }) => {
       footer={null}
       destroyOnClose
       title="应收应付列表"
-      style={{ minWidth: "650px" }}
-      className="!w-max"
+      style={{ minWidth: "90%" }}
     >
-      <Button
-        onClick={handleYsAddClick}
-        type="primary"
-        style={{
-          marginBottom: 16,
-          marginTop: 16,
-          background: "#198348",
-          width: "100px",
-        }}
-      >
-        添加应收
-      </Button>
+      {modalType === ModalType.Submit && (
+        <Button
+          onClick={handleYsAddClick}
+          type="primary"
+          style={{
+            marginBottom: 16,
+            marginTop: 16,
+            background: "#198348",
+            width: "100px",
+          }}
+        >
+          添加应收
+        </Button>
+      )}
 
       <Table
         bordered
@@ -393,6 +579,7 @@ const Item = ({ projectId, onClose }) => {
           expandedRowRender: (record) => expandedRowRender(record),
           defaultExpandedRowKeys: ["0"],
           expandRowByClick: true,
+          indentSize: 300,
         }}
         pagination={{
           // 设置总条数
@@ -458,7 +645,7 @@ const Item = ({ projectId, onClose }) => {
             <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item label="明细" name="ysPurpose">
-            <Input.TextArea placeholder="明细" maxLength={50} />
+            <Input.TextArea placeholder="明细" maxLength={100} />
           </Form.Item>
           <Form.Item label="对账" name="ysChecking">
             <Select
@@ -504,7 +691,7 @@ const Item = ({ projectId, onClose }) => {
             <DatePicker allowClear={false} />
           </Form.Item> */}
           <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={50} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>
@@ -551,6 +738,9 @@ const Item = ({ projectId, onClose }) => {
           </Form.Item>
           <Form.Item label="美金" labelCol={{ span: 5 }} name="yfDollar">
             <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item label="明细" name="yfPurpose">
+            <Input.TextArea placeholder="明细" maxLength={100} />
           </Form.Item>
           <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">
             <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
@@ -626,7 +816,7 @@ const Item = ({ projectId, onClose }) => {
             <DatePicker allowClear={false} />
           </Form.Item> */}
           <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
-            <Input.TextArea placeholder="备注" maxLength={50} />
+            <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
         </Form>
       </Modal>
