@@ -118,7 +118,7 @@ const InvoicingSubmit = () => {
       bank: values.bank.value,
       taxationNumber: selectCustomer?.taxationNumber,
       content: values.content?.value,
-      files,
+      files: new FormData().append('files', files),
     };
 
     setLoading(true);
@@ -370,9 +370,9 @@ const InvoicingSubmit = () => {
     name: "file",
     // multiple: true,
     fileList: files,
-    // headers: {
-    //   authorization: "authorization-text",
-    // },
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    },
     // beforeUpload: (f, fList) => false,
     onChange: ({ file, fileList }) => {
       setFiles(fileList);
