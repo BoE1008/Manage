@@ -100,7 +100,7 @@ const Payment = () => {
     form.validateFields();
     const values = form.getFieldsValue();
 
-    const parmas = {
+    const params = {
       ...values,
       moneyType: values.moneyType.value,
       projectName: values.projectName.label,
@@ -110,14 +110,23 @@ const Payment = () => {
       bank: values.bank.value,
       bankCard: values.bankCard.value,
       taxationNumber: selectSupplier?.taxationNumber,
-      files,
+      // files,
     };
+
+    const formData = new FormData();
+    for (const name in params) {
+      formData.append(name, params[name]);
+    }
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
 
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addPayment(parmas)
-        : await updatePayment(editId, parmas);
+        ? await addPayment(formData)
+        : await updatePayment(editId, formData);
     if (code === 200) {
       setModalOpen(false);
       const data = await getPaymentList(page, pageSize);
@@ -339,21 +348,31 @@ const Payment = () => {
   const uploadProps = {
     accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
     name: "file",
+    multiple: true,
     fileList: files,
-    // headers: {
-    //   authorization: "authorization-text",
+    withCredentials: true,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    onRemove: (file) => {
+      const index = files.indexOf(file);
+      const newFiles = files.slice();
+      newFiles.splice(index, 1);
+      setFiles(newFiles);
+    },
+    beforeUpload: (file) => {
+      setFiles([...files, file]);
+
+      return false;
+    },
+    // progress: {
+    //   strokeColor: {
+    //     "0%": "#108ee9",
+    //     "100%": "#87d068",
+    //   },
+    //   strokeWidth: 3,
+    //   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
     // },
-    onChange: ({ file, fileList }) => {
-      setFiles(fileList);
-    },
-    progress: {
-      strokeColor: {
-        "0%": "#108ee9",
-        "100%": "#87d068",
-      },
-      strokeWidth: 3,
-      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    },
   };
 
   return (
@@ -523,7 +542,11 @@ const Payment = () => {
             <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
 
-          <Form.Item label="附件" name="annex">
+          <Form.Item
+            label="附件"
+            // name="files"
+            getValueFromEvent={({ file }) => file.originFileObj}
+          >
             <Upload {...uploadProps}>
               <Button icon={<UploadOutlined />}>点击上传</Button>
             </Upload>

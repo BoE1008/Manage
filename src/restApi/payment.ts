@@ -11,8 +11,10 @@ export const getPaymentList = async (pageNo: number, pageSize: number) => {
 };
 
 export const addPayment = async (info) => {
-  const res = await axiosInstance.post("/zc/payment/add", {
-    ...info,
+  const res = await axiosInstance.post("/zc/payment/add", info, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
   return res.data;

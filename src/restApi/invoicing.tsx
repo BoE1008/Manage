@@ -15,8 +15,10 @@ export const getinvoicingList = async (
 };
 
 export const addInvoicing = async (info) => {
-  const res = await axiosInstance.post("/zc/invoicing/add", {
-    ...info,
+  const res = await axiosInstance.post("/zc/invoicing/add", info, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
 
   return res.data;

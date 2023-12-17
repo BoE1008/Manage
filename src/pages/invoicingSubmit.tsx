@@ -118,14 +118,23 @@ const InvoicingSubmit = () => {
       bank: values.bank.value,
       taxationNumber: selectCustomer?.taxationNumber,
       content: values.content?.value,
-      files: new FormData().append('files', files),
+      // files: files,
     };
+
+    const formData = new FormData();
+    for (const name in params) {
+      formData.append(name, params[name]);
+    }
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
 
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addInvoicing(params)
-        : await updateInvoicing(editId, params);
+        ? await addInvoicing(formData)
+        : await updateInvoicing(editId, formData);
     if (code === 200) {
       setModalOpen(false);
       const data = await getinvoicingList(page, pageSize);
@@ -368,23 +377,36 @@ const InvoicingSubmit = () => {
   const uploadProps = {
     accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
     name: "file",
-    // multiple: true,
+    multiple: true,
     fileList: files,
+    withCredentials: true,
     headers: {
-      'Content-Type': 'multipart/form-data'
+      "Content-Type": "multipart/form-data",
     },
-    // beforeUpload: (f, fList) => false,
-    onChange: ({ file, fileList }) => {
-      setFiles(fileList);
+    onRemove: (file) => {
+      const index = files.indexOf(file);
+      const newFiles = files.slice();
+      newFiles.splice(index, 1);
+      setFiles(newFiles);
     },
-    progress: {
-      strokeColor: {
-        "0%": "#108ee9",
-        "100%": "#87d068",
-      },
-      strokeWidth: 3,
-      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    beforeUpload: (file) => {
+      setFiles([...files, file]);
+
+      return false;
     },
+    // customRequest: ({ file, onSuccess }) => {
+    //   setTimeout(() => {
+    //     onSuccess("ok");
+    //   }, 0);
+    // },
+    // progress: {
+    //   strokeColor: {
+    //     "0%": "#108ee9",
+    //     "100%": "#87d068",
+    //   },
+    //   strokeWidth: 3,
+    //   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    // },
   };
 
   return (
@@ -575,7 +597,11 @@ const InvoicingSubmit = () => {
             <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>
 
-          <Form.Item label="附件" name="annex">
+          <Form.Item
+            label="附件"
+            // name="files"
+            getValueFromEvent={({ file }) => file.originFileObj}
+          >
             <Upload {...uploadProps}>
               <Button icon={<UploadOutlined />}>点击上传</Button>
             </Upload>
