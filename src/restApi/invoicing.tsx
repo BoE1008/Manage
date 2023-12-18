@@ -114,3 +114,27 @@ export const getInvoicingDetailById = async (id) => {
 
   return res.data;
 };
+
+export const getFilesById = async (id) => {
+  const res = await axiosInstance.get("/zc/invoicing/file/list", {
+    params: { id },
+  });
+
+  return res.data;
+};
+
+export const updateFileById = async (info) => {
+  const res = await axiosInstance.post(`/zc/invoicing/file/update`, info, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return res.data;
+};
+
+export const deleteFileById = async (id) => {
+  const res = await axiosInstance.post(`/zc/invoicing/file/del`, { id });
+
+  return res.data;
+};

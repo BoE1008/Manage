@@ -6,6 +6,9 @@ import {
   submitToYw,
   getInvoicingDetailById,
   deleteOne,
+  getFilesById,
+  updateFileById,
+  deleteFileById,
 } from "@/restApi/invoicing";
 import { useEffect, useState } from "react";
 import {
@@ -34,11 +37,13 @@ import {
   CalendarTwoTone,
   InteractionTwoTone,
   UploadOutlined,
+  ArrowDownOutlined,
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
 import { InvoicingTypeArr } from "@/utils/const";
 import { getDictByCode } from "@/restApi/dict";
 import DetailModal from "@/components/DetailModal";
+import { downloadUploadFile } from "@/restApi/download";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -99,6 +104,15 @@ const InvoicingSubmit = () => {
     setDict(res.entity);
     const data = await getDictByCode("sys_invoicing_content");
     setinvoicingContent(data.entity);
+    const rawFilelist = await getFilesById(record.id);
+    const fileList = rawFilelist?.entity.data.map((item) => ({
+      name: item.originalFileName,
+      url: item.url,
+      uid: item.uid,
+      status: "done",
+    }));
+
+    setFiles(fileList);
     form.setFieldsValue(record);
     setModalOpen(true);
   };
@@ -106,45 +120,80 @@ const InvoicingSubmit = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-    const params = {
-      ...values,
-      invoicingType: values.invoicingType?.value,
-      moneyType: values.moneyType?.value,
-      projectId: values.projectName?.value,
-      projectName: values.projectName?.label,
-      customId: values.customName?.value,
-      customName: values.customName?.label,
-      bankCard: values.bankCard.value,
-      bank: values.bank.value,
-      taxationNumber: selectCustomer?.taxationNumber,
-      content: values.content?.value,
-      // files: files,
-    };
 
-    const formData = new FormData();
-    for (const name in params) {
-      formData.append(name, params[name]);
-    }
-
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    setLoading(true);
-    const { code } =
+    console.log(values, "values");
+    const params =
       operation === Operation.Add
-        ? await addInvoicing(formData)
-        : await updateInvoicing(editId, formData);
-    if (code === 200) {
-      setModalOpen(false);
-      const data = await getinvoicingList(page, pageSize);
-      setLoading(false);
-      setData(data);
-      notification.success({
-        message: operation === Operation.Add ? "添加成功" : "编辑成功",
-        duration: 3,
+        ? {
+            ...values,
+            invoicingType: values.invoicingType?.value || "",
+            moneyType: values.moneyType?.value || "",
+            projectId: values.projectName?.value || "",
+            projectName: values.projectName?.label || "",
+            customId: values.customName?.value || "",
+            customName: values.customName?.label || "",
+            bankCard: values.bankCard.value || "",
+            bank: values.bank.value || "",
+            taxationNumber: selectCustomer?.taxationNumber || "",
+            content: values.content?.value || "",
+            fee: values.fee || "",
+            remark: values.remark || "",
+          }
+        : {
+            ...values,
+            invoicingType: values.invoicingType || "",
+            moneyType: values.moneyType || "",
+            projectId: values.projectName || "",
+            projectName: values.projectName || "",
+            customId: values.customName || "",
+            customName: values.customName || "",
+            bankCard: values.bankCard || "",
+            bank: values.bank || "",
+            taxationNumber: selectCustomer?.taxationNumber || "",
+            content: values.content || "",
+            fee: values.fee || "",
+            remark: values.remark || "",
+          };
+
+    if (operation === Operation.Add) {
+      const formData = new FormData();
+      for (const name in params) {
+        formData.append(name, params[name]);
+      }
+      files.forEach((file) => {
+        formData.append("files", file);
       });
+      for (let [a, b] of formData.entries()) {
+        console.log(a, b, "--------------");
+      }
+      await addInvoicing(formData);
+    } else {
+      await updateInvoicing(editId, params);
+      const info = {
+        invoicingId: editId,
+      };
+      const formData = new FormData();
+      for (const name in info) {
+        formData.append(name, info[name]);
+      }
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      for (let [a, b] of formData.entries()) {
+        console.log(a, b, "--------------");
+      }
+      await updateFileById(formData);
     }
+    setFiles([]);
+    setModalOpen(false);
+    const data = await getinvoicingList(page, pageSize);
+    setLoading(false);
+    setData(data);
+    notification.success({
+      message: operation === Operation.Add ? "添加成功" : "编辑成功",
+      duration: 3,
+    });
   };
 
   const handleDetail = async (id) => {
@@ -383,7 +432,11 @@ const InvoicingSubmit = () => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
-    onRemove: (file) => {
+    showUploadList: {
+      showDownloadIcon: true,
+    },
+    onRemove: async (file) => {
+      // await deleteFileById(editId);
       const index = files.indexOf(file);
       const newFiles = files.slice();
       newFiles.splice(index, 1);
@@ -391,22 +444,13 @@ const InvoicingSubmit = () => {
     },
     beforeUpload: (file) => {
       setFiles([...files, file]);
-
       return false;
     },
-    // customRequest: ({ file, onSuccess }) => {
-    //   setTimeout(() => {
-    //     onSuccess("ok");
-    //   }, 0);
-    // },
-    // progress: {
-    //   strokeColor: {
-    //     "0%": "#108ee9",
-    //     "100%": "#87d068",
-    //   },
-    //   strokeWidth: 3,
-    //   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    // },
+    onDownload: async (file) => {
+      window.open(
+        `http://123.60.88.8/zc/common/download/resource?resource=${file?.url}`
+      );
+    },
   };
 
   return (

@@ -32,6 +32,8 @@ import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 import { BooltypeArr } from "@/utils/const";
+import ProjectDetailModal from "@/components/DetailModal";
+import RejectModal from "@/components/RejectModal";
 
 const Item = ({ projectId, onClose, modalType }) => {
   const [data, setData] = useState();
@@ -434,7 +436,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                     title="是否通过审批？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
                     // onConfirm={() => handleApproveOne(record.id)}
-                    // onConfirm={() => handleDetail(record.id)}
+                    onConfirm={() => handleDetail(record.id)}
                   >
                     <Button
                       style={{
@@ -546,268 +548,269 @@ const Item = ({ projectId, onClose, modalType }) => {
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   return (
-    <Modal
-      open={!!projectId}
-      onCancel={onClose}
-      centered
-      footer={null}
-      destroyOnClose
-      title="应收应付列表"
-      style={{ minWidth: "90%" }}
-    >
-      {modalType === ModalType.Submit && (
-        <Button
-          onClick={handleYsAddClick}
-          type="primary"
-          style={{
-            marginBottom: 16,
-            marginTop: 16,
-            background: "#198348",
-            width: "100px",
-          }}
-        >
-          添加应收
-        </Button>
-      )}
-
-      <Table
-        bordered
-        loading={loading}
-        dataSource={data?.entity?.data}
-        columns={columns}
-        expandable={{
-          expandedRowRender: (record) => expandedRowRender(record),
-          defaultExpandedRowKeys: ["0"],
-          expandRowByClick: true,
-          indentSize: 300,
-        }}
-        pagination={{
-          // 设置总条数
-          total: data?.entity.total,
-          // 显示总条数
-          showTotal: (total) => `共 ${total} 条`,
-          // 是否可以改变 pageSize
-          showSizeChanger: true,
-
-          // 改变页码时
-          onChange: async (page) => {
-            setPage(page);
-          },
-          // pageSize 变化的回调
-          onShowSizeChange: async (page, size) => {
-            setPage(page);
-            setPageSize(size);
-          },
-        }}
-      />
-
-      {/* 应收弹窗 */}
+    <>
       <Modal
+        open={!!projectId}
+        onCancel={onClose}
         centered
+        footer={null}
         destroyOnClose
-        open={ysModalOpen}
-        title={operation === Operation.Add ? "添加应收" : "编辑应收"}
-        onOk={handleYsOk}
-        okButtonProps={{ style: { background: "#198348" } }}
-        // confirmLoading={confirmLoading}
-        onCancel={() => setYsModalOpen(false)}
-        afterClose={() => form.resetFields()}
-        style={{ minWidth: "650px" }}
+        title="应收应付列表"
+        style={{ minWidth: "90%" }}
       >
-        <Form
-          form={form}
-          labelCol={{ span: 3 }}
-          wrapperCol={{ span: 20 }}
-          layout={"horizontal"}
-        >
-          <Form.Item
-            label="客户"
-            name="customId"
-            rules={[{ required: true, message: "客户名称不能为空" }]}
+        {modalType === ModalType.Submit && (
+          <Button
+            onClick={handleYsAddClick}
+            type="primary"
+            style={{
+              marginBottom: 16,
+              marginTop: 16,
+              background: "#198348",
+              width: "100px",
+            }}
           >
-            <Select
-              placeholder="选择客户"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={customer?.map((con) => ({
-                label: con.name,
-                value: con.id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item label="人民币" name="ysRmb">
-            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="美金" name="ysDollar">
-            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="汇率" name="ysExrate">
-            <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="明细" name="ysPurpose">
-            <Input.TextArea placeholder="明细" maxLength={100} />
-          </Form.Item>
-          <Form.Item label="对账" name="ysChecking">
-            <Select
-              labelInValue
-              placeholder="是否对账"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          <Form.Item label="开票" name="ysInvoice">
-            <Select
-              labelInValue
-              placeholder="是否开票"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          <Form.Item label="收款" name="ysCollection">
-            <Select
-              labelInValue
-              placeholder="是否收款"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          {/* <Form.Item
+            添加应收
+          </Button>
+        )}
+
+        <Table
+          bordered
+          loading={loading}
+          dataSource={data?.entity?.data}
+          columns={columns}
+          expandable={{
+            expandedRowRender: (record) => expandedRowRender(record),
+            defaultExpandedRowKeys: ["0"],
+            expandRowByClick: true,
+            indentSize: 300,
+          }}
+          pagination={{
+            // 设置总条数
+            total: data?.entity.total,
+            // 显示总条数
+            showTotal: (total) => `共 ${total} 条`,
+            // 是否可以改变 pageSize
+            showSizeChanger: true,
+
+            // 改变页码时
+            onChange: async (page) => {
+              setPage(page);
+            },
+            // pageSize 变化的回调
+            onShowSizeChange: async (page, size) => {
+              setPage(page);
+              setPageSize(size);
+            },
+          }}
+        />
+
+        {/* 应收弹窗 */}
+        <Modal
+          centered
+          destroyOnClose
+          open={ysModalOpen}
+          title={operation === Operation.Add ? "添加应收" : "编辑应收"}
+          onOk={handleYsOk}
+          okButtonProps={{ style: { background: "#198348" } }}
+          // confirmLoading={confirmLoading}
+          onCancel={() => setYsModalOpen(false)}
+          afterClose={() => form.resetFields()}
+          style={{ minWidth: "650px" }}
+        >
+          <Form
+            form={form}
+            labelCol={{ span: 3 }}
+            wrapperCol={{ span: 20 }}
+            layout={"horizontal"}
+          >
+            <Form.Item
+              label="客户"
+              name="customId"
+              rules={[{ required: true, message: "客户名称不能为空" }]}
+            >
+              <Select
+                placeholder="选择客户"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={customer?.map((con) => ({
+                  label: con.name,
+                  value: con.id,
+                }))}
+              />
+            </Form.Item>
+            <Form.Item label="人民币" name="ysRmb">
+              <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="美金" name="ysDollar">
+              <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="汇率" name="ysExrate">
+              <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="明细" name="ysPurpose">
+              <Input.TextArea placeholder="明细" maxLength={100} />
+            </Form.Item>
+            <Form.Item label="对账" name="ysChecking">
+              <Select
+                labelInValue
+                placeholder="是否对账"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            <Form.Item label="开票" name="ysInvoice">
+              <Select
+                labelInValue
+                placeholder="是否开票"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            <Form.Item label="收款" name="ysCollection">
+              <Select
+                labelInValue
+                placeholder="是否收款"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            {/* <Form.Item
             label="日期"
             name="ysDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >
             <DatePicker allowClear={false} />
           </Form.Item> */}
-          <Form.Item label="备注" name="remark">
-            <Input.TextArea placeholder="备注" maxLength={100} />
-          </Form.Item>
-        </Form>
-      </Modal>
+            <Form.Item label="备注" name="remark">
+              <Input.TextArea placeholder="备注" maxLength={100} />
+            </Form.Item>
+          </Form>
+        </Modal>
 
-      {/* 应付弹窗 */}
-      <Modal
-        centered
-        destroyOnClose
-        open={yfModalOpen}
-        title={operation === Operation.Add ? "添加应付" : "编辑应付"}
-        onOk={handleYfOk}
-        okButtonProps={{ style: { background: "#198348" } }}
-        // confirmLoading={confirmLoading}
-        onCancel={() => setYfModalOpen(false)}
-        afterClose={() => form1.resetFields()}
-        style={{ minWidth: "650px" }}
-      >
-        <Form
-          form={form1}
-          labelCol={{ span: 3 }}
-          wrapperCol={{ span: 20 }}
-          layout={"horizontal"}
+        {/* 应付弹窗 */}
+        <Modal
+          centered
+          destroyOnClose
+          open={yfModalOpen}
+          title={operation === Operation.Add ? "添加应付" : "编辑应付"}
+          onOk={handleYfOk}
+          okButtonProps={{ style: { background: "#198348" } }}
+          // confirmLoading={confirmLoading}
+          onCancel={() => setYfModalOpen(false)}
+          afterClose={() => form1.resetFields()}
+          style={{ minWidth: "650px" }}
         >
-          <Form.Item
-            label="供应商"
-            labelCol={{ span: 5 }}
-            name="supplierId"
-            rules={[{ required: true, message: "客户名称不能为空" }]}
+          <Form
+            form={form1}
+            labelCol={{ span: 3 }}
+            wrapperCol={{ span: 20 }}
+            layout={"horizontal"}
           >
-            <Select
-              placeholder="选择供应商"
-              optionFilterProp="children"
-              onChange={handleSupplierSelectChange}
-              onSearch={handleSupplierSelectSearch}
-              filterOption={supplierFilterOption}
-              options={suppliers?.map((con) => ({
-                label: con.name,
-                value: con.id,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item label="人民币" labelCol={{ span: 5 }} name="yfRmb">
-            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="美金" labelCol={{ span: 5 }} name="yfDollar">
-            <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="明细" name="yfPurpose">
-            <Input.TextArea placeholder="明细" maxLength={100} />
-          </Form.Item>
-          <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">
-            <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
-            <Select
-              labelInValue
-              placeholder="是否对账"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
-            <Select
-              labelInValue
-              placeholder="是否开票"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
-            <Select
-              labelInValue
-              placeholder="是否付款"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          <Form.Item
-            label="预留利润名称"
-            labelCol={{ span: 5 }}
-            name="ylProfitName"
-          >
-            <Input placeholder="预留利润名称" />
-          </Form.Item>
-          <Form.Item
-            label="预留利润金额"
-            labelCol={{ span: 5 }}
-            name="ylProfitMoney"
-          >
-            <Input placeholder="预留利润金额" />
-          </Form.Item>
-          <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
-            <Select
-              labelInValue
-              placeholder="是否支付"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              options={BooltypeArr?.map((con) => ({
-                label: con,
-                value: con,
-              }))}
-            ></Select>
-          </Form.Item>
-          {/* <Form.Item
+            <Form.Item
+              label="供应商"
+              labelCol={{ span: 5 }}
+              name="supplierId"
+              rules={[{ required: true, message: "客户名称不能为空" }]}
+            >
+              <Select
+                placeholder="选择供应商"
+                optionFilterProp="children"
+                onChange={handleSupplierSelectChange}
+                onSearch={handleSupplierSelectSearch}
+                filterOption={supplierFilterOption}
+                options={suppliers?.map((con) => ({
+                  label: con.name,
+                  value: con.id,
+                }))}
+              />
+            </Form.Item>
+            <Form.Item label="人民币" labelCol={{ span: 5 }} name="yfRmb">
+              <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="美金" labelCol={{ span: 5 }} name="yfDollar">
+              <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="明细" name="yfPurpose">
+              <Input.TextArea placeholder="明细" maxLength={100} />
+            </Form.Item>
+            <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">
+              <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
+            </Form.Item>
+            <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
+              <Select
+                labelInValue
+                placeholder="是否对账"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
+              <Select
+                labelInValue
+                placeholder="是否开票"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
+              <Select
+                labelInValue
+                placeholder="是否付款"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            <Form.Item
+              label="预留利润名称"
+              labelCol={{ span: 5 }}
+              name="ylProfitName"
+            >
+              <Input placeholder="预留利润名称" />
+            </Form.Item>
+            <Form.Item
+              label="预留利润金额"
+              labelCol={{ span: 5 }}
+              name="ylProfitMoney"
+            >
+              <Input placeholder="预留利润金额" />
+            </Form.Item>
+            <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
+              <Select
+                labelInValue
+                placeholder="是否支付"
+                optionFilterProp="children"
+                filterOption={customerFilterOption}
+                options={BooltypeArr?.map((con) => ({
+                  label: con,
+                  value: con,
+                }))}
+              ></Select>
+            </Form.Item>
+            {/* <Form.Item
             label="日期"
             labelCol={{ span: 5 }}
             name="yfDate"
@@ -815,12 +818,25 @@ const Item = ({ projectId, onClose, modalType }) => {
           >
             <DatePicker allowClear={false} />
           </Form.Item> */}
-          <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
-            <Input.TextArea placeholder="备注" maxLength={100} />
-          </Form.Item>
-        </Form>
+            <Form.Item label="备注" labelCol={{ span: 5 }} name="remark">
+              <Input.TextArea placeholder="备注" maxLength={100} />
+            </Form.Item>
+          </Form>
+        </Modal>
       </Modal>
-    </Modal>
+
+      <ProjectDetailModal
+        data={detail}
+        onConfirm={handleApproveOne}
+        onClose={() => setDetail(undefined)}
+      />
+
+      <RejectModal
+        open={!!rejectId}
+        onClose={() => setRejectId(undefined)}
+        onReject={(value) => handleRejectOne(rejectId, value)}
+      />
+    </>
   );
 };
 

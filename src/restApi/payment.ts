@@ -130,3 +130,23 @@ export const getPaymentDetailById = async (id) => {
 
   return res.data;
 };
+
+export const getFilesById = async (id) => {
+  const res = await axiosInstance.get("/zc/payment/file/list", {
+    params: { id },
+  });
+
+  return res.data;
+};
+
+export const updateFileById = async (info) => {
+  const res = await axiosInstance.post(`/zc/payment/file/update`, info);
+
+  return res.data;
+};
+
+export const deleteFileById = async (id) => {
+  const res = await axiosInstance.post(`/zc/payment/file/del`, { id });
+
+  return res.data;
+};

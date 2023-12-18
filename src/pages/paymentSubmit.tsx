@@ -34,6 +34,9 @@ import {
   submitToYW,
   getPaymentDetailById,
   deleteOne,
+  getFilesById,
+  updateFileById,
+  deleteFileById,
 } from "@/restApi/payment";
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
@@ -92,6 +95,15 @@ const Payment = () => {
     );
     const res = await getDictByCode("sys_money_type");
     setDict(res.entity);
+    const rawFilelist = await getFilesById(record.id);
+    const fileList = rawFilelist?.entity.data.map((item) => ({
+      name: item.originalFileName,
+      url: item.url,
+      uid: item.uid,
+      status: "done",
+    }));
+
+    setFiles(fileList);
     form.setFieldsValue(record);
     setModalOpen(true);
   };
@@ -100,43 +112,64 @@ const Payment = () => {
     form.validateFields();
     const values = form.getFieldsValue();
 
+    console.log(values, "values");
+
     const params = {
       ...values,
-      moneyType: values.moneyType.value,
-      projectName: values.projectName.label,
-      projectId: values.projectName.value,
-      supplierName: values.supplierName.label,
-      supplierId: values.supplierName.value,
-      bank: values.bank.value,
-      bankCard: values.bankCard.value,
-      taxationNumber: selectSupplier?.taxationNumber,
+      moneyType: values.moneyType.value || "",
+      projectName: values.projectName.label || "",
+      projectId: values.projectName.value || "",
+      supplierName: values.supplierName.label || "",
+      supplierId: values.supplierName.value || "",
+      bank: values.bank.value || "",
+      bankCard: values.bankCard.value || "",
+      taxationNumber: selectSupplier?.taxationNumber || "",
+      fee: values.fee || "",
+      remark: values.remark || "",
       // files,
     };
 
-    const formData = new FormData();
-    for (const name in params) {
-      formData.append(name, params[name]);
-    }
+    console.log(params, "params");
 
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
+    if (operation === Operation.Add) {
+      const formData = new FormData();
+      for (const name in params) {
+        formData.append(name, params[name]);
+      }
 
-    setLoading(true);
-    const { code } =
-      operation === Operation.Add
-        ? await addPayment(formData)
-        : await updatePayment(editId, formData);
-    if (code === 200) {
-      setModalOpen(false);
-      const data = await getPaymentList(page, pageSize);
-      setLoading(false);
-      setData(data);
-      notification.success({
-        message: operation === Operation.Add ? "添加成功" : "编辑成功",
-        duration: 3,
+      files.forEach((file) => {
+        formData.append("files", file);
       });
+
+      await addPayment(formData);
+    } else {
+      await updatePayment(editId, params);
+
+      const info = {
+        paymentId: editId,
+      };
+      const formData = new FormData();
+      for (const name in info) {
+        formData.append(name, info[name]);
+      }
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
+
+      for (let [a, b] of formData.entries()) {
+        console.log(a, b, "--------------");
+      }
+      await updateFileById(formData);
     }
+
+    setModalOpen(false);
+    const data = await getPaymentList(page, pageSize);
+    setLoading(false);
+    setData(data);
+    notification.success({
+      message: operation === Operation.Add ? "添加成功" : "编辑成功",
+      duration: 3,
+    });
   };
 
   const handleDetail = async (id) => {
@@ -354,6 +387,9 @@ const Payment = () => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    showUploadList: {
+      showDownloadIcon: true,
+    },
     onRemove: (file) => {
       const index = files.indexOf(file);
       const newFiles = files.slice();
@@ -364,6 +400,11 @@ const Payment = () => {
       setFiles([...files, file]);
 
       return false;
+    },
+    onDownload: async (file) => {
+      window.open(
+        `http://123.60.88.8/zc/common/download/resource?resource=${file?.url}`
+      );
     },
     // progress: {
     //   strokeColor: {
