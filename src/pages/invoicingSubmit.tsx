@@ -43,7 +43,6 @@ import { getCustomersYSList } from "@/restApi/customer";
 import { InvoicingTypeArr } from "@/utils/const";
 import { getDictByCode } from "@/restApi/dict";
 import DetailModal from "@/components/DetailModal";
-import { downloadUploadFile } from "@/restApi/download";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -71,6 +70,7 @@ const InvoicingSubmit = () => {
   const [detail, setDetail] = useState();
 
   const [files, setFiles] = useState([]);
+  const [oldFiles, setOldFiles] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -108,10 +108,12 @@ const InvoicingSubmit = () => {
     const fileList = rawFilelist?.entity.data.map((item) => ({
       name: item.originalFileName,
       url: item.url,
-      uid: item.uid,
+      id: item.id,
+      uid: item.id,
       status: "done",
     }));
 
+    setOldFiles(fileList);
     setFiles(fileList);
     form.setFieldsValue(record);
     setModalOpen(true);
@@ -141,19 +143,28 @@ const InvoicingSubmit = () => {
           }
         : {
             ...values,
-            invoicingType: values.invoicingType || "",
-            moneyType: values.moneyType || "",
-            projectId: values.projectName || "",
-            projectName: values.projectName || "",
-            customId: values.customName || "",
-            customName: values.customName || "",
-            bankCard: values.bankCard || "",
-            bank: values.bank || "",
+            invoicingType:
+              values.invoicingType?.value || values.invoicingType || "",
+            moneyType: values.moneyType?.value || values.moneyType || "",
+            projectId:
+              values.projectName?.value ||
+              project?.find((c) => c.name === values.projectName).id ||
+              "",
+            projectName: values.projectName?.label || values.projectName || "",
+            customId:
+              values.customName?.value ||
+              customer?.find((a) => a.name === values.customName).id ||
+              "",
+            customName: values.customName?.label || values.customName || "",
+            bankCard: values.bankCard?.value || values.bankCard || "",
+            bank: values.bank?.value || values.bank || "",
             taxationNumber: selectCustomer?.taxationNumber || "",
-            content: values.content || "",
+            content: values.content?.value || values.content || "",
             fee: values.fee || "",
             remark: values.remark || "",
           };
+
+    console.log(params, "params");
 
     if (operation === Operation.Add) {
       const formData = new FormData();
@@ -163,28 +174,25 @@ const InvoicingSubmit = () => {
       files.forEach((file) => {
         formData.append("files", file);
       });
-      for (let [a, b] of formData.entries()) {
-        console.log(a, b, "--------------");
-      }
       await addInvoicing(formData);
     } else {
       await updateInvoicing(editId, params);
-      const info = {
-        invoicingId: editId,
-      };
-      const formData = new FormData();
-      for (const name in info) {
-        formData.append(name, info[name]);
-      }
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
 
-      for (let [a, b] of formData.entries()) {
-        console.log(a, b, "--------------");
+      const formData = new FormData();
+      formData.append("invoicingId", editId);
+
+      console.log(files, "files");
+      console.log(oldFiles, "oldFiles");
+      const fileList = files.filter((item) => oldFiles.indexOf(item.id) < 0);
+      console.log(fileList, "fileList");
+      if (fileList.length > 0) {
+        fileList.forEach((file) => {
+          formData.append("files", file);
+        });
+        await updateFileById(formData);
       }
-      await updateFileById(formData);
     }
+    setOldFiles([]);
     setFiles([]);
     setModalOpen(false);
     const data = await getinvoicingList(page, pageSize);
@@ -436,7 +444,7 @@ const InvoicingSubmit = () => {
       showDownloadIcon: true,
     },
     onRemove: async (file) => {
-      // await deleteFileById(editId);
+      await deleteFileById(file?.id);
       const index = files.indexOf(file);
       const newFiles = files.slice();
       newFiles.splice(index, 1);

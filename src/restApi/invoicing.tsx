@@ -134,7 +134,9 @@ export const updateFileById = async (info) => {
 };
 
 export const deleteFileById = async (id) => {
-  const res = await axiosInstance.post(`/zc/invoicing/file/del`, { id });
+  const formData = new FormData();
+  formData.append("id", id);
+  const res = await axiosInstance.post(`/zc/invoicing/file/del`, formData);
 
   return res.data;
 };

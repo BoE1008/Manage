@@ -66,6 +66,7 @@ const Payment = () => {
 
   const [detail, setDetail] = useState();
   const [files, setFiles] = useState([]);
+  const [oldFiles, setOldFiles] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -100,10 +101,12 @@ const Payment = () => {
       name: item.originalFileName,
       url: item.url,
       uid: item.uid,
+      id: item.id,
       status: "done",
     }));
 
     setFiles(fileList);
+    setOldFiles(fileList);
     form.setFieldsValue(record);
     setModalOpen(true);
   };
@@ -114,20 +117,42 @@ const Payment = () => {
 
     console.log(values, "values");
 
-    const params = {
-      ...values,
-      moneyType: values.moneyType.value || "",
-      projectName: values.projectName.label || "",
-      projectId: values.projectName.value || "",
-      supplierName: values.supplierName.label || "",
-      supplierId: values.supplierName.value || "",
-      bank: values.bank.value || "",
-      bankCard: values.bankCard.value || "",
-      taxationNumber: selectSupplier?.taxationNumber || "",
-      fee: values.fee || "",
-      remark: values.remark || "",
-      // files,
-    };
+    const params =
+      operation === Operation.Add
+        ? {
+            ...values,
+            moneyType: values.moneyType.value || "",
+            projectName: values.projectName.label || "",
+            projectId: values.projectName.value || "",
+            supplierName: values.supplierName.label || "",
+            supplierId: values.supplierName.value || "",
+            bank: values.bank.value || "",
+            bankCard: values.bankCard.value || "",
+            taxationNumber: selectSupplier?.taxationNumber || "",
+            fee: values.fee || "",
+            remark: values.remark || "",
+          }
+        : {
+            ...values,
+            moneyType: values.moneyType.value || values.moneyType || "",
+            projectName: values.projectName?.label || values.projectName || "",
+            projectId:
+              values.projectName?.value ||
+              project?.find((c) => c.name === values.projectName).id ||
+              "",
+            supplierName:
+              values.supplierName?.label || values.supplierName || "",
+            supplierId:
+              values.supplierName?.value ||
+              supplier?.find((a) => a.name === values.supplierName).id ||
+              "",
+            bank: values.bank.value || values.bank || "",
+            bankCard: values.bankCard.value || values.bankCard || "",
+            taxationNumber: selectSupplier?.taxationNumber || "",
+            fee: values.fee || "",
+            remark: values.remark || "",
+            // files,
+          };
 
     console.log(params, "params");
 
@@ -136,32 +161,30 @@ const Payment = () => {
       for (const name in params) {
         formData.append(name, params[name]);
       }
-
       files.forEach((file) => {
         formData.append("files", file);
       });
-
       await addPayment(formData);
     } else {
       await updatePayment(editId, params);
 
-      const info = {
-        paymentId: editId,
-      };
       const formData = new FormData();
-      for (const name in info) {
-        formData.append(name, info[name]);
-      }
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
+      formData.append("paymentId", editId);
 
-      for (let [a, b] of formData.entries()) {
-        console.log(a, b, "--------------");
+      console.log(files, "files");
+      console.log(oldFiles, "oldFiles");
+      const fileList = files.filter((item) => oldFiles.indexOf(item.id) < 0);
+      console.log(fileList, "fileList");
+
+      if (fileList.length > 0) {
+        files.forEach((file) => {
+          formData.append("files", file);
+        });
+        await updateFileById(formData);
       }
-      await updateFileById(formData);
     }
-
+    setOldFiles([]);
+    setFiles([]);
     setModalOpen(false);
     const data = await getPaymentList(page, pageSize);
     setLoading(false);
@@ -390,7 +413,8 @@ const Payment = () => {
     showUploadList: {
       showDownloadIcon: true,
     },
-    onRemove: (file) => {
+    onRemove: async (file) => {
+      await deleteFileById(file?.id);
       const index = files.indexOf(file);
       const newFiles = files.slice();
       newFiles.splice(index, 1);
@@ -398,7 +422,6 @@ const Payment = () => {
     },
     beforeUpload: (file) => {
       setFiles([...files, file]);
-
       return false;
     },
     onDownload: async (file) => {
@@ -406,14 +429,6 @@ const Payment = () => {
         `http://123.60.88.8/zc/common/download/resource?resource=${file?.url}`
       );
     },
-    // progress: {
-    //   strokeColor: {
-    //     "0%": "#108ee9",
-    //     "100%": "#87d068",
-    //   },
-    //   strokeWidth: 3,
-    //   format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    // },
   };
 
   return (
