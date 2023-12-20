@@ -9,6 +9,7 @@ import {
   rejectYS,
   approveYS,
   logsOne,
+  submitOne,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -24,7 +25,7 @@ import {
   Tooltip,
   Popconfirm,
   List,
-  Avatar
+  Avatar,
 } from "antd";
 import {
   EditTwoTone,
@@ -89,6 +90,22 @@ const Item = ({ projectId, onClose, modalType }) => {
     setYsEditId(record.id);
     setOperation(Operation.Add);
     setYfModalOpen(true);
+  };
+
+  const handleSubmit = async () => {
+    await submitOne(projectId);
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+    notification.success({ message: "提交成功" });
   };
 
   const handleEditYfOne = async (record) => {
@@ -615,18 +632,33 @@ const Item = ({ projectId, onClose, modalType }) => {
         style={{ minWidth: "90%" }}
       >
         {modalType === ModalType.Submit && (
-          <Button
-            onClick={handleYsAddClick}
-            type="primary"
-            style={{
-              marginBottom: 16,
-              marginTop: 16,
-              background: "#198348",
-              width: "100px",
-            }}
-          >
-            添加应收
-          </Button>
+          <>
+            <Button
+              onClick={handleYsAddClick}
+              type="primary"
+              style={{
+                marginBottom: 16,
+                marginTop: 16,
+                background: "#198348",
+                width: "100px",
+              }}
+            >
+              添加应收
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              type="primary"
+              style={{
+                marginBottom: 16,
+                marginTop: 16,
+                background: "#198348",
+                width: "100px",
+                marginLeft: "20px",
+              }}
+            >
+              提交审核
+            </Button>
+          </>
         )}
 
         <Table
