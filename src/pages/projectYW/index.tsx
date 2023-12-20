@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import {
   Table,
   Button,
@@ -15,12 +15,8 @@ import {
   Popconfirm,
 } from "antd";
 import {
-  EditTwoTone,
   ProfileTwoTone,
-  DeleteTwoTone,
-  InteractionTwoTone,
   CalendarTwoTone,
-  CheckCircleTwoTone,
   StopTwoTone,
 } from "@ant-design/icons";
 import {
@@ -36,12 +32,12 @@ import {
 } from "@/restApi/project";
 import { Company, ModalType, Operation } from "@/types";
 import dayjs from "dayjs";
-import Link from "next/link";
 import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import YSYFModal from "@/components/YSYFModal";
 import RejectModal from "@/components/RejectModal";
 import ProjectDetailModal from "@/components/DetailModal";
+import * as echarts from "echarts";
 
 const initialValues = {
   name: "",
@@ -52,7 +48,7 @@ const initialValues = {
 };
 
 const Project = () => {
-  const [data, setData] = useState();
+  const [data, setData] = useState([]);
   const [editId, setEditId] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -76,6 +72,9 @@ const Project = () => {
   const [rejectId, setRejectId] = useState();
   const [detail, setDetail] = useState();
 
+  const chartRef = useRef(null);
+  const [options, setOptions] = useState();
+
   useEffect(() => {
     (async () => {
       const data = await getProjectsApproveList(page, pageSize, searchValue);
@@ -90,6 +89,66 @@ const Project = () => {
       // setFileName(file.msg);
     })();
   }, [page, pageSize, searchValue]);
+
+  const option = useMemo(() => {
+    return {
+      title:{ text: '项目图', left: 'center'},
+      tooltip: {
+        trigger: "axis",
+      },
+      legend: {
+        data: ["收入小计","成本小计","利润","扣除后利润"],
+        show: true,
+        right: '20px',
+        orient: 'vertical'
+      },
+      yAxis: {
+        type: "category",
+        data: data?.entity?.data?.map((c) => c.name),
+        axisPointer: {
+          type: 'shadow'
+        },
+        axisLabel: {
+          rotate: 45,
+        }
+      },
+      xAxis: {
+        type: "value",
+      },
+      series: [
+        {
+          data: data?.entity?.data?.map((c) => c.proIncome),
+          type: "bar",
+          name: "收入小计",
+        },
+        {
+          data: data?.entity?.data?.map((c) => c.proCost),
+          type: "bar",
+          name: "成本小计",
+        },
+        {
+          data: data?.entity?.data?.map((c) => c.profit),
+          type: "bar",
+          name: "利润",
+        },
+        {
+          data: data?.entity?.data?.map((c) => c.deductProfit),
+          type: "bar",
+          name: "扣除后利润",
+        },
+      ],
+    }
+  }, [data]);
+
+  useEffect(() => {
+    const chart = echarts.init(chartRef.current);
+
+    chart.setOption(option);
+
+    return () => {
+      chart.dispose();
+    };
+  }, [option]);
 
   const handleAdd = async () => {
     form.setFieldsValue(initialValues);
@@ -395,11 +454,11 @@ const Project = () => {
       <Table
         bordered
         loading={loading}
-        dataSource={data?.entity.data}
+        dataSource={data?.entity?.data}
         columns={columns}
         pagination={{
           // 设置总条数
-          total: data?.entity.total,
+          total: data?.entity?.total,
           // 显示总条数
           showTotal: (total) => `共 ${total} 条`,
           // 是否可以改变 pageSize
@@ -593,6 +652,8 @@ const Project = () => {
         onClose={() => setRejectId(undefined)}
         onReject={(value) => handleRejectOne(rejectId, value)}
       />
+
+      <div style={{ width: '100%', minHeight: "1000px", marginTop: '100px' }} ref={chartRef}></div>
     </div>
   );
 };

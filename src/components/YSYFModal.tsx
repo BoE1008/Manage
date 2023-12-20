@@ -8,6 +8,7 @@ import {
   rejectYF,
   rejectYS,
   approveYS,
+  logsOne,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +23,7 @@ import {
   notification,
   Tooltip,
   Popconfirm,
+  List,
 } from "antd";
 import {
   EditTwoTone,
@@ -30,6 +32,7 @@ import {
   DeleteTwoTone,
   CheckCircleTwoTone,
   StopTwoTone,
+  CalendarTwoTone,
 } from "@ant-design/icons";
 import { Operation, ModalType } from "@/types";
 import { getCustomersList } from "@/restApi/customer";
@@ -57,6 +60,8 @@ const Item = ({ projectId, onClose, modalType }) => {
 
   const [customer, setCustomer] = useState();
   const [suppliers, setSuppliers] = useState();
+
+  const [logs, setLogs] = useState();
 
   useEffect(() => {
     (async () => {
@@ -129,8 +134,13 @@ const Item = ({ projectId, onClose, modalType }) => {
     }
   };
 
+  const handleLogs = async (id: string) => {
+    const res = await logsOne(id);
+    setLogs(res.entity.data);
+  };
+
   const handleApproveYF = async (id) => {
-    await approveYF(id, projectId);
+    await approveYF(projectId, id);
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -145,7 +155,7 @@ const Item = ({ projectId, onClose, modalType }) => {
   };
 
   const handleRejectYF = async (id) => {
-    await rejectYF(id, projectId);
+    await rejectYF(projectId, id);
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -160,7 +170,7 @@ const Item = ({ projectId, onClose, modalType }) => {
   };
 
   const handleApproveYS = async (id) => {
-    await approveYS(id, projectId);
+    await approveYS(projectId, id);
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -175,7 +185,7 @@ const Item = ({ projectId, onClose, modalType }) => {
   };
 
   const handleRejectYS = async (id) => {
-    await rejectYS(id, projectId);
+    await rejectYS(projectId, id);
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -245,6 +255,11 @@ const Item = ({ projectId, onClose, modalType }) => {
         title: "付款",
         dataIndex: "yfCollection",
         key: "yfCollection",
+      },
+      {
+        title: "审核状态",
+        dataIndex: "state",
+        key: "state",
       },
       {
         title: "备注",
@@ -326,6 +341,18 @@ const Item = ({ projectId, onClose, modalType }) => {
                   </Tooltip>
                 </>
               )}
+              <Tooltip title={<span>查看审核日志</span>}>
+                <Button
+                  onClick={() => handleLogs(record.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <CalendarTwoTone twoToneColor="#198348" />
+                </Button>
+              </Tooltip>
             </Space>
           );
         },
@@ -389,11 +416,11 @@ const Item = ({ projectId, onClose, modalType }) => {
       dataIndex: "ysCollection",
       key: "ysCollection",
     },
-    // {
-    //   title: "时间",
-    //   dataIndex: "ysDate",
-    //   key: "ysDate",
-    // },
+    {
+      title: "审核状态",
+      dataIndex: "state",
+      key: "state",
+    },
     {
       title: "备注",
       dataIndex: "remark",
@@ -496,6 +523,18 @@ const Item = ({ projectId, onClose, modalType }) => {
                 </Tooltip> */}
               </>
             )}
+            <Tooltip title={<span>查看审核日志</span>}>
+              <Button
+                onClick={() => handleLogs(record.id)}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+              >
+                <CalendarTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
           </Space>
         );
       },
@@ -839,6 +878,36 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
           </Form>
         </Modal>
+      </Modal>
+
+      <Modal
+        centered
+        destroyOnClose
+        footer={null}
+        title={"审核日志"}
+        open={!!logs}
+        style={{ minWidth: "650px" }}
+        onCancel={() => setLogs(undefined)}
+      >
+        <List
+          pagination={{ position: "bottom", align: "end" }}
+          dataSource={logs}
+          renderItem={(item, index) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={
+                  <Avatar
+                    src={`https://xsgames.co/randomusers/avatar.php?g=pixel&key=${index}`}
+                  />
+                }
+                title={item.state}
+                description={`${item.userName} ${item.createTime} 备注：${
+                  item.remark || ""
+                } `}
+              />
+            </List.Item>
+          )}
+        />
       </Modal>
 
       {/* <ProjectDetailModal

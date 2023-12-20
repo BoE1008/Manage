@@ -1,6 +1,5 @@
 import "@/styles/globals.css";
 import type { AppProps } from "next/app";
-import { RecoilRoot } from "recoil";
 import AppLayout from "@/layout";
 import { ConfigProvider } from "antd";
 import locale from "antd/locale/zh_CN";
@@ -9,7 +8,6 @@ import "dayjs/locale/zh-cn";
 
 export default function App({ Component, pageProps }: AppProps) {
   return (
-    <RecoilRoot>
       <ConfigProvider
         locale={locale}
         theme={{
@@ -38,6 +36,5 @@ export default function App({ Component, pageProps }: AppProps) {
           <Component {...pageProps} />
         </AppLayout>
       </ConfigProvider>
-    </RecoilRoot>
   );
 }
