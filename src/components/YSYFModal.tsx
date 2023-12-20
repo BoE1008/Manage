@@ -24,6 +24,7 @@ import {
   Tooltip,
   Popconfirm,
   List,
+  Avatar
 } from "antd";
 import {
   EditTwoTone,
