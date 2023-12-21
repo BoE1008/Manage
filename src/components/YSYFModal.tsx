@@ -10,6 +10,7 @@ import {
   approveYS,
   logsOne,
   submitOne,
+  getProjectDetailById,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -30,7 +31,6 @@ import {
 import {
   EditTwoTone,
   PlusSquareTwoTone,
-  InteractionTwoTone,
   DeleteTwoTone,
   CheckCircleTwoTone,
   StopTwoTone,
@@ -41,7 +41,6 @@ import { getCustomersList } from "@/restApi/customer";
 import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 import { BooltypeArr } from "@/utils/const";
-import ProjectDetailModal from "@/components/DetailModal";
 import RejectModal from "@/components/RejectModal";
 
 const Item = ({ projectId, onClose, modalType }) => {
@@ -64,12 +63,16 @@ const Item = ({ projectId, onClose, modalType }) => {
   const [suppliers, setSuppliers] = useState();
 
   const [logs, setLogs] = useState();
+  const [projectState, setProjectState] = useState("");
+  const [rejectId, setRejectId] = useState();
+  const [rejectType, setRejectType] = useState();
 
   useEffect(() => {
     (async () => {
       const data = await getProjectYSList(projectId as string, page, pageSize);
       const customerData = await getCustomersList(1, 10000);
       const supplierData = await getSuppliersList(1, 10000);
+      const state = await getProjectDetailById(projectId);
       setLoading(false);
       setData({
         ...data,
@@ -83,6 +86,7 @@ const Item = ({ projectId, onClose, modalType }) => {
       });
       setCustomer(customerData.entity.data);
       setSuppliers(supplierData.entity.data);
+      setProjectState(state.entity.data.state);
     })();
   }, [projectId, page, pageSize]);
 
@@ -172,21 +176,6 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
-  const handleRejectYF = async (id) => {
-    await rejectYF(projectId, id);
-    const data = await getProjectYSList(projectId as string, page, pageSize);
-    setData({
-      ...data,
-      entity: {
-        ...data.entity,
-        data: data.entity.data.map((item, index) => ({
-          key: index,
-          ...item,
-        })),
-      },
-    });
-  };
-
   const handleApproveYS = async (id) => {
     await approveYS(projectId, id);
     const data = await getProjectYSList(projectId as string, page, pageSize);
@@ -202,8 +191,9 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
-  const handleRejectYS = async (id) => {
-    await rejectYS(projectId, id);
+  const handleRejectOne = async (id,value) => {
+    rejectType === 'YF' ? await rejectYF(projectId, id, value) : await rejectYS(projectId, id, value);
+    setRejectId(undefined)
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -217,8 +207,14 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
+
   const expandedRowRender = (record) => {
     const littleTableColumn = [
+      {
+        title: "",
+        dataIndex: "",
+        key: "",
+      },
       {
         title: "供应商",
         dataIndex: "supplierName",
@@ -321,44 +317,49 @@ const Item = ({ projectId, onClose, modalType }) => {
                   </Tooltip>
                 </>
               )}
-              {modalType === ModalType.Approve && (
-                <>
-                  <Tooltip title="批准">
-                    <Popconfirm
-                      title="是否通过审批？"
-                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                      onConfirm={() => handleApproveYF(record.id)}
-                    >
-                      <Button
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "3px 5px",
+              {modalType === ModalType.Approve &&
+                record.state !== "审批通过" && (
+                  <>
+                    <Tooltip title="批准">
+                      <Popconfirm
+                        title="是否通过审批？"
+                        okButtonProps={{
+                          style: { backgroundColor: "#198348" },
                         }}
+                        onConfirm={() => handleApproveYF(record.id)}
                       >
-                        <CheckCircleTwoTone twoToneColor="#198348" />
-                      </Button>
-                    </Popconfirm>
-                  </Tooltip>
-                  <Tooltip title="退回">
-                    <Popconfirm
+                        <Button
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "3px 5px",
+                          }}
+                        >
+                          <CheckCircleTwoTone twoToneColor="#198348" />
+                        </Button>
+                      </Popconfirm>
+                    </Tooltip>
+                    <Tooltip title="退回">
+                      <Popconfirm
                       title="是否退回申请？"
-                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                      onConfirm={() => handleRejectYF(record.id)}
-                    >
-                      <Button
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "3px 5px",
-                        }}
+                      okButtonProps={{
+                        style: { backgroundColor: "#198348" },
+                      }}
+                      onConfirm={() => { setRejectId(record.id);setRejectType('YF') }}
                       >
-                        <StopTwoTone twoToneColor="#198348" />
-                      </Button>
-                    </Popconfirm>
-                  </Tooltip>
-                </>
-              )}
+                        <Button
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            padding: "3px 5px",
+                          }}
+                        >
+                          <StopTwoTone twoToneColor="#198348" />
+                        </Button>
+                      </Popconfirm>
+                    </Tooltip>
+                  </>
+                )}
               <Tooltip title={<span>查看审核日志</span>}>
                 <Button
                   onClick={() => handleLogs(record.id)}
@@ -452,46 +453,52 @@ const Item = ({ projectId, onClose, modalType }) => {
           <Space size="middle" className="flex flex-row !gap-x-1">
             {modalType === ModalType.Submit && (
               <>
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                  onClick={() => handleEditYsOne(record)}
-                >
-                  <EditTwoTone twoToneColor="#198348" />
-                </Button>
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                  onClick={() => handleYfAddClick(record)}
-                >
-                  <PlusSquareTwoTone twoToneColor="#198348" />
-                </Button>
-                <Tooltip title="删除">
-                  <Popconfirm
-                    title="是否删除？"
-                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    // onConfirm={() => handleDeleteOne(record.id)}
+                {projectState === "未提交" && (
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleEditYsOne(record)}
                   >
-                    <Button
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "3px 5px",
-                      }}
+                    <EditTwoTone twoToneColor="#198348" />
+                  </Button>
+                )}
+                {projectState === "未提交" && (
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                    onClick={() => handleYfAddClick(record)}
+                  >
+                    <PlusSquareTwoTone twoToneColor="#198348" />
+                  </Button>
+                )}
+                {projectState === "未提交" && (
+                  <Tooltip title="删除">
+                    <Popconfirm
+                      title="是否删除？"
+                      okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                      // onConfirm={() => handleDeleteOne(record.id)}
                     >
-                      <DeleteTwoTone twoToneColor="#198348" />
-                    </Button>
-                  </Popconfirm>
-                </Tooltip>
+                      <Button
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          padding: "3px 5px",
+                        }}
+                      >
+                        <DeleteTwoTone twoToneColor="#198348" />
+                      </Button>
+                    </Popconfirm>
+                  </Tooltip>
+                )}
               </>
             )}
-            {modalType === ModalType.Approve && (
+            {modalType === ModalType.Approve && record.state !== "审批通过" && (
               <>
                 <Tooltip title="批准">
                   <Popconfirm
@@ -514,7 +521,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                   <Popconfirm
                     title="是否退回申请？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    onConfirm={() => handleApproveYS(record.id)}
+                    onConfirm={() => { setRejectId(record.id);setRejectType('YS') }}
                   >
                     <Button
                       style={{
@@ -527,18 +534,6 @@ const Item = ({ projectId, onClose, modalType }) => {
                     </Button>
                   </Popconfirm>
                 </Tooltip>
-                {/* <Tooltip title="编辑">
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                    onClick={() => handleEditOne(record)}
-                  >
-                    <EditTwoTone twoToneColor="#198348" />
-                  </Button>
-                </Tooltip> */}
               </>
             )}
             <Tooltip title={<span>查看审核日志</span>}>
@@ -630,8 +625,9 @@ const Item = ({ projectId, onClose, modalType }) => {
         destroyOnClose
         title="应收应付列表"
         style={{ minWidth: "90%" }}
+        styles={{ body: { height: "800px", overflowY: "auto" } }}
       >
-        {modalType === ModalType.Submit && (
+        {modalType === ModalType.Submit && projectState === "未提交" && (
           <>
             <Button
               onClick={handleYsAddClick}
@@ -947,13 +943,15 @@ const Item = ({ projectId, onClose, modalType }) => {
         data={detail}
         onConfirm={handleApproveOne}
         onClose={() => setDetail(undefined)}
-      />
-
-      <RejectModal
-        open={!!rejectId}
-        onClose={() => setRejectId(undefined)}
-        onReject={(value) => handleRejectOne(rejectId, value)}
       /> */}
+
+      {!!rejectId && (
+        <RejectModal
+          open={!!rejectId}
+          onClose={() => setRejectId(undefined)}
+          onReject={(value) => handleRejectOne(rejectId, value)}
+        />
+      )}
     </>
   );
 };

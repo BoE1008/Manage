@@ -169,10 +169,11 @@ export const approveYS = async (projectId, projectYsfId) => {
   return res.data;
 };
 
-export const rejectYS = async ( projectId, projectYsfId) => {
-  const res = await axiosInstance.post(`/zc/project/reject`, {
+export const rejectYS = async ( projectId, projectYsfId, remark) => {
+  const res = await axiosInstance.post(`/zc/project/ys/reject`, {
     projectId,
-    projectYsfId
+    projectYsfId,
+    remark
   });
 
   return res.data;
@@ -187,10 +188,11 @@ export const approveYF = async (projectId, projectYsfId) => {
   return res.data;
 };
 
-export const rejectYF = async ( projectId, projectYsfId) => {
+export const rejectYF = async ( projectId, projectYsfId, remark) => {
   const res = await axiosInstance.post(`/zc/project/yf/reject`, {
     projectId,
-    projectYsfId
+    projectYsfId, 
+    remark
   });
 
   return res.data;

@@ -214,10 +214,10 @@ const Project = () => {
       title: "操作",
       key: "action",
       render: (_, record) => {
-        const isFinished = record.state === "审批通过";
+        const unSubmit = record.state === "未提交";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            {!isFinished && (
+            {unSubmit && (
               <Tooltip title={<span>编辑</span>}>
                 <Button
                   style={{
@@ -244,7 +244,7 @@ const Project = () => {
               </Button>
             </Tooltip>
 
-            {!isFinished && (
+            {unSubmit && (
               <Tooltip title={<span>提交业务审核</span>}>
                 <Popconfirm
                   title="是否提交审核？"
@@ -276,7 +276,7 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            {!isFinished && (
+            {unSubmit && (
               <Tooltip title={<span>删除</span>}>
                 <Popconfirm
                   title="是否删除？"
@@ -530,11 +530,13 @@ const Project = () => {
         />
       </Modal>
 
-      <YSYFModal
-        modalType={ModalType.Submit}
-        projectId={projectId}
-        onClose={() => setProjectId(undefined)}
-      />
+      {!!projectId && (
+        <YSYFModal
+          modalType={ModalType.Submit}
+          projectId={projectId}
+          onClose={() => setProjectId(undefined)}
+        />
+      )}
     </div>
   );
 };

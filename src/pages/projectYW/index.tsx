@@ -92,25 +92,25 @@ const Project = () => {
 
   const option = useMemo(() => {
     return {
-      title:{ text: '项目图', left: 'center'},
+      title: { text: "项目图", left: "center" },
       tooltip: {
         trigger: "axis",
       },
       legend: {
-        data: ["收入小计","成本小计","利润","扣除后利润"],
+        data: ["收入小计", "成本小计", "利润", "扣除后利润"],
         show: true,
-        right: '20px',
-        orient: 'vertical'
+        right: "20px",
+        orient: "vertical",
       },
       yAxis: {
         type: "category",
         data: data?.entity?.data?.map((c) => c.name),
         axisPointer: {
-          type: 'shadow'
+          type: "shadow",
         },
         axisLabel: {
           rotate: 45,
-        }
+        },
       },
       xAxis: {
         type: "value",
@@ -137,7 +137,7 @@ const Project = () => {
           name: "扣除后利润",
         },
       ],
-    }
+    };
   }, [data]);
 
   useEffect(() => {
@@ -319,55 +319,23 @@ const Project = () => {
             </Tooltip>
 
             {!isFinished && (
-              <>
-                {/* <Tooltip title="批准">
-                  <Popconfirm
-                    title="是否通过审批？"
-                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    // onConfirm={() => handleApproveOne(record.id)}
-                    onConfirm={() => handleDetail(record.id)}
-                  >
-                    <Button
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "3px 5px",
-                      }}
-                    >
-                      <CheckCircleTwoTone twoToneColor="#198348" />
-                    </Button>
-                  </Popconfirm>
-                </Tooltip> */}
-                <Tooltip title="退回">
-                  <Popconfirm
-                    title="是否退回申请？"
-                    okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    onConfirm={() => setRejectId(record.id)}
-                  >
-                    <Button
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "3px 5px",
-                      }}
-                    >
-                      <StopTwoTone twoToneColor="#198348" />
-                    </Button>
-                  </Popconfirm>
-                </Tooltip>
-                {/* <Tooltip title="编辑">
+              <Tooltip title="退回">
+                <Popconfirm
+                  title="是否退回申请？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  onConfirm={() => setRejectId(record.id)}
+                >
                   <Button
                     style={{
                       display: "flex",
                       alignItems: "center",
                       padding: "3px 5px",
                     }}
-                    onClick={() => handleEditOne(record)}
                   >
-                    <EditTwoTone twoToneColor="#198348" />
+                    <StopTwoTone twoToneColor="#198348" />
                   </Button>
-                </Tooltip> */}
-              </>
+                </Popconfirm>
+              </Tooltip>
             )}
 
             <Tooltip title="查看审核日志">
@@ -382,24 +350,6 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-
-            {/* <Tooltip title="删除">
-              <Popconfirm
-                title="是否删除？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleDeleteOne(record.id)}
-              >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                >
-                  <DeleteTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
-            </Tooltip> */}
           </Space>
         );
       },
@@ -635,11 +585,13 @@ const Project = () => {
         />
       </Modal>
 
-      <YSYFModal
-        modalType={ModalType.Approve}
-        projectId={projectId}
-        onClose={() => setProjectId(undefined)}
-      />
+      {!!projectId && (
+        <YSYFModal
+          modalType={ModalType.Approve}
+          projectId={projectId}
+          onClose={() => setProjectId(undefined)}
+        />
+      )}
 
       <ProjectDetailModal
         data={detail}
@@ -653,7 +605,10 @@ const Project = () => {
         onReject={(value) => handleRejectOne(rejectId, value)}
       />
 
-      <div style={{ width: '100%', minHeight: "1000px", marginTop: '100px' }} ref={chartRef}></div>
+      <div
+        style={{ width: "100%", minHeight: "1000px", marginTop: "100px" }}
+        ref={chartRef}
+      ></div>
     </div>
   );
 };
