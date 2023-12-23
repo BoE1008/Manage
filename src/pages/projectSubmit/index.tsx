@@ -141,77 +141,104 @@ const Project = () => {
 
   const columns = [
     {
+      title: "项目编号",
+      dataIndex: "projectNum",
+      align: "center",
+      key: "projectNum",
+    },
+    {
       title: "项目名称",
       dataIndex: "name",
+      align: "center",
       key: "name",
     },
     {
       title: "产品",
       dataIndex: "typeName",
+      align: "center",
       key: "typeName",
     },
     {
       title: "客户",
       dataIndex: "customName",
+      align: "center",
       key: "customName",
     },
     {
       title: "品牌",
       dataIndex: "brandName",
+      align: "center",
       key: "brandName",
     },
     {
       title: "货物",
       dataIndex: "productName",
+      align: "center",
       key: "productName",
+    },
+    {
+      title: "发运日期",
+      dataIndex: "projectDate",
+      align: "center",
+      key: "projectDate",
     },
     {
       title: "服务内容",
       dataIndex: "serviceName",
+      align: "center",
       key: "serviceName",
     },
     {
       title: "班列号/船名",
       dataIndex: "trainNumName",
+      align: "center",
       key: "trainNumName",
     },
     {
       title: "数量",
       dataIndex: "num",
+      align: "center",
       key: "num",
     },
     {
       title: "收入小计",
       dataIndex: "proIncome",
+      align: "center",
       key: "proIncome",
     },
     {
       title: "成本小计",
       dataIndex: "proCost",
+      align: "center",
       key: "proCost",
     },
     {
       title: "利润",
       dataIndex: "profit",
+      align: "center",
       key: "profit",
     },
     {
       title: "扣除后利润",
       dataIndex: "deductProfit",
+      align: "center",
       key: "deductProfit",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         const unSubmit = record.state === "未提交";
@@ -264,7 +291,7 @@ const Project = () => {
               </Tooltip>
             )}
 
-            <Tooltip title={<span>查看审核日志</span>}>
+            {/* <Tooltip title={<span>查看审核日志</span>}>
               <Button
                 onClick={() => handleLogs(record.id)}
                 style={{
@@ -276,6 +303,8 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
+            {unSubmit && (
+            </Tooltip> */}
             {unSubmit && (
               <Tooltip title={<span>删除</span>}>
                 <Popconfirm
@@ -402,13 +431,10 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="客户" name="customId">
             <Select
+              showSearch
               placeholder="选择客户"
               optionFilterProp="children"
-              // filterOption={customerFilterOption}
-              // options={project?.map((con) => ({
-              //   label: con.name,
-              //   value: con.id,
-              // }))}
+              filterOption={filterOption}
               options={customer?.map((con) => ({
                 value: con.id,
                 label: con.name,
@@ -423,6 +449,7 @@ const Project = () => {
             hasFeedback
           >
             <Select
+              showSearch
               placeholder="选择产品"
               optionFilterProp="children"
               filterOption={filterOption}
@@ -436,9 +463,10 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="品牌" name="brandId">
             <Select
+              showSearch
               placeholder="选择品牌"
               optionFilterProp="children"
-              // filterOption={customerFilterOption}
+              filterOption={filterOption}
               options={dict
                 ?.find((con) => con.code === "sys_project_brand")
                 ?.childList?.map((con) => ({
@@ -449,13 +477,10 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="货物" name="productId">
             <Select
+              showSearch
               placeholder="选择货物"
               optionFilterProp="children"
-              // filterOption={customerFilterOption}
-              // options={project?.map((con) => ({
-              //   label: con.name,
-              //   value: con.id,
-              // }))}
+              filterOption={filterOption}
               options={dict
                 ?.find((con) => con.code === "sys_product_type")
                 ?.childList?.map((con) => ({
@@ -466,19 +491,16 @@ const Project = () => {
           </Form.Item>
           <Form.Item label="服务内容" name="serviceId">
             <Select
+              showSearch
               placeholder="选择服务内容"
               optionFilterProp="children"
+              filterOption={filterOption}
               options={dict
                 ?.find((con) => con.code === "sys_service_content")
                 ?.childList?.map((con) => ({
                   value: con.id,
                   label: con.dictLabel,
                 }))}
-              // filterOption={customerFilterOption}
-              // options={project?.map((con) => ({
-              //   label: con.name,
-              //   value: con.id,
-              // }))}
             />
           </Form.Item>
           <Form.Item label="班列号/船名" name="trainNumName">
@@ -488,7 +510,7 @@ const Project = () => {
             <Input placeholder="数量" />
           </Form.Item>
           <Form.Item
-            label="日期"
+            label="发运日期"
             name="projectDate"
             getValueProps={(i) => ({ value: dayjs(i) })}
           >

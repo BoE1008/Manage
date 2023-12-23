@@ -93,25 +93,30 @@ const Dept = () => {
     {
       title: "部门名称",
       dataIndex: "name",
+      align: "center",
       key: "name",
     },
     {
       title: "id",
       dataIndex: "id",
+      align: "center",
       key: "id",
     },
     {
       title: "部门排序",
       dataIndex: "orderSort",
+      align: "center",
       key: "orderSort",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         return (

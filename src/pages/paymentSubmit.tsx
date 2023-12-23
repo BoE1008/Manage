@@ -41,7 +41,7 @@ import {
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
 import { getDictByCode } from "@/restApi/dict";
-import DetailModal from "@/components/DetailModal";
+import DetailModal from "@/components/PaymentDetailModal";
 
 const Payment = () => {
   const [form] = Form.useForm();
@@ -73,9 +73,7 @@ const Payment = () => {
       const res = await getPaymentList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       setData(res);
-      setProject(
-        projectData.entity.data.filter((item) => item.state === "审批通过")
-      );
+      setProject(projectData.entity.data);
     })();
   }, [page, pageSize]);
 
@@ -272,60 +270,72 @@ const Payment = () => {
     {
       title: "项目名称",
       dataIndex: "projectName",
+      align: "center",
       key: "projectName",
     },
     {
       title: "供应商",
       dataIndex: "supplierName",
+      align: "center",
       key: "supplierName",
     },
     {
       title: "金额",
       dataIndex: "fee",
+      align: "center",
       key: "fee",
     },
     {
       title: "币种",
       dataIndex: "moneyType",
+      align: "center",
       key: "moneyType",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "税号",
       dataIndex: "taxationNumber",
+      align: "center",
       key: "taxationNumber",
     },
     {
       title: "银行卡号",
       dataIndex: "bankCard",
+      align: "center",
       key: "bankCard",
     },
     {
       title: "开户行",
       dataIndex: "bank",
+      align: "center",
       key: "bank",
     },
     {
       title: "申请人",
       dataIndex: "createBy",
+      align: "center",
       key: "createBy",
     },
     {
       title: "应付日期",
       dataIndex: "yfDate",
+      align: "center",
       key: "yfDate",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         const isFinished = record.state === "审批通过";
@@ -444,13 +454,13 @@ const Payment = () => {
           </Button>
         </Space>
 
-        <Space>
+        {/* <Space>
           <Input
             placeholder="名称"
             // value={searchValue}
             // onChange={(e) => setSearchValue(e.target.value)}
           />
-        </Space>
+        </Space> */}
       </div>
       <Table
         bordered
@@ -524,6 +534,8 @@ const Payment = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
+              showSearch
+              onSearch={onSearch}
               labelInValue
               placeholder="选择供应商"
               optionFilterProp="children"
@@ -548,6 +560,7 @@ const Payment = () => {
 
           <Form.Item required label="币种" name="moneyType">
             <Select
+              showSearch
               labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
@@ -561,6 +574,7 @@ const Payment = () => {
           </Form.Item>
           <Form.Item label="卡号" name="bankCard">
             <Select
+              showSearch
               labelInValue
               placeholder="选择银行卡"
               optionFilterProp="children"
@@ -574,6 +588,7 @@ const Payment = () => {
           </Form.Item>
           <Form.Item label="开户行" name="bank">
             <Select
+              showSearch
               labelInValue
               placeholder="选择开户行"
               optionFilterProp="children"

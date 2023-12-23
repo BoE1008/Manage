@@ -93,20 +93,24 @@ const Role = () => {
     {
       title: "名称",
       dataIndex: "name",
+      align: "center",
       key: "name",
     },
     {
       title: "id",
       dataIndex: "id",
+      align: "center",
       key: "id",
     },
     {
       title: "roleKey",
       dataIndex: "roleKey",
+      align: "center",
       key: "roleKey",
     },
     {
       title: "状态",
+      align: "center",
       key: "status",
       render: (_, record) => {
         if (record.status === "0") {
@@ -119,10 +123,12 @@ const Role = () => {
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         return (

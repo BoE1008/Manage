@@ -88,30 +88,36 @@ const User = () => {
     {
       title: "用户编号",
       dataIndex: "userNum",
+      align: "center",
       key: "userNum",
     },
     {
       title: "用户名",
+      align: "center",
       dataIndex: "userName",
       key: "userName",
     },
     {
       title: "登录名",
       dataIndex: "loginName",
+      align: "center",
       key: "loginName",
     },
     {
       title: "邮箱",
       dataIndex: "email",
+      align: "center",
       key: "email",
     },
     {
       title: "联系电话",
       dataIndex: "mobile",
+      align: "center",
       key: "mobile",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record: Company) => {
         return (

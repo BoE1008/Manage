@@ -17,13 +17,12 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     (async () => {
-      if(sessionStorage.getItem('username')){
-        const menu = JSON.parse(sessionStorage.getItem('menu'));
+      if (sessionStorage.getItem("username")) {
+        const menu = JSON.parse(sessionStorage.getItem("menu"));
         setMenu(menu);
       }
     })();
   }, [asPath]);
-
 
   const handleClick: MenuProps["onClick"] = (props) => {
     router.push(`/${props.key}`);
@@ -40,14 +39,14 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          height: "100px",
+          height: "80px",
           padding: 0,
           background: "#fff",
         }}
-        className="w-full h-[100px]"
+        className="w-full h-[50px]"
       >
         <Link href="/" className="flex flex-row items-center">
-          <Image src={logo} alt="logo" width={300} height={50} />
+          <Image src={logo} alt="logo" width={200} height={60} />
           <h2
             style={{
               color: "#198348",
@@ -63,8 +62,14 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
       </Header>
       <Layout className="min-h-screen w-screen">
         <Sider
-          width={200}
-          style={{ position: "fixed", top: 120, left: 0, zIndex: 5, height: 'calc(100vh - 120px)' }}
+          width={180}
+          style={{
+            position: "fixed",
+            top: 80,
+            left: 0,
+            zIndex: 5,
+            height: "calc(100vh - 80px)",
+          }}
           className="overflow-y-auto"
         >
           <Menu
@@ -83,15 +88,16 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         </Sider>
         <Layout
           style={{
-            paddingLeft: "200px",
-            paddingTop: "120px",
+            paddingLeft: "180px",
+            paddingTop: "90px",
             minHeight: "100%",
           }}
           className="min-h-screen"
         >
           <Content
             style={{
-              margin: 15,
+              marginLeft: 5,
+              marginTop: 0,
               minHeight: 280,
               background: "#FFF",
             }}

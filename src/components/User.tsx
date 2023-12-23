@@ -33,7 +33,7 @@ const User = () => {
         </div>
         <ul
           className={clsx(
-            "font-medium tracking-wider grid leading-10 gap-0.5 <md:w-full min-w-40 w-max py-4 top-12 md:top-15 right-0 z-30 absolute lg:py-5",
+            "font-medium tracking-wider grid leading-10 gap-0.5 <md:w-full min-w-20 w-max top-12 md:top-15 right-0 z-30 absolute",
             !hovered && "hidden"
           )}
         >
@@ -45,9 +45,9 @@ const User = () => {
               setHovered(false);
               router.push("/login");
             }}
-            className="cursor-pointer px-7.5 transform transition-all hover:scale-110"
+            className="cursor-pointer px-7.5 transform transition-all hover:scale-110 text-center"
           >
-            {"Sign Out"}
+            {"退出"}
           </li>
         </ul>
       </div>

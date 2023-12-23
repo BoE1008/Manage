@@ -37,7 +37,7 @@ import {
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/DetailModal";
+import DetailModal from "@/components/InvoicingDetailModal";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -162,60 +162,72 @@ const Role = () => {
     {
       title: "项目名称",
       dataIndex: "projectName",
+      align: "center",
       key: "projectName",
     },
     {
       title: "供应商",
       dataIndex: "supplierName",
+      align: "center",
       key: "supplierName",
     },
     {
       title: "金额",
       dataIndex: "fee",
+      align: "center",
       key: "fee",
     },
     {
       title: "币种",
       dataIndex: "moneyType",
+      align: "center",
       key: "moneyType",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "税号",
       dataIndex: "taxationNumber",
+      align: "center",
       key: "taxationNumber",
     },
     {
       title: "银行卡号",
       dataIndex: "bankCard",
+      align: "center",
       key: "bankCard",
     },
     {
       title: "开户行",
       dataIndex: "bank",
+      align: "center",
       key: "bank",
     },
     {
       title: "申请人",
       dataIndex: "createBy",
+      align: "center",
       key: "createBy",
     },
     {
       title: "应付日期",
       dataIndex: "yfDate",
+      align: "center",
       key: "yfDate",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         const isFinished = record.state === "审批通过";
@@ -338,25 +350,6 @@ const Role = () => {
 
   return (
     <div className="p-2">
-      <div className="flex flex-row gap-y-3 justify-between">
-        <Space>
-          <Button
-            onClick={handleAdd}
-            type="primary"
-            style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-          >
-            添加
-          </Button>
-        </Space>
-
-        <Space>
-          <Input
-            placeholder="名称"
-            // value={searchValue}
-            // onChange={(e) => setSearchValue(e.target.value)}
-          />
-        </Space>
-      </div>
       <Table
         bordered
         // loading={loading}
@@ -489,19 +482,23 @@ const Role = () => {
         />
       </Modal>
 
-      <DetailModal
-        data={detail}
-        onConfirm={() => {
-          submitType === 0 ? handleSubmitToLD() : handleSubmitToCW();
-        }}
-        onClose={() => setDetail(undefined)}
-      />
+      {!!detail && (
+        <DetailModal
+          data={detail}
+          onConfirm={() => {
+            submitType === 0 ? handleSubmitToLD() : handleSubmitToCW();
+          }}
+          onClose={() => setDetail(undefined)}
+        />
+      )}
 
-      <RejectModal
-        open={!!rejectId}
-        onClose={() => setRejectId(undefined)}
-        onReject={(value) => handleRejectOne(rejectId, value)}
-      />
+      {!!rejectId && (
+        <RejectModal
+          open={!!rejectId}
+          onClose={() => setRejectId(undefined)}
+          onReject={(value) => handleRejectOne(rejectId, value)}
+        />
+      )}
     </div>
   );
 };

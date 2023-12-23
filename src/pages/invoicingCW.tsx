@@ -35,7 +35,7 @@ import {
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/DetailModal";
+import DetailModal from "@/components/InvoicingDetailModal";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -152,30 +152,36 @@ const InvoicingSubmit = () => {
     {
       title: "项目名称",
       dataIndex: "projectName",
+      align: "center",
       key: "projectName",
     },
     {
       title: "客戶名称",
       dataIndex: "customName",
+      align: "center",
       key: "customName",
     },
     {
       title: "开票票种",
       dataIndex: "invoicingType",
+      align: "center",
       key: "invoicingType",
     },
     {
       title: "开票内容",
       dataIndex: "content",
+      align: "center",
       key: "content",
     },
     {
       title: "开票币种",
       dataIndex: "moneyType",
+      align: "center",
       key: "moneyType",
     },
     {
       title: "开票金额",
+      align: "center",
       dataIndex: "fee",
       key: "fee",
     },
@@ -183,50 +189,60 @@ const InvoicingSubmit = () => {
     {
       title: "税号",
       dataIndex: "taxationNumber",
+      align: "center",
       key: "taxationNumber",
     },
     {
       title: "开户行",
       dataIndex: "bank",
+      align: "center",
       key: "bank",
     },
     {
       title: "卡号",
       dataIndex: "bankCard",
+      align: "center",
       key: "bankCard",
     },
     {
       title: "地址",
       dataIndex: "address",
+      align: "center",
       key: "address",
     },
     {
       title: "联系电话",
       dataIndex: "phone",
+      align: "center",
       key: "phone",
     },
     {
       title: "申请人",
       dataIndex: "createBy",
+      align: "center",
       key: "createBy",
     },
     {
       title: "申请时间",
       dataIndex: "createTime",
+      align: "center",
       key: "createTime",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         const isFinished = record.state === "审批通过";
@@ -323,7 +339,7 @@ const InvoicingSubmit = () => {
 
   return (
     <div className="p-2">
-      <div className="flex flex-row gap-y-3 justify-between">
+      {/* <div className="flex flex-row gap-y-3 justify-between">
         <Space>
           <Input
             placeholder="名称"
@@ -331,7 +347,7 @@ const InvoicingSubmit = () => {
             // onChange={(e) => setSearchValue(e.target.value)}
           />
         </Space>
-      </div>
+      </div> */}
       <Table
         bordered
         // loading={loading}
@@ -382,6 +398,7 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
             <Select
+              showSearch
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -398,6 +415,7 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
+              showSearch
               placeholder="选择客户"
               optionFilterProp="children"
               filterOption={customerFilterOption}

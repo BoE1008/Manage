@@ -36,7 +36,7 @@ import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import YSYFModal from "@/components/YSYFModal";
 import RejectModal from "@/components/RejectModal";
-import ProjectDetailModal from "@/components/DetailModal";
+import ProjectDetailModal from "@/components/InvoicingDetailModal";
 import * as echarts from "echarts";
 
 const initialValues = {
@@ -140,15 +140,15 @@ const Project = () => {
     };
   }, [data]);
 
-  useEffect(() => {
-    const chart = echarts.init(chartRef.current);
+  // useEffect(() => {
+  //   const chart = echarts.init(chartRef.current);
 
-    chart.setOption(option);
+  //   chart.setOption(option);
 
-    return () => {
-      chart.dispose();
-    };
-  }, [option]);
+  //   return () => {
+  //     chart.dispose();
+  //   };
+  // }, [option]);
 
   const handleAdd = async () => {
     form.setFieldsValue(initialValues);
@@ -229,77 +229,104 @@ const Project = () => {
 
   const columns = [
     {
+      title: "项目编号",
+      dataIndex: "projectNum",
+      align: "center",
+      key: "projectNum",
+    },
+    {
       title: "项目名称",
       dataIndex: "name",
+      align: "center",
       key: "name",
     },
     {
       title: "产品",
       dataIndex: "typeName",
+      align: "center",
       key: "typeName",
     },
     {
       title: "客户",
       dataIndex: "customName",
+      align: "center",
       key: "customName",
     },
     {
       title: "品牌",
       dataIndex: "brandName",
+      align: "center",
       key: "brandName",
     },
     {
       title: "货物",
       dataIndex: "productName",
+      align: "center",
       key: "productName",
+    },
+    {
+      title: "发运日期",
+      dataIndex: "projectDate",
+      align: "center",
+      key: "projectDate",
     },
     {
       title: "服务内容",
       dataIndex: "serviceName",
+      align: "center",
       key: "serviceName",
     },
     {
       title: "班列号/船名",
       dataIndex: "trainNumName",
+      align: "center",
       key: "trainNumName",
     },
     {
       title: "数量",
       dataIndex: "num",
+      align: "center",
       key: "num",
     },
     {
       title: "收入小计",
       dataIndex: "proIncome",
+      align: "center",
       key: "proIncome",
     },
     {
       title: "成本小计",
       dataIndex: "proCost",
+      align: "center",
       key: "proCost",
     },
     {
       title: "利润",
       dataIndex: "profit",
+      align: "center",
       key: "profit",
     },
     {
       title: "扣除后利润",
       dataIndex: "deductProfit",
+      align: "center",
       key: "deductProfit",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record: Company) => {
         const isFinished = record.state === "审批通过";
@@ -338,7 +365,7 @@ const Project = () => {
               </Tooltip>
             )}
 
-            <Tooltip title="查看审核日志">
+            {/* <Tooltip title="查看审核日志">
               <Button
                 onClick={() => handleLogs(record.id)}
                 style={{
@@ -350,6 +377,25 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
+            </Tooltip> */}
+
+            {/* <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip> */}
           </Space>
         );
       },
@@ -605,10 +651,10 @@ const Project = () => {
         onReject={(value) => handleRejectOne(rejectId, value)}
       />
 
-      <div
+      {/* <div
         style={{ width: "100%", minHeight: "1000px", marginTop: "100px" }}
         ref={chartRef}
-      ></div>
+      ></div> */}
     </div>
   );
 };

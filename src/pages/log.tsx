@@ -20,26 +20,31 @@ const System = () => {
     {
       title: "用户名",
       dataIndex: "userName",
+      align: "center",
       key: "userName",
     },
     {
       title: "登录名",
       dataIndex: "loginName",
+      align: "center",
       key: "loginName",
     },
     {
       title: "操作类型",
       dataIndex: "logName",
+      align: "center",
       key: "logName",
     },
     {
       title: "操作接口",
       dataIndex: "logUrl",
+      align: "center",
       key: "logUrl",
     },
     {
       title: "操作时间",
       dataIndex: "createTime",
+      align: "center",
       key: "createTime",
     },
   ];

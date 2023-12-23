@@ -42,7 +42,7 @@ import {
 import { getCustomersYSList } from "@/restApi/customer";
 import { InvoicingTypeArr } from "@/utils/const";
 import { getDictByCode } from "@/restApi/dict";
-import DetailModal from "@/components/DetailModal";
+import DetailModal from "@/components/InvoicingDetailModal";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -77,9 +77,7 @@ const InvoicingSubmit = () => {
       const res = await getinvoicingList(page, pageSize, searchValue);
       const projectData = await getProjectsSubmitList(1, 10000);
       setData(res);
-      setProject(
-        projectData.entity.data.filter((item) => item.state === "审批通过")
-      );
+      setProject(projectData.entity.data);
     })();
   }, [page, pageSize, searchValue]);
 
@@ -281,81 +279,97 @@ const InvoicingSubmit = () => {
     {
       title: "项目名称",
       dataIndex: "projectName",
+      align: "center",
       key: "projectName",
     },
     {
       title: "客戶名称",
       dataIndex: "customName",
+      align: "center",
       key: "customName",
     },
     {
       title: "开票票种",
       dataIndex: "invoicingType",
+      align: "center",
       key: "invoicingType",
     },
     {
       title: "开票内容",
       dataIndex: "content",
+      align: "center",
       key: "content",
     },
     {
       title: "开票币种",
       dataIndex: "moneyType",
+      align: "center",
       key: "moneyType",
     },
     {
       title: "开票金额",
       dataIndex: "fee",
+      align: "center",
       key: "fee",
     },
 
     {
       title: "税号",
       dataIndex: "taxationNumber",
+      align: "center",
       key: "taxationNumber",
     },
     {
       title: "开户行",
       dataIndex: "bank",
+      align: "center",
       key: "bank",
     },
     {
       title: "卡号",
       dataIndex: "bankCard",
+      align: "center",
       key: "bankCard",
     },
     {
       title: "地址",
       dataIndex: "address",
+      align: "center",
       key: "address",
     },
     {
       title: "联系电话",
       dataIndex: "phone",
+      align: "center",
       key: "phone",
     },
     {
       title: "申请人",
       dataIndex: "createBy",
+      align: "center",
       key: "createBy",
     },
     {
       title: "申请时间",
       dataIndex: "createTime",
+      align: "center",
       key: "createTime",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         const isFinished = record.state === "审批通过";
@@ -437,6 +451,7 @@ const InvoicingSubmit = () => {
     multiple: true,
     fileList: files,
     withCredentials: true,
+    listType: "text",
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -474,13 +489,13 @@ const InvoicingSubmit = () => {
           </Button>
         </Space>
 
-        <Space>
+        {/* <Space>
           <Input
             placeholder="名称"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
           />
-        </Space>
+        </Space> */}
       </div>
       <Table
         bordered
@@ -559,6 +574,7 @@ const InvoicingSubmit = () => {
             rules={[{ required: true, message: "客户名称不能为空" }]}
           >
             <Select
+              showSearch
               labelInValue
               placeholder="选择客户"
               optionFilterProp="children"
@@ -572,6 +588,7 @@ const InvoicingSubmit = () => {
           </Form.Item>
           <Form.Item required label="票种" name="invoicingType">
             <Select
+              showSearch
               labelInValue
               placeholder="选择票种"
               optionFilterProp="children"
@@ -585,6 +602,7 @@ const InvoicingSubmit = () => {
 
           <Form.Item required label="内容" name="content">
             <Select
+              showSearch
               labelInValue
               placeholder="选择开票内容"
               optionFilterProp="children"
@@ -607,6 +625,7 @@ const InvoicingSubmit = () => {
           </Form.Item>
           <Form.Item required label="币种" name="moneyType">
             <Select
+              showSearch
               labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
@@ -620,6 +639,7 @@ const InvoicingSubmit = () => {
           </Form.Item>
           <Form.Item label="卡号" name="bankCard">
             <Select
+              showSearch
               labelInValue
               placeholder="选择银行卡"
               optionFilterProp="children"
@@ -633,6 +653,7 @@ const InvoicingSubmit = () => {
           </Form.Item>
           <Form.Item label="开户行" name="bank">
             <Select
+              showSearch
               labelInValue
               placeholder="选择开户行"
               optionFilterProp="children"

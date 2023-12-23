@@ -183,35 +183,42 @@ const Customer = () => {
     {
       title: "客户名称",
       dataIndex: "name",
+      align: "center",
       key: "name",
     },
     {
       title: "客户地址",
       dataIndex: "address",
+      align: "center",
       key: "address",
     },
     {
       title: "客户联系人",
       dataIndex: "contactsName",
+      align: "center",
       key: "contactsName",
     },
     {
       title: "客户联系人电话",
+      align: "center",
       dataIndex: "contactsMobile",
       key: "contactsMobile",
     },
     {
       title: "税号",
       dataIndex: "taxationNumber",
+      align: "center",
       key: "taxationNumber",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record: Company) => {
         return (
@@ -258,25 +265,30 @@ const Customer = () => {
     {
       title: "银行账户",
       dataIndex: "bankCard",
+      align: "center",
       key: "bankCard",
     },
     {
       title: "开户银行",
       dataIndex: "bank",
+      align: "center",
       key: "bank",
     },
     {
       title: "币种",
       dataIndex: "moneyType",
+      align: "center",
       key: "moneyType",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         return (
@@ -453,6 +465,7 @@ const Customer = () => {
           </Form.Item>
           <Form.Item label="币种" name="moneyType">
             <Select
+              showSearch
               labelInValue
               placeholder="币种"
               optionFilterProp="children"

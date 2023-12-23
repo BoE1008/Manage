@@ -191,9 +191,11 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
-  const handleRejectOne = async (id,value) => {
-    rejectType === 'YF' ? await rejectYF(projectId, id, value) : await rejectYS(projectId, id, value);
-    setRejectId(undefined)
+  const handleRejectOne = async (id, value) => {
+    rejectType === "YF"
+      ? await rejectYF(projectId, id, value)
+      : await rejectYS(projectId, id, value);
+    setRejectId(undefined);
     const data = await getProjectYSList(projectId as string, page, pageSize);
     setData({
       ...data,
@@ -207,7 +209,6 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
-
   const expandedRowRender = (record) => {
     const littleTableColumn = [
       {
@@ -219,70 +220,84 @@ const Item = ({ projectId, onClose, modalType }) => {
         title: "供应商",
         dataIndex: "supplierName",
         key: "supplierName",
+        align: "center",
       },
       {
         title: "人民币",
         dataIndex: "yfRmb",
         key: "yfRmb",
+        align: "center",
       },
       {
         title: "美金",
         dataIndex: "yfDollar",
         key: "yfDollar",
+        align: "center",
       },
       {
         title: "明细",
         dataIndex: "yfPurpose",
         key: "yfPurpose",
+        align: "center",
       },
       {
         title: "汇率",
         dataIndex: "yfExrate",
         key: "yfExrate",
+        align: "center",
       },
       {
         title: "对账",
         dataIndex: "yfChecking",
         key: "yfChecking",
+        align: "center",
       },
       {
         key: "yfInvoice",
         title: "开票",
         dataIndex: "yfInvoice",
+        align: "center",
       },
       {
         title: "预留利润名称",
         dataIndex: "ylProfitName",
         key: "ylProfitName",
+        align: "center",
       },
       {
         title: "预留利润金额",
         dataIndex: "ylProfitMoney",
         key: "ylProfitMoney",
+        align: "center",
       },
       {
         title: "是否支付",
         dataIndex: "isPay",
         key: "isPay",
+        align: "center",
       },
       {
         title: "付款",
         dataIndex: "yfCollection",
         key: "yfCollection",
+        align: "center",
       },
       {
         title: "审核状态",
         dataIndex: "state",
         key: "state",
+        align: "center",
       },
       {
         title: "备注",
         dataIndex: "remark",
         key: "remark",
+        align: "center",
       },
       {
         title: "操作",
         key: "operation",
+        align: "center",
         render: (_, record) => {
           return (
             <Space size="middle" className="flex flex-row !gap-x-1">
@@ -341,11 +356,14 @@ const Item = ({ projectId, onClose, modalType }) => {
                     </Tooltip>
                     <Tooltip title="退回">
                       <Popconfirm
-                      title="是否退回申请？"
-                      okButtonProps={{
-                        style: { backgroundColor: "#198348" },
-                      }}
-                      onConfirm={() => { setRejectId(record.id);setRejectType('YF') }}
+                        title="是否退回申请？"
+                        okButtonProps={{
+                          style: { backgroundColor: "#198348" },
+                        }}
+                        onConfirm={() => {
+                          setRejectId(record.id);
+                          setRejectType("YF");
+                        }}
                       >
                         <Button
                           style={{
@@ -399,54 +417,65 @@ const Item = ({ projectId, onClose, modalType }) => {
       title: "客户",
       dataIndex: "customName",
       key: "customName",
+      align: "center",
     },
     {
       title: "人民币",
       dataIndex: "ysRmb",
       key: "ysRmb",
+      align: "center",
     },
     {
       title: "美金",
       dataIndex: "ysDollar",
       key: "ysDollar",
+      align: "center",
     },
     {
       title: "明细",
       dataIndex: "ysPurpose",
       key: "ysPurpose",
+      align: "center",
     },
     {
       title: "汇率",
       dataIndex: "ysExrate",
       key: "ysExrate",
+      align: "center",
     },
     {
       title: "对账",
       dataIndex: "ysChecking",
       key: "ysChecking",
+      align: "center",
     },
     {
       title: "开票",
       dataIndex: "ysInvoice",
       key: "ysInvoice",
+      align: "center",
     },
     {
       title: "收款",
       dataIndex: "ysCollection",
+      align: "center",
       key: "ysCollection",
     },
     {
       title: "审核状态",
       dataIndex: "state",
+      align: "center",
       key: "state",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record) => {
         return (
@@ -521,7 +550,10 @@ const Item = ({ projectId, onClose, modalType }) => {
                   <Popconfirm
                     title="是否退回申请？"
                     okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                    onConfirm={() => { setRejectId(record.id);setRejectType('YS') }}
+                    onConfirm={() => {
+                      setRejectId(record.id);
+                      setRejectType("YS");
+                    }}
                   >
                     <Button
                       style={{
@@ -713,6 +745,7 @@ const Item = ({ projectId, onClose, modalType }) => {
               rules={[{ required: true, message: "客户名称不能为空" }]}
             >
               <Select
+                showSearch
                 placeholder="选择客户"
                 optionFilterProp="children"
                 filterOption={customerFilterOption}
@@ -736,6 +769,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="对账" name="ysChecking">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否对账"
                 optionFilterProp="children"
@@ -748,6 +782,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="开票" name="ysInvoice">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否开票"
                 optionFilterProp="children"
@@ -760,6 +795,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="收款" name="ysCollection">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否收款"
                 optionFilterProp="children"
@@ -809,6 +845,7 @@ const Item = ({ projectId, onClose, modalType }) => {
               rules={[{ required: true, message: "客户名称不能为空" }]}
             >
               <Select
+                showSearch
                 placeholder="选择供应商"
                 optionFilterProp="children"
                 onChange={handleSupplierSelectChange}
@@ -834,6 +871,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否对账"
                 optionFilterProp="children"
@@ -846,6 +884,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否开票"
                 optionFilterProp="children"
@@ -858,6 +897,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否付款"
                 optionFilterProp="children"
@@ -884,6 +924,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             </Form.Item>
             <Form.Item label="是否支付" labelCol={{ span: 5 }} name="isPay">
               <Select
+                showSearch
                 labelInValue
                 placeholder="是否支付"
                 optionFilterProp="children"

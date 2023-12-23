@@ -2,11 +2,13 @@ import { Input, Button, Form } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import Background from "@/assets/images/bg.jpg";
+import Background from "@/assets/images/bg.png";
 import { login } from "@/restApi/user";
 import { notification } from "antd";
 import { menuHandler } from "@/utils";
 import { getMenu } from "@/restApi/menu";
+import logo from "@/assets/images/loginLogo.png";
+import Image from "next/image";
 
 const Login = () => {
   const router = useRouter();
@@ -46,7 +48,7 @@ const Login = () => {
 
   return (
     <div
-      className="p-20 w-full h-screen flex flex-col items-center justify-center"
+      className="p-20 w-full h-screen flex flex-col items-center justify-center gap-y-20"
       style={{
         background: `url(${Background.src})`,
         backgroundPosition: "center",
@@ -54,6 +56,7 @@ const Login = () => {
         backgroundRepeat: "no-repeat",
       }}
     >
+      <Image src={logo} alt="logo" width={400} height={60} />
       <Form form={form} className="w-1/4 min-w-40 text-center">
         <Form.Item name="username">
           <Input
@@ -68,7 +71,7 @@ const Login = () => {
         <Form.Item>
           <Button
             size="large"
-            className="!bg-pink-400 !text-white w-1/3"
+            className="!bg-[#198348] !text-white w-1/3"
             onClick={userLogin}
           >
             {"登录"}

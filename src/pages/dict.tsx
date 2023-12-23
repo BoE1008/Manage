@@ -151,6 +151,7 @@ const Dict = () => {
   const columns = [
     {
       title: "字典名称",
+      align: "center",
       key: "dictName",
       render: (_, record) => {
         return (
@@ -165,6 +166,7 @@ const Dict = () => {
     },
     {
       title: "状态",
+      align: "center",
       key: "status",
       render: (_, record) => {
         if (record.status === "0") {
@@ -177,15 +179,18 @@ const Dict = () => {
     {
       title: "CODE",
       dataIndex: "code",
+      align: "center",
       key: "code",
     },
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record: Company) => {
         return (
@@ -220,20 +225,24 @@ const Dict = () => {
     {
       title: "字典编码",
       key: "id",
+      align: "center",
       dataIndex: "id",
     },
     {
       title: "字典标签",
       key: "dictLabel",
+      align: "center",
       dataIndex: "dictLabel",
     },
     {
       title: "字典排序",
       key: "dictSort",
+      align: "center",
       dataIndex: "dictSort",
     },
     {
       title: "状态",
+      align: "center",
       key: "status",
       render: (_, record) => {
         if (record.status === "0") {
@@ -246,10 +255,12 @@ const Dict = () => {
     {
       title: "备注",
       dataIndex: "remark",
+      align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      align: "center",
       key: "action",
       render: (_, record: Company) => {
         return (
@@ -369,9 +380,10 @@ const Dict = () => {
           </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
+              showSearch
               placeholder="选择项目"
               optionFilterProp="children"
-              //   filterOption={customerFilterOption}
+              // filterOption={customerFilterOption}
               options={[
                 { label: "正常", value: "0" },
                 {
@@ -464,6 +476,7 @@ const Dict = () => {
           </Form.Item>
           <Form.Item label="状态" name="status">
             <Select
+              showSearch
               placeholder="选择状态"
               optionFilterProp="children"
               //   filterOption={customerFilterOption}
