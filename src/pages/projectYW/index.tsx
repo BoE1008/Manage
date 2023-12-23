@@ -37,6 +37,7 @@ import { getCustomersList } from "@/restApi/customer";
 import YSYFModal from "@/components/YSYFModal";
 import RejectModal from "@/components/RejectModal";
 import ProjectDetailModal from "@/components/InvoicingDetailModal";
+import { formatNumber } from "@/utils";
 import * as echarts from "echarts";
 
 const initialValues = {
@@ -290,27 +291,31 @@ const Project = () => {
     },
     {
       title: "收入小计",
-      dataIndex: "proIncome",
+      // dataIndex: "proIncome",
       align: "center",
       key: "proIncome",
+      render: (record) => formatNumber(record?.proIncome),
     },
     {
       title: "成本小计",
-      dataIndex: "proCost",
+      // dataIndex: "proCost",
       align: "center",
       key: "proCost",
+      render: (record) => formatNumber(record?.proCost),
     },
     {
       title: "利润",
-      dataIndex: "profit",
+      // dataIndex: "profit",
       align: "center",
       key: "profit",
+      render: (record) => formatNumber(record?.profit),
     },
     {
       title: "扣除后利润",
-      dataIndex: "deductProfit",
+      // dataIndex: "deductProfit",
       align: "center",
       key: "deductProfit",
+      render: (record) => formatNumber(record?.deductProfit),
     },
     {
       title: "审核状态",
@@ -639,17 +644,21 @@ const Project = () => {
         />
       )}
 
-      <ProjectDetailModal
-        data={detail}
-        onConfirm={handleApproveOne}
-        onClose={() => setDetail(undefined)}
-      />
+      {!!detail && (
+        <ProjectDetailModal
+          data={detail}
+          onConfirm={handleApproveOne}
+          onClose={() => setDetail(undefined)}
+        />
+      )}
 
-      <RejectModal
-        open={!!rejectId}
-        onClose={() => setRejectId(undefined)}
-        onReject={(value) => handleRejectOne(rejectId, value)}
-      />
+      {!!rejectId && (
+        <RejectModal
+          open={!!rejectId}
+          onClose={() => setRejectId(undefined)}
+          onReject={(value) => handleRejectOne(rejectId, value)}
+        />
+      )}
 
       {/* <div
         style={{ width: "100%", minHeight: "1000px", marginTop: "100px" }}

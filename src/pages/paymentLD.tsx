@@ -36,6 +36,7 @@ import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 import RejectModal from "@/components/RejectModal";
 import DetailModal from "@/components/InvoicingDetailModal";
+import { formatNumber } from "@/utils";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -144,9 +145,19 @@ const Role = () => {
   const columns = [
     {
       title: "项目名称",
-      dataIndex: "projectName",
+      // dataIndex: "projectName",
       align: "center",
       key: "projectName",
+      render: (record) => {
+        return (
+          <span
+            className="cursor-pointer text-[#198348]"
+            onClick={() => handleDetail(record.id)}
+          >
+            {record.projectName}
+          </span>
+        );
+      },
     },
     {
       title: "供应商",
@@ -156,9 +167,10 @@ const Role = () => {
     },
     {
       title: "金额",
-      dataIndex: "fee",
+      // dataIndex: "fee",
       align: "center",
       key: "fee",
+      render: (record) => formatNumber(record?.fee),
     },
     {
       title: "币种",
@@ -439,17 +451,21 @@ const Role = () => {
         />
       </Modal>
 
-      <DetailModal
-        data={detail}
-        onConfirm={handleSubmitToCW}
-        onClose={() => setDetail(undefined)}
-      />
+      {!!detail && (
+        <DetailModal
+          data={detail}
+          onConfirm={handleSubmitToCW}
+          onClose={() => setDetail(undefined)}
+        />
+      )}
 
-      <RejectModal
-        open={!!rejectId}
-        onClose={() => setRejectId(undefined)}
-        onReject={(value) => handleRejectOne(rejectId, value)}
-      />
+      {!!rejectId && (
+        <RejectModal
+          open={!!rejectId}
+          onClose={() => setRejectId(undefined)}
+          onReject={(value) => handleRejectOne(rejectId, value)}
+        />
+      )}
     </div>
   );
 };

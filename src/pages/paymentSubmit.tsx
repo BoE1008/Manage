@@ -42,6 +42,7 @@ import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
 import { getDictByCode } from "@/restApi/dict";
 import DetailModal from "@/components/PaymentDetailModal";
+import { formatNumber } from "@/utils";
 
 const Payment = () => {
   const [form] = Form.useForm();
@@ -61,6 +62,8 @@ const Payment = () => {
 
   const [bank, setBank] = useState();
   const [dict, setDict] = useState();
+
+  const [selectProject, setSelectProject] = useState();
   const [selectSupplier, setSelectSupplier] = useState();
   const [bankcards, setBankcards] = useState();
 
@@ -171,11 +174,13 @@ const Payment = () => {
 
       console.log(files, "files");
       console.log(oldFiles, "oldFiles");
-      const fileList = files.filter((item) => oldFiles.indexOf(item.id) < 0);
+      const fileList = files.filter(
+        (itemA) => !oldFiles.some((itemB) => itemA.name === itemB.name)
+      );
       console.log(fileList, "fileList");
 
       if (fileList.length > 0) {
-        files.forEach((file) => {
+        fileList.forEach((file) => {
           formData.append("files", file);
         });
         await updateFileById(formData);
@@ -218,10 +223,13 @@ const Payment = () => {
   };
 
   const handleProjectChanged = async (param) => {
+    form.setFieldValue("projectName", {});
     form.setFieldValue("supplierName", {});
     form.setFieldValue("moneyType", {});
     form.setFieldValue("bankCard", {});
     form.setFieldValue("bank", {});
+    const data = project?.find((c) => c.projectNum === param.label);
+    setSelectProject(data);
     const projectCustom = await getSuppliersYFList(param.value);
     setSupplier(projectCustom.entity.data);
   };
@@ -269,9 +277,19 @@ const Payment = () => {
   const columns = [
     {
       title: "项目名称",
-      dataIndex: "projectName",
+      // dataIndex: "projectName",
       align: "center",
       key: "projectName",
+      render: (record) => {
+        return (
+          <span
+            className="cursor-pointer text-[#198348]"
+            onClick={() => handleDetail(record.id)}
+          >
+            {record.projectName}
+          </span>
+        );
+      },
     },
     {
       title: "供应商",
@@ -281,9 +299,10 @@ const Payment = () => {
     },
     {
       title: "金额",
-      dataIndex: "fee",
+      // dataIndex: "fee",
       align: "center",
       key: "fee",
+      render: (record) => formatNumber(record?.fee),
     },
     {
       title: "币种",
@@ -503,30 +522,45 @@ const Payment = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item
-            label="项目"
-            name="projectName"
-            rules={[{ required: true, message: "项目名称不能为空" }]}
-          >
+          <Form.Item label="项目编号" name="projectNum" required>
             <Select
               showSearch
-              onSearch={onSearch}
               labelInValue
               placeholder="选择项目"
               optionFilterProp="children"
               filterOption={customerFilterOption}
+              onSearch={onSearch}
+              optionLabelProp="label"
               options={project?.map((con) => ({
-                label: con.name,
+                label: con.projectNum,
                 value: con.id,
               }))}
               onChange={handleProjectChanged}
             />
+          </Form.Item>
+          <Form.Item
+            label="项目名称"
+            name="projectName"
+            rules={[{ required: true, message: "项目名称不能为空" }]}
+          >
+            <Typography>
+              <code
+                style={{
+                  display: "inline-block",
+                  width: "100%",
+                  padding: "5px 4px",
+                  fontSize: "16px",
+                }}
+              >
+                {selectProject?.name}
+              </code>
+            </Typography>
           </Form.Item>
           <Form.Item
             label="供应商"
@@ -554,7 +588,16 @@ const Payment = () => {
           <Form.Item label="税号" name="taxationNumber">
             {/* <Input placeholder="税号" /> */}
             <Typography>
-              <code>{selectSupplier?.taxationNumber}</code>
+              <code
+                style={{
+                  display: "inline-block",
+                  width: "100%",
+                  padding: "5px 4px",
+                  fontSize: "16px",
+                }}
+              >
+                {selectSupplier?.taxationNumber}
+              </code>
             </Typography>
           </Form.Item>
 
@@ -655,11 +698,13 @@ const Payment = () => {
         />
       </Modal>
 
-      <DetailModal
-        data={detail}
-        onConfirm={handleSubmitOne}
-        onClose={() => setDetail(undefined)}
-      />
+      {!!detail && (
+        <DetailModal
+          data={detail}
+          onConfirm={handleSubmitOne}
+          onClose={() => setDetail(undefined)}
+        />
+      )}
     </div>
   );
 };

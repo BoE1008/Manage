@@ -43,6 +43,7 @@ import { getCustomersYSList } from "@/restApi/customer";
 import { InvoicingTypeArr } from "@/utils/const";
 import { getDictByCode } from "@/restApi/dict";
 import DetailModal from "@/components/InvoicingDetailModal";
+import { formatNumber } from "@/utils";
 
 const InvoicingSubmit = () => {
   const [form] = Form.useForm();
@@ -50,7 +51,6 @@ const InvoicingSubmit = () => {
   const [customer, setCustomer] = useState();
   const [project, setProject] = useState();
   const [logs, setLogs] = useState();
-  const [searchValue, setSearchValue] = useState("");
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -65,6 +65,7 @@ const InvoicingSubmit = () => {
   const [bankcards, setBankcards] = useState();
   const [bank, setBank] = useState();
 
+  const [selectProject, setSelectProject] = useState();
   const [selectCustomer, setSelectCustomer] = useState();
 
   const [detail, setDetail] = useState();
@@ -74,12 +75,12 @@ const InvoicingSubmit = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getinvoicingList(page, pageSize, searchValue);
+      const res = await getinvoicingList(page, pageSize);
       const projectData = await getProjectsSubmitList(1, 10000);
       setData(res);
       setProject(projectData.entity.data);
     })();
-  }, [page, pageSize, searchValue]);
+  }, [page, pageSize]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -120,8 +121,8 @@ const InvoicingSubmit = () => {
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
-
     console.log(values, "values");
+
     const params =
       operation === Operation.Add
         ? {
@@ -146,12 +147,12 @@ const InvoicingSubmit = () => {
             moneyType: values.moneyType?.value || values.moneyType || "",
             projectId:
               values.projectName?.value ||
-              project?.find((c) => c.name === values.projectName).id ||
+              project?.find((c) => c.name === values.projectName)?.id ||
               "",
             projectName: values.projectName?.label || values.projectName || "",
             customId:
               values.customName?.value ||
-              customer?.find((a) => a.name === values.customName).id ||
+              customer?.find((a) => a.name === values.customName)?.id ||
               "",
             customName: values.customName?.label || values.customName || "",
             bankCard: values.bankCard?.value || values.bankCard || "",
@@ -161,8 +162,6 @@ const InvoicingSubmit = () => {
             fee: values.fee || "",
             remark: values.remark || "",
           };
-
-    console.log(params, "params");
 
     if (operation === Operation.Add) {
       const formData = new FormData();
@@ -179,10 +178,9 @@ const InvoicingSubmit = () => {
       const formData = new FormData();
       formData.append("invoicingId", editId);
 
-      console.log(files, "files");
-      console.log(oldFiles, "oldFiles");
-      const fileList = files.filter((item) => oldFiles.indexOf(item.id) < 0);
-      console.log(fileList, "fileList");
+      const fileList = files.filter(
+        (itemA) => !oldFiles.some((itemB) => itemA.name === itemB.name)
+      );
       if (fileList.length > 0) {
         fileList.forEach((file) => {
           formData.append("files", file);
@@ -238,10 +236,13 @@ const InvoicingSubmit = () => {
   };
 
   const handleProjectChanged = async (param) => {
+    form.setFieldValue("projectName", {});
     form.setFieldValue("customName", {});
     form.setFieldValue("moneyType", {});
     form.setFieldValue("bankCard", {});
     form.setFieldValue("bank", {});
+    const data = project?.find((c) => c.projectNum === param.label);
+    setSelectProject(data);
     const projectCustom = await getCustomersYSList(param.value);
     setCustomer(projectCustom.entity.data);
   };
@@ -278,9 +279,18 @@ const InvoicingSubmit = () => {
   const columns = [
     {
       title: "项目名称",
-      dataIndex: "projectName",
       align: "center",
       key: "projectName",
+      render: (record) => {
+        return (
+          <span
+            className="cursor-pointer text-[#198348]"
+            onClick={() => handleDetail(record.id)}
+          >
+            {record.projectName}
+          </span>
+        );
+      },
     },
     {
       title: "客戶名称",
@@ -308,9 +318,10 @@ const InvoicingSubmit = () => {
     },
     {
       title: "开票金额",
-      dataIndex: "fee",
+      // dataIndex: "fee",
       align: "center",
       key: "fee",
+      render: (record) => formatNumber(record?.fee),
     },
 
     {
@@ -541,17 +552,13 @@ const InvoicingSubmit = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
           style={{ minWidth: 600, color: "#000" }}
         >
-          <Form.Item
-            label="项目"
-            name="projectName"
-            rules={[{ required: true, message: "项目名称不能为空" }]}
-          >
+          <Form.Item label="项目编号" name="projectNum" required>
             <Select
               showSearch
               labelInValue
@@ -561,11 +568,44 @@ const InvoicingSubmit = () => {
               onSearch={onSearch}
               optionLabelProp="label"
               options={project?.map((con) => ({
-                label: con.name,
+                label: con.projectNum,
                 value: con.id,
               }))}
               onChange={handleProjectChanged}
             />
+          </Form.Item>
+          <Form.Item
+            label="项目名称"
+            name="projectName"
+            rules={[{ required: true, message: "项目名称不能为空" }]}
+          >
+            {/* <Select
+              showSearch
+              labelInValue
+              placeholder="选择项目"
+              optionFilterProp="children"
+              filterOption={customerFilterOption}
+              onSearch={onSearch}
+              optionLabelProp="label"
+              options={[
+                {
+                  label: selectProject?.name,
+                  value: selectProject?.id,
+                },
+              ]}
+            /> */}
+            <Typography>
+              <code
+                style={{
+                  display: "inline-block",
+                  width: "100%",
+                  padding: "5px 4px",
+                  fontSize: "16px",
+                }}
+              >
+                {selectProject?.name}
+              </code>
+            </Typography>
           </Form.Item>
           <Form.Item
             label="客户"
@@ -620,7 +660,16 @@ const InvoicingSubmit = () => {
           <Form.Item label="税号" name="taxationNumber">
             {/* <Input placeholder="税号" /> */}
             <Typography>
-              <code>{selectCustomer?.taxationNumber}</code>
+              <code
+                style={{
+                  display: "inline-block",
+                  width: "100%",
+                  padding: "5px 4px",
+                  fontSize: "16px",
+                }}
+              >
+                {selectCustomer?.taxationNumber}
+              </code>
             </Typography>
           </Form.Item>
           <Form.Item required label="币种" name="moneyType">
@@ -711,11 +760,13 @@ const InvoicingSubmit = () => {
         />
       </Modal>
 
-      <DetailModal
-        data={detail}
-        onConfirm={handleSubmitOne}
-        onClose={() => setDetail(undefined)}
-      />
+      {!!detail && (
+        <DetailModal
+          data={detail}
+          onConfirm={handleSubmitOne}
+          onClose={() => setDetail(undefined)}
+        />
+      )}
     </div>
   );
 };

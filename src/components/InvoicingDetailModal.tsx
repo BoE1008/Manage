@@ -1,18 +1,92 @@
-import { memo, useMemo } from "react";
-import { Modal, Descriptions } from "antd";
+import { memo, useEffect, useState } from "react";
+import { Modal, Upload, Button } from "antd";
+import {
+  getFilesById,
+  deleteFileById,
+  updateFileById,
+} from "@/restApi/invoicing";
+import { UploadOutlined } from "@ant-design/icons";
 
-const InvoicingDetailModal = ({ onClose, data, onConfirm }) => {
+const InvoicingDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
+  const [files, setFiles] = useState([]);
+  const [oldFiles, setOldFiles] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const rawFilelist = await getFilesById(data?.id);
+      const fileList = rawFilelist?.entity.data.map((item) => ({
+        name: item.originalFileName,
+        url: item.url,
+        id: item.id,
+        uid: item.id,
+        status: "done",
+      }));
+
+      setOldFiles(fileList);
+      setFiles(fileList);
+    })();
+  }, [data?.id]);
+
+  const handleConfirm = async () => {
+    const fileList = files.filter(
+      (itemA) => !oldFiles.some((itemB) => itemA.name === itemB.name)
+    );
+
+    console.log(fileList, "fileList");
+    const formData = new FormData();
+
+    formData.append("invoicingId", data?.id);
+
+    if (fileList.length > 0) {
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+      await updateFileById(formData);
+    }
+
+    onConfirm();
+  };
+
+  const uploadProps = {
+    accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
+    name: "file",
+    multiple: true,
+    fileList: files,
+    withCredentials: true,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    showUploadList: {
+      showDownloadIcon: true,
+      showRemoveIcon: false,
+    },
+    onRemove: async (file) => {
+      await deleteFileById(file?.id);
+      const index = files?.indexOf(file);
+      const newFiles = files.slice();
+      newFiles.splice(index, 1);
+      setFiles(newFiles);
+    },
+    beforeUpload: (file) => {
+      setFiles([...files, file]);
+      return false;
+    },
+    onDownload: async (file) => {
+      window.open(
+        `http://123.60.88.8/zc/common/download/resource?resource=${file?.url}`
+      );
+    },
+  };
+
   return (
     <Modal
       width={"100%"}
       open={!!data}
-      onOk={onConfirm}
+      onOk={handleConfirm}
       onCancel={onClose}
       okButtonProps={{ style: { background: "#198348" } }}
     >
-      {/* <Descriptions title="项目详情" bordered items={items} /> */}
-
-      <table style={{ width: "100%" }}>
+      <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr
           style={{
             textAlign: "center",
@@ -98,6 +172,24 @@ const InvoicingDetailModal = ({ onClose, data, onConfirm }) => {
             }}
           >
             {data?.projectName}
+          </td>
+          <td
+            style={{
+              paddingTop: "20px",
+              paddingBottom: "20px",
+              border: "1px solid #333333",
+            }}
+          >
+            项目编号
+          </td>
+          <td
+            style={{
+              paddingTop: "20px",
+              paddingBottom: "20px",
+              textAlign: "center",
+            }}
+          >
+            {data?.projectNum}
           </td>
         </tr>
 
@@ -288,6 +380,10 @@ const InvoicingDetailModal = ({ onClose, data, onConfirm }) => {
           </td>
         </tr>
       </table>
+
+      <Upload {...uploadProps}>
+        {fromCW && <Button icon={<UploadOutlined />}>点击上传</Button>}
+      </Upload>
     </Modal>
   );
 };

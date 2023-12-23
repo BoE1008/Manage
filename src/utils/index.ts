@@ -8,3 +8,10 @@ export const menuHandler = (data) => {
     })),
   }));
 };
+
+export const formatNumber = (number?: number) => {
+  if (!number) return;
+  const formattedNumber = number?.toLocaleString();
+
+  return formattedNumber;
+};

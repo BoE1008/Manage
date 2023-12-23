@@ -44,8 +44,8 @@ export const updateDict = async (id: string, info) => {
 
 export const updateDictData = async (id: string, info) => {
   const res = await axiosInstance.post(`/zc/dict/data/update`, {
-    ...info,
     id,
+    ...info,
   });
 
   return res.data;

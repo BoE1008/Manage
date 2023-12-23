@@ -17,19 +17,17 @@ const Login = () => {
 
   const userLogin = async () => {
     const values = form.getFieldsValue();
-    const { code, message } = await login(values.username, values.password);
-    if (code === 200) {
-      sessionStorage.setItem("username", values.username);
-      const data = await getMenu();
-      sessionStorage.setItem(
-        "menu",
-        JSON.stringify(menuHandler(data.entity.data))
-      );
+    const res = await login(values.username, values.password);
+    sessionStorage.setItem("username", res.entity?.userName);
+    sessionStorage.setItem("userInfo", JSON.stringify(res.entity));
+    sessionStorage.setItem;
+    const data = await getMenu();
+    sessionStorage.setItem(
+      "menu",
+      JSON.stringify(menuHandler(data.entity.data))
+    );
 
-      router.push("/");
-    } else {
-      notification.error({ message });
-    }
+    router.push("/");
   };
 
   const handleEnter = async (e) => {

@@ -49,7 +49,7 @@ body {
 }
 
 
-:where(.css-dev-only-do-not-override-l09bn5).ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-name {
+.ant-upload-wrapper .ant-upload-list .ant-upload-list-item .ant-upload-list-item-name {
   cursor: alias;
   pointer-events: none;
 }

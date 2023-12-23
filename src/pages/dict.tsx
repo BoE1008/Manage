@@ -102,16 +102,16 @@ const Dict = () => {
     const values = form1.getFieldsValue();
     setLoading(true);
     const { code } =
-      operation === Operation.Add
+      dataOperation === Operation.Add
         ? await addDictData({ ...values, dictTypeId: typeId })
-        : await updateDictData(editId, { ...values, dictTypeId: typeId });
+        : await updateDictData(dataEditId, { ...values, dictTypeId: typeId });
     if (code === 200) {
       setDataModalOpen(false);
       const data = await getDictDetail(typeId, 1, 20);
       setLoading(false);
       setDictDetail(data.entity.data);
       notification.success({
-        message: operation === Operation.Add ? "添加成功" : "编辑成功",
+        message: dataOperation === Operation.Add ? "添加成功" : "编辑成功",
         duration: 3,
       });
     }
@@ -424,31 +424,34 @@ const Dict = () => {
           loading={loading}
           dataSource={dictDetail}
           columns={tableColumns}
-          pagination={{
-            // 设置总条数
-            total: data?.entity.total,
-            // 显示总条数
-            showTotal: (total) => `共 ${total} 条`,
-            // 是否可以改变 pageSize
-            showSizeChanger: true,
+          pagination={false}
+          // pagination={{
+          //   // 设置总条数
+          //   total: data?.entity.total,
+          //   // 显示总条数
+          //   showTotal: (total) => `共 ${total} 条`,
+          //   // 是否可以改变 pageSize
+          //   showSizeChanger: true,
 
-            // 改变页码时
-            onChange: async (page) => {
-              setPage(page);
-            },
-            // pageSize 变化的回调
-            onShowSizeChange: async (page, size) => {
-              setPage(page);
-              setPageSize(size);
-            },
-          }}
+          //   // 改变页码时
+          //   onChange: async (page) => {
+          //     setPage(page);
+          //   },
+          //   // pageSize 变化的回调
+          //   onShowSizeChange: async (page, size) => {
+          //     setPage(page);
+          //     setPageSize(size);
+          //   },
+          // }}
         />
       </Modal>
 
       <Modal
         centered
         destroyOnClose
-        title={operation === Operation.Add ? "添加字典数据" : "编辑字典数据"}
+        title={
+          dataOperation === Operation.Add ? "添加字典数据" : "编辑字典数据"
+        }
         open={dataModalOpen}
         onOk={handleDataOk}
         okButtonProps={{ style: { background: "#198348" } }}

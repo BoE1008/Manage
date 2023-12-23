@@ -42,6 +42,7 @@ import { getSuppliersList } from "@/restApi/supplyer";
 import dayjs from "dayjs";
 import { BooltypeArr } from "@/utils/const";
 import RejectModal from "@/components/RejectModal";
+import { formatNumber } from "@/utils";
 
 const Item = ({ projectId, onClose, modalType }) => {
   const [data, setData] = useState();
@@ -215,6 +216,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         title: "",
         dataIndex: "",
         key: "",
+        width: 60,
       },
       {
         title: "供应商",
@@ -224,15 +226,15 @@ const Item = ({ projectId, onClose, modalType }) => {
       },
       {
         title: "人民币",
-        dataIndex: "yfRmb",
         key: "yfRmb",
         align: "center",
+        render: (record) => formatNumber(record?.yfRmb),
       },
       {
         title: "美金",
-        dataIndex: "yfDollar",
         key: "yfDollar",
         align: "center",
+        render: (record) => formatNumber(record?.yfDollar),
       },
       {
         title: "明细",
@@ -269,6 +271,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         dataIndex: "ylProfitMoney",
         key: "ylProfitMoney",
         align: "center",
+        render: (record) => formatNumber(record?.ylProfitMoney),
       },
       {
         title: "是否支付",
@@ -303,16 +306,18 @@ const Item = ({ projectId, onClose, modalType }) => {
             <Space size="middle" className="flex flex-row !gap-x-1">
               {modalType === ModalType.Submit && (
                 <>
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                    onClick={() => handleEditYfOne(record)}
-                  >
-                    <EditTwoTone twoToneColor="#198348" />
-                  </Button>
+                  <Tooltip title="编辑">
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                      onClick={() => handleEditYfOne(record)}
+                    >
+                      <EditTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Tooltip>
                   <Tooltip title="删除">
                     <Popconfirm
                       title="是否删除？"
@@ -421,15 +426,17 @@ const Item = ({ projectId, onClose, modalType }) => {
     },
     {
       title: "人民币",
-      dataIndex: "ysRmb",
+      // dataIndex: "ysRmb",
       key: "ysRmb",
       align: "center",
+      render: (record) => formatNumber(record?.ysRmb),
     },
     {
       title: "美金",
-      dataIndex: "ysDollar",
+      // dataIndex: "ysDollar",
       key: "ysDollar",
       align: "center",
+      render: (record) => formatNumber(record?.ysDollar),
     },
     {
       title: "明细",
@@ -483,28 +490,32 @@ const Item = ({ projectId, onClose, modalType }) => {
             {modalType === ModalType.Submit && (
               <>
                 {projectState === "未提交" && (
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                    onClick={() => handleEditYsOne(record)}
-                  >
-                    <EditTwoTone twoToneColor="#198348" />
-                  </Button>
+                  <Tooltip title="编辑">
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                      onClick={() => handleEditYsOne(record)}
+                    >
+                      <EditTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Tooltip>
                 )}
                 {projectState === "未提交" && (
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                    onClick={() => handleYfAddClick(record)}
-                  >
-                    <PlusSquareTwoTone twoToneColor="#198348" />
-                  </Button>
+                  <Tooltip title="添加应付">
+                    <Button
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        padding: "3px 5px",
+                      }}
+                      onClick={() => handleYfAddClick(record)}
+                    >
+                      <PlusSquareTwoTone twoToneColor="#198348" />
+                    </Button>
+                  </Tooltip>
                 )}
                 {projectState === "未提交" && (
                   <Tooltip title="删除">
@@ -863,7 +874,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             <Form.Item label="美金" labelCol={{ span: 5 }} name="yfDollar">
               <InputNumber placeholder="请输入金额" style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item label="明细" name="yfPurpose">
+            <Form.Item label="明细" labelCol={{ span: 5 }} name="yfPurpose">
               <Input.TextArea placeholder="明细" maxLength={100} />
             </Form.Item>
             <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">

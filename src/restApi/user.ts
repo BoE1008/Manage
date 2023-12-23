@@ -50,3 +50,11 @@ export const deleteUser = async (id: string) => {
   });
   return res.data;
 };
+
+export const updatePassword = async (info) => {
+  const res = await axiosInstance.post(
+    `/zc/user/update/pwd?id=${info.id}&oldPassword=${info.oldPassword}&newPassword=${info.newPassword}`
+  );
+
+  return res.data;
+};

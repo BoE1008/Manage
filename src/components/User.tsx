@@ -3,17 +3,36 @@ import { useState, useEffect } from "react";
 import clsx from "clsx";
 import { DownOutlined } from "@ant-design/icons";
 import { logout } from "@/restApi/user";
+import { Modal, Form, Input, notification } from "antd";
+import { updatePassword } from "@/restApi/user";
 
 const User = () => {
   const router = useRouter();
+  const [form] = Form.useForm();
 
   const [hovered, setHovered] = useState(false);
 
   const [username, setUsername] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [session, setSession] = useState();
+  const [passModal, setPassModal] = useState(false);
 
   useEffect(() => {
     setUsername(sessionStorage.getItem("username")!);
+    const res = JSON.parse(sessionStorage.getItem("userInfo"));
+    setSession(res);
   }, []);
+
+  const handleConfirmPass = async () => {
+    const values = form.getFieldsValue();
+    const params = {
+      ...values,
+      id: session?.id,
+    };
+    await updatePassword(params);
+    setPassModal(false);
+    notification.success({ message: "修改密码成功" });
+  };
 
   return (
     <div className="pr-5 text-[#198348]">
@@ -33,10 +52,22 @@ const User = () => {
         </div>
         <ul
           className={clsx(
-            "font-medium tracking-wider grid leading-10 gap-0.5 <md:w-full min-w-20 w-max top-12 md:top-15 right-0 z-30 absolute",
+            "font-medium tracking-wider leading-8 <md:w-full min-w-20 w-max top-12 md:top-16 z-30 absolute border-[1px] px-5 py-2 bg-[#fff] flex flex-col gap-y-2",
             !hovered && "hidden"
           )}
         >
+          <li
+            onClick={() => setModalOpen(true)}
+            className="cursor-pointer px-7.5 transform transition-all hover:scale-110 text-center"
+          >
+            {"个人中心"}
+          </li>
+          <li
+            onClick={() => setPassModal(true)}
+            className="cursor-pointer px-7.5 transform transition-all hover:scale-110 text-center"
+          >
+            {"修改密码"}
+          </li>
           <li
             onClick={async () => {
               await logout();
@@ -47,10 +78,54 @@ const User = () => {
             }}
             className="cursor-pointer px-7.5 transform transition-all hover:scale-110 text-center"
           >
-            {"退出"}
+            {"退出登录"}
           </li>
         </ul>
       </div>
+      <Modal
+        centered
+        title="个人中心"
+        // width={"100%"}
+        open={modalOpen}
+        onCancel={() => setModalOpen(false)}
+        footer={null}
+      >
+        <Form>
+          <Form.Item label="用户名" labelCol={{ span: 6 }}>
+            {session?.userName}
+          </Form.Item>
+          <Form.Item label="登录名" labelCol={{ span: 6 }}>
+            {session?.loginName}
+          </Form.Item>
+          <Form.Item label="邮箱" labelCol={{ span: 6 }}>
+            {session?.email}
+          </Form.Item>
+          <Form.Item label="手机" labelCol={{ span: 6 }}>
+            {session?.mobile}
+          </Form.Item>
+          <Form.Item label="性别" labelCol={{ span: 6 }}>
+            {session?.sex === "1" ? "女" : "男"}
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        centered
+        title="修改密码"
+        open={passModal}
+        onOk={handleConfirmPass}
+        onCancel={() => setPassModal(false)}
+        afterClose={() => form.resetFields()}
+      >
+        <Form form={form} className="w-full min-w-40 text-center">
+          <Form.Item name="oldPassword">
+            <Input.Password size="large" placeholder="请输入旧密码" />
+          </Form.Item>
+          <Form.Item name="newPassword">
+            <Input.Password size="large" placeholder="请输入新密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
