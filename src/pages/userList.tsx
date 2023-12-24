@@ -10,12 +10,14 @@ import {
   Tooltip,
   Popconfirm,
   Tree,
+  Select,
 } from "antd";
 import { EditTwoTone, DeleteTwoTone, DownOutlined } from "@ant-design/icons";
 import { getUserList, updateUser, addUser, deleteUser } from "@/restApi/user";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
-import { getDeptTree } from "@/restApi/dept";
+import { getDeptList, getDeptTree } from "@/restApi/dept";
+import { getRoleList } from "@/restApi/role";
 
 const initialValues = {
   name: "",
@@ -39,14 +41,20 @@ const User = () => {
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [loading, setLoading] = useState(true);
 
+  const [allDept, setAllDept] = useState([]);
+  const [allRole, setAllRole] = useState([]);
+
   const [form] = Form.useForm();
 
   useEffect(() => {
     (async () => {
       if (!!sessionStorage.getItem("username")) {
         const res = await getDeptTree();
-        console.log(res, "res");
         setDepts(res.entity.data);
+        const allDept = await getDeptList(1, 1000);
+        setAllDept(allDept?.entity.data);
+        const allRole = await getRoleList(1, 100);
+        setAllRole(allRole?.entity.data);
         const data = await getUserList(
           page,
           pageSize,
@@ -117,6 +125,15 @@ const User = () => {
       key: "loginName",
     },
     {
+      title: "所属部门",
+      // dataIndex: "loginName",
+      align: "center",
+      key: "dept",
+      render: (record) => {
+        return allDept.find((c) => c.id === record.deptId)?.name;
+      },
+    },
+    {
       title: "邮箱",
       dataIndex: "email",
       align: "center",
@@ -158,7 +175,6 @@ const User = () => {
                     alignItems: "center",
                     padding: "3px 5px",
                   }}
-                  onClick={() => handleDelete(record.id)}
                 >
                   <DeleteTwoTone twoToneColor="#198348" />
                 </Button>
@@ -263,6 +279,15 @@ const User = () => {
           )}
           <Form.Item required label="用户编号" name="userNum">
             <Input placeholder="请输入用户编号" />
+          </Form.Item>
+          <Form.Item label="用户角色" name="userRole">
+            <Select
+              placeholder="请选择用户角色"
+              options={allRole?.map((con) => ({
+                label: con.name,
+                value: con.id,
+              }))}
+            />
           </Form.Item>
           <Form.Item label="邮箱" name="email">
             <Input placeholder="请输入邮箱地址" />
