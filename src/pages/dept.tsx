@@ -13,14 +13,11 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getDeptList, addDept, updateDept, deleteDept } from "@/restApi/dept";
+import { addDept, updateDept, deleteDept, getDeptTree } from "@/restApi/dept";
 
 const Dept = () => {
   const [form] = Form.useForm();
   const [data, setData] = useState();
-
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
@@ -29,10 +26,10 @@ const Dept = () => {
 
   useEffect(() => {
     (async () => {
-      const res = await getDeptList(page, pageSize);
-      setData(res);
+      const res = await getDeptTree();
+      setData(res?.entity.data);
     })();
-  }, [page, pageSize]);
+  }, []);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -56,9 +53,9 @@ const Dept = () => {
         : await updateDept(editId, values);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getDeptList(page, pageSize);
+      const data = await getDeptTree();
       setLoading(false);
-      setData(data);
+      setData(res?.entity.data);
       notification.success({
         message: operation === Operation.Add ? "添加成功" : "编辑成功",
         duration: 3,
@@ -68,9 +65,9 @@ const Dept = () => {
 
   const handleDeleteOne = async (id: string) => {
     await deleteDept(id);
-    const data = await getDeptList(page, pageSize);
+    const data = await getDeptTree();
     setLoading(false);
-    setData(data);
+    setData(res?.entity.data);
   };
 
   const validateName = () => {
@@ -92,9 +89,9 @@ const Dept = () => {
   const columns = [
     {
       title: "部门名称",
-      dataIndex: "name",
+      dataIndex: "title",
       align: "center",
-      key: "name",
+      key: "title",
     },
     {
       title: "id",
@@ -147,6 +144,25 @@ const Dept = () => {
     },
   ];
 
+  const expandedRowRender = (record) => {
+    return (
+      <div>
+        <Table
+          bordered
+          loading={loading}
+          dataSource={record.children
+            .map((item, index) => ({
+              ...item,
+              key: index,
+            }))
+            .filter((c) => c.state !== "未提交")}
+          columns={columns}
+          pagination={false}
+        />
+      </div>
+    );
+  };
+
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
@@ -170,27 +186,15 @@ const Dept = () => {
       </div>
       <Table
         bordered
-        // loading={loading}
-        dataSource={data?.entity.data}
+        pagination={false}
+        dataSource={data}
         columns={columns}
-        pagination={{
-          // 设置总条数
-          total: data?.entity.total,
-          // 显示总条数
-          showTotal: (total) => `共 ${total} 条`,
-          // 是否可以改变 pageSize
-          showSizeChanger: true,
-
-          // 改变页码时
-          onChange: async (page) => {
-            setPage(page);
-          },
-          // pageSize 变化的回调
-          onShowSizeChange: async (page, size) => {
-            setPage(page);
-            setPageSize(size);
-          },
-        }}
+        // expandable={{
+        //   expandedRowRender: (record) => expandedRowRender(record),
+        //   defaultExpandedRowKeys: ["0"],
+        //   expandRowByClick: true,
+        //   indentSize: 300,
+        // }}
       />
 
       <Modal

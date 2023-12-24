@@ -178,8 +178,6 @@ const Role = () => {
     setMenuIds(list);
   };
 
-  console.log(menuIds, "ids");
-
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
