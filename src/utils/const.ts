@@ -1,6 +1,6 @@
 export enum InvoicingType {
-  normal = "普票",
-  special = "专票",
+  NORMAL = "普票",
+  SPECIAL = "专票",
 }
 
 export enum Moneytype {
@@ -13,8 +13,8 @@ export enum BoolType {
   NO = "x",
 }
 
-export const InvoicingTypeArr = [InvoicingType.normal, InvoicingType.special];
+export const InvoicingTypeArr = [InvoicingType.NORMAL, InvoicingType.SPECIAL];
 
-export const MoneytypeArr = [Moneytype.Dollar, Moneytype.RMB];
+export const MoneytypeArr = [Moneytype.RMB, Moneytype.Dollar];
 
-export const BooltypeArr = [BoolType.YES, BoolType.NO];
+export const BooltypeArr = [BoolType.NO, BoolType.YES];

@@ -15,6 +15,17 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
 
   const [menu, setMenu] = useState();
 
+  const [openKeys, setOpenKeys] = useState([]);
+
+  const onOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => openKeys.indexOf(key) === -1);
+    if (openKeys.indexOf(latestOpenKey) === -1) {
+      setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    } else {
+      setOpenKeys([]);
+    }
+  };
+
   useEffect(() => {
     (async () => {
       if (sessionStorage.getItem("username")) {
@@ -50,7 +61,7 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
           <h2
             style={{
               color: "#198348",
-              fontSize: "24px",
+              fontSize: "18px",
               fontWeight: "bold",
               marginLeft: "20px",
             }}
@@ -74,6 +85,8 @@ const AppLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         >
           <Menu
             mode="inline"
+            openKeys={openKeys}
+            onOpenChange={onOpenChange}
             defaultSelectedKeys={["custom"]}
             selectedKeys={[asPath.slice(1, asPath.length)]}
             style={{

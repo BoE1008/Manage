@@ -18,6 +18,7 @@ import {
   ProfileTwoTone,
   CalendarTwoTone,
   StopTwoTone,
+  CheckCircleTwoTone,
 } from "@ant-design/icons";
 import {
   getProjectsApproveList,
@@ -36,7 +37,6 @@ import { getDictById } from "@/restApi/dict";
 import { getCustomersList } from "@/restApi/customer";
 import YSYFModal from "@/components/YSYFModal";
 import RejectModal from "@/components/RejectModal";
-import ProjectDetailModal from "@/components/InvoicingDetailModal";
 import { formatNumber } from "@/utils";
 import * as echarts from "echarts";
 
@@ -198,8 +198,8 @@ const Project = () => {
     setDetail(res.entity.data);
   };
 
-  const handleApproveOne = async () => {
-    await approveOne(detail.id);
+  const handleApproveOne = async (id) => {
+    await approveOne(id);
     notification.success({ message: "审核完成" });
     setDetail(undefined);
     const data = await getProjectsApproveList(page, pageSize, searchValue);
@@ -318,10 +318,11 @@ const Project = () => {
       render: (record) => formatNumber(record?.deductProfit),
     },
     {
-      title: "审核状态",
-      dataIndex: "state",
+      title: "项目状态",
+      // dataIndex: "state",
       align: "center",
       key: "state",
+      render: (record) => `${record?.state}(${record?.waitApproveNum})`,
     },
     {
       title: "备注",
@@ -334,7 +335,7 @@ const Project = () => {
       align: "center",
       key: "action",
       render: (_, record: Company) => {
-        const isFinished = record.state === "审批通过";
+        const isFinished = record.state === "已完结";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Tooltip title="查看应收应付">
@@ -351,10 +352,32 @@ const Project = () => {
             </Tooltip>
 
             {!isFinished && (
+              <Tooltip title="完成审核">
+                <Popconfirm
+                  title="是否通过审核？"
+                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  getPopupContainer={(node) => node.parentElement}
+                  onConfirm={() => handleApproveOne(record?.id)}
+                >
+                  <Button
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "3px 5px",
+                    }}
+                  >
+                    <CheckCircleTwoTone twoToneColor="#198348" />
+                  </Button>
+                </Popconfirm>
+              </Tooltip>
+            )}
+
+            {
               <Tooltip title="退回">
                 <Popconfirm
                   title="是否退回申请？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  getPopupContainer={(node) => node.parentElement}
                   onConfirm={() => setRejectId(record.id)}
                 >
                   <Button
@@ -368,7 +391,7 @@ const Project = () => {
                   </Button>
                 </Popconfirm>
               </Tooltip>
-            )}
+            }
 
             {/* <Tooltip title="查看审核日志">
               <Button
@@ -474,6 +497,11 @@ const Project = () => {
             setPage(page);
             setPageSize(size);
           },
+        }}
+        onRow={(record) => {
+          return {
+            onDoubleClick: () => setProjectId(record.id),
+          };
         }}
       />
       <Modal
@@ -641,14 +669,6 @@ const Project = () => {
           modalType={ModalType.Approve}
           projectId={projectId}
           onClose={() => setProjectId(undefined)}
-        />
-      )}
-
-      {!!detail && (
-        <ProjectDetailModal
-          data={detail}
-          onConfirm={handleApproveOne}
-          onClose={() => setDetail(undefined)}
         />
       )}
 

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Space,
@@ -17,8 +17,6 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import {
-  EditTwoTone,
-  DeleteTwoTone,
   CheckCircleTwoTone,
   StopTwoTone,
   CalendarTwoTone,
@@ -35,8 +33,9 @@ import {
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/InvoicingDetailModal";
+import PaymentSubmitModal from "@/components/PaymentSubmitModal";
 import { formatNumber } from "@/utils";
+import PaymentDetailModal from "@/components/PaymentDetailModal";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -55,7 +54,9 @@ const Role = () => {
   const [loading, setLoading] = useState(true);
 
   const [rejectId, setRejectId] = useState();
+
   const [detail, setDetail] = useState();
+  const [check, setCheck] = useState();
 
   useEffect(() => {
     (async () => {
@@ -107,6 +108,11 @@ const Role = () => {
     setDetail(res.entity.data);
   };
 
+  const handleCheck = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setCheck(res.entity.data);
+  };
+
   const handleApproveOne = async () => {
     await approveOne(detail.id);
     const res = await getPaymentCWList(page, pageSize);
@@ -156,7 +162,7 @@ const Role = () => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -236,6 +242,7 @@ const Role = () => {
               <Tooltip title="审核通过">
                 <Popconfirm
                   title="是否批准？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleDetail(record.id)}
                 >
@@ -255,6 +262,7 @@ const Role = () => {
               <Tooltip title="退回">
                 <Popconfirm
                   title="是否退回？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => setRejectId(record.id)}
                 >
@@ -455,9 +463,12 @@ const Role = () => {
         />
       </Modal>
 
+      {!!check && (
+        <PaymentDetailModal data={check} onClose={() => setCheck(undefined)} />
+      )}
+
       {!!detail && (
-        <DetailModal
-          fromCW={true}
+        <PaymentSubmitModal
           data={detail}
           onConfirm={handleApproveOne}
           onClose={() => setDetail(undefined)}

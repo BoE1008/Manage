@@ -135,6 +135,7 @@ const User = () => {
             <Tooltip title="删除">
               <Popconfirm
                 title="是否删除？"
+                getPopupContainer={(node) => node.parentElement}
                 okButtonProps={{ style: { backgroundColor: "#198348" } }}
                 onConfirm={() => handleDelete(record.id)}
               >

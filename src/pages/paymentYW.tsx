@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Space,
@@ -17,8 +17,6 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import {
-  EditTwoTone,
-  DeleteTwoTone,
   CheckCircleTwoTone,
   CalendarTwoTone,
   StopTwoTone,
@@ -37,8 +35,9 @@ import {
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersList } from "@/restApi/supplyer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/InvoicingDetailModal";
+import PaymentSubmitModal from "@/components/PaymentSubmitModal";
 import { formatNumber } from "@/utils";
+import PaymentDetailModal from "@/components/PaymentDetailModal";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -60,6 +59,8 @@ const Role = () => {
   const [rejectId, setRejectId] = useState();
 
   const [detail, setDetail] = useState();
+  const [check, setCheck] = useState();
+
   const [submitType, setSubmitType] = useState();
 
   useEffect(() => {
@@ -75,21 +76,14 @@ const Role = () => {
     })();
   }, [page, pageSize]);
 
-  const handleAdd = async () => {
-    setOperation(Operation.Add);
-    setModalOpen(true);
-  };
-
-  const handleEditOne = (record) => {
-    setOperation(Operation.Edit);
-    setEditId(record.id);
-    form.setFieldsValue(record);
-    setModalOpen(true);
-  };
-
   const handleDetail = async (id) => {
     const res = await getPaymentDetailById(id);
     setDetail(res.entity.data);
+  };
+
+  const handleCheck = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setCheck(res.entity.data);
   };
 
   const handleSubmitToLD = async () => {
@@ -169,7 +163,7 @@ const Role = () => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -249,6 +243,7 @@ const Role = () => {
               <Tooltip title="提交至领导审核">
                 <Popconfirm
                   title="是否提交？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => {
                     setSubmitType(0);
@@ -271,6 +266,7 @@ const Role = () => {
               <Tooltip title="提交至业务审核">
                 <Popconfirm
                   title="是否提交？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => {
                     setSubmitType(1);
@@ -294,6 +290,7 @@ const Role = () => {
               <Tooltip title="退回申请">
                 <Popconfirm
                   title="是否退回？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => setRejectId(record.id)}
                 >
@@ -494,8 +491,12 @@ const Role = () => {
         />
       </Modal>
 
+      {!!check && (
+        <PaymentDetailModal data={check} onClose={() => setCheck(undefined)} />
+      )}
+
       {!!detail && (
-        <DetailModal
+        <PaymentSubmitModal
           data={detail}
           onConfirm={() => {
             submitType === 0 ? handleSubmitToLD() : handleSubmitToCW();

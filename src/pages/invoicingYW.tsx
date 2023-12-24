@@ -33,7 +33,8 @@ import {
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/InvoicingDetailModal";
+import InvoicingSubmitModal from "@/components/InvoicingSubmitModal";
+import InvoicingDetailModal from "@/components/InvoicingDetailModal";
 import { formatNumber } from "@/utils";
 
 const InvoicingSubmit = () => {
@@ -55,6 +56,7 @@ const InvoicingSubmit = () => {
   const [rejectId, setRejectId] = useState();
 
   const [detail, setDetail] = useState();
+  const [check, setCheck] = useState();
 
   useEffect(() => {
     (async () => {
@@ -124,6 +126,11 @@ const InvoicingSubmit = () => {
     setDetail(res.entity.data);
   };
 
+  const handleCheck = async (id) => {
+    const res = await getInvoicingDetailById(id);
+    setCheck(res.entity.data);
+  };
+
   const handleSubmitToCW = async () => {
     await submitToCw(detail.id);
     notification.success({ message: "已提交至财务审核" });
@@ -151,14 +158,13 @@ const InvoicingSubmit = () => {
   const columns = [
     {
       title: "项目名称",
-      // dataIndex: "projectName",
       align: "center",
       key: "projectName",
       render: (record) => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -276,6 +282,7 @@ const InvoicingSubmit = () => {
               <Tooltip title="提交至财务审核">
                 <Popconfirm
                   title="提交至财务审核？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   // onConfirm={() => handleSubmitToCW(record.id)}
                   onConfirm={() => handleDetail(record.id)}
@@ -296,6 +303,7 @@ const InvoicingSubmit = () => {
               <Tooltip title="退回申请">
                 <Popconfirm
                   title="是否退回申请？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => setRejectId(record.id)}
                 >
@@ -509,8 +517,15 @@ const InvoicingSubmit = () => {
         />
       </Modal>
 
+      {!!check && (
+        <InvoicingDetailModal
+          data={check}
+          onClose={() => setCheck(undefined)}
+        />
+      )}
+
       {!!detail && (
-        <DetailModal
+        <InvoicingSubmitModal
           data={detail}
           onConfirm={handleSubmitToCW}
           onClose={() => setDetail(undefined)}

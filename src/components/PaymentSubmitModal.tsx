@@ -1,9 +1,15 @@
 import { memo, useEffect, useState } from "react";
-import { Modal, Upload } from "antd";
-import { getFilesById } from "@/restApi/invoicing";
+import { Modal, Upload, Button } from "antd";
+import {
+  getFilesById,
+  deleteFileById,
+  updateFileById,
+} from "@/restApi/payment";
+import { UploadOutlined } from "@ant-design/icons";
 
-const InvoicingDetailModal = ({ onClose, data }) => {
+const PaymentDetailModal = ({ onClose, data, onConfirm }) => {
   const [files, setFiles] = useState([]);
+  const [oldFiles, setOldFiles] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -16,9 +22,32 @@ const InvoicingDetailModal = ({ onClose, data }) => {
         status: "done",
       }));
 
+      setOldFiles(fileList);
       setFiles(fileList);
     })();
   }, [data?.id]);
+
+  const handleConfirm = async () => {
+    console.log(oldFiles, "oldFiles");
+    console.log(files, "files");
+    const fileList = files.filter(
+      (itemA) => !oldFiles.some((itemB) => itemA.name === itemB.name)
+    );
+
+    console.log(fileList, "fileList");
+    const formData = new FormData();
+
+    formData.append("paymentId", data?.id);
+
+    if (fileList.length > 0) {
+      fileList.forEach((file) => {
+        formData.append("files", file);
+      });
+      await updateFileById(formData);
+    }
+
+    onConfirm();
+  };
 
   const uploadProps = {
     accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
@@ -33,15 +62,31 @@ const InvoicingDetailModal = ({ onClose, data }) => {
       showDownloadIcon: true,
       showRemoveIcon: false,
     },
+    onRemove: async (file) => {
+      await deleteFileById(file?.id);
+      const index = files?.indexOf(file);
+      const newFiles = files.slice();
+      newFiles.splice(index, 1);
+      setFiles(newFiles);
+    },
+    beforeUpload: (file) => {
+      setFiles([...files, file]);
+      return false;
+    },
     onDownload: async (file) => {
       window.open(
         `http://123.60.88.8/zc/common/download/resource?resource=${file?.url}`
       );
     },
   };
-
   return (
-    <Modal width={"100%"} open={!!data} onCancel={onClose} footer={null}>
+    <Modal
+      width={"100%"}
+      open={!!data}
+      onOk={handleConfirm}
+      onCancel={onClose}
+      okButtonProps={{ style: { background: "#198348" } }}
+    >
       <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr
           style={{
@@ -59,7 +104,7 @@ const InvoicingDetailModal = ({ onClose, data }) => {
               paddingBottom: "20px",
             }}
           >
-            开票申请
+            付款申请
           </td>
         </tr>
 
@@ -157,9 +202,10 @@ const InvoicingDetailModal = ({ onClose, data }) => {
               border: "1px solid #333333",
             }}
           >
-            客户名称
+            供应商名称
           </td>
           <td
+            colSpan={20}
             style={{
               paddingTop: "20px",
               paddingBottom: "20px",
@@ -168,25 +214,6 @@ const InvoicingDetailModal = ({ onClose, data }) => {
             }}
           >
             {data?.customName}
-          </td>
-          <td
-            style={{
-              paddingTop: "20px",
-              paddingBottom: "20px",
-              border: "1px solid #333333",
-            }}
-          >
-            开票内容
-          </td>
-          <td
-            style={{
-              paddingTop: "20px",
-              paddingBottom: "20px",
-              border: "1px solid #333333",
-              textAlign: "center",
-            }}
-          >
-            {data?.content}
           </td>
         </tr>
 
@@ -201,6 +228,7 @@ const InvoicingDetailModal = ({ onClose, data }) => {
             税号
           </td>
           <td
+            colSpan={20}
             style={{
               paddingTop: "20px",
               paddingBottom: "20px",
@@ -209,25 +237,6 @@ const InvoicingDetailModal = ({ onClose, data }) => {
             }}
           >
             {data?.taxationNumber}
-          </td>
-          <td
-            style={{
-              paddingTop: "20px",
-              paddingBottom: "20px",
-              border: "1px solid #333333",
-            }}
-          >
-            开票票种
-          </td>
-          <td
-            style={{
-              paddingTop: "20px",
-              paddingBottom: "20px",
-              border: "1px solid #333333",
-              textAlign: "center",
-            }}
-          >
-            {data?.invoicingType}
           </td>
         </tr>
 
@@ -258,7 +267,7 @@ const InvoicingDetailModal = ({ onClose, data }) => {
               border: "1px solid #333333",
             }}
           >
-            开票币种
+            付款币种
           </td>
           <td
             style={{
@@ -299,7 +308,7 @@ const InvoicingDetailModal = ({ onClose, data }) => {
               border: "1px solid #333333",
             }}
           >
-            开票金额
+            付款金额
           </td>
           <td
             style={{
@@ -337,9 +346,11 @@ const InvoicingDetailModal = ({ onClose, data }) => {
         </tr>
       </table>
 
-      <Upload {...uploadProps}></Upload>
+      <Upload {...uploadProps}>
+        <Button icon={<UploadOutlined />}>点击上传</Button>
+      </Upload>
     </Modal>
   );
 };
 
-export default memo(InvoicingDetailModal);
+export default memo(PaymentDetailModal);

@@ -42,7 +42,8 @@ import {
 import { getCustomersYSList } from "@/restApi/customer";
 import { InvoicingTypeArr } from "@/utils/const";
 import { getDictByCode } from "@/restApi/dict";
-import DetailModal from "@/components/InvoicingDetailModal";
+import InvoicingSubmitModal from "@/components/InvoicingSubmitModal";
+import InvoicingDetailModal from "@/components/InvoicingDetailModal";
 import { formatNumber } from "@/utils";
 
 const InvoicingSubmit = () => {
@@ -69,6 +70,8 @@ const InvoicingSubmit = () => {
   const [selectCustomer, setSelectCustomer] = useState();
 
   const [detail, setDetail] = useState();
+
+  const [check, setCheck] = useState();
 
   const [files, setFiles] = useState([]);
   const [oldFiles, setOldFiles] = useState([]);
@@ -205,6 +208,11 @@ const InvoicingSubmit = () => {
     setDetail(res.entity.data);
   };
 
+  const handleCheck = async (id) => {
+    const res = await getInvoicingDetailById(id);
+    setCheck(res.entity.data);
+  };
+
   const handleSubmitOne = async () => {
     await submitToYw(detail.id);
     notification.success({ message: "提交成功" });
@@ -285,7 +293,7 @@ const InvoicingSubmit = () => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -390,6 +398,7 @@ const InvoicingSubmit = () => {
               <Tooltip title={<span>提交业务审核</span>}>
                 <Popconfirm
                   title="是否提交审核？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleDetail(record.id)}
                 >
@@ -435,6 +444,7 @@ const InvoicingSubmit = () => {
               <Tooltip title="删除">
                 <Popconfirm
                   title="是否删除？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleDeleteOne(record.id)}
                 >
@@ -761,10 +771,17 @@ const InvoicingSubmit = () => {
       </Modal>
 
       {!!detail && (
-        <DetailModal
+        <InvoicingSubmitModal
           data={detail}
           onConfirm={handleSubmitOne}
           onClose={() => setDetail(undefined)}
+        />
+      )}
+
+      {!!check && (
+        <InvoicingDetailModal
+          data={check}
+          onClose={() => setCheck(undefined)}
         />
       )}
     </div>

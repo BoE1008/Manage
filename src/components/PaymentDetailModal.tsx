@@ -1,15 +1,9 @@
 import { memo, useEffect, useState } from "react";
-import { Modal, Upload, Button } from "antd";
-import {
-  getFilesById,
-  deleteFileById,
-  updateFileById,
-} from "@/restApi/payment";
-import { UploadOutlined } from "@ant-design/icons";
+import { Modal, Upload } from "antd";
+import { getFilesById } from "@/restApi/payment";
 
-const PaymentDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
+const PaymentDetailModal = ({ onClose, data }) => {
   const [files, setFiles] = useState([]);
-  const [oldFiles, setOldFiles] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -22,32 +16,9 @@ const PaymentDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
         status: "done",
       }));
 
-      setOldFiles(fileList);
       setFiles(fileList);
     })();
   }, [data?.id]);
-
-  const handleConfirm = async () => {
-    console.log(oldFiles, "oldFiles");
-    console.log(files, "files");
-    const fileList = files.filter(
-      (itemA) => !oldFiles.some((itemB) => itemA.name === itemB.name)
-    );
-
-    console.log(fileList, "fileList");
-    const formData = new FormData();
-
-    formData.append("paymentId", data?.id);
-
-    if (fileList.length > 0) {
-      fileList.forEach((file) => {
-        formData.append("files", file);
-      });
-      await updateFileById(formData);
-    }
-
-    onConfirm();
-  };
 
   const uploadProps = {
     accept: ".pdf,.png,.jpg,.jpeg,.xls,.xlsx,.doc,.docx,.rar,.zip",
@@ -62,13 +33,7 @@ const PaymentDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
       showDownloadIcon: true,
       showRemoveIcon: false,
     },
-    onRemove: async (file) => {
-      await deleteFileById(file?.id);
-      const index = files?.indexOf(file);
-      const newFiles = files.slice();
-      newFiles.splice(index, 1);
-      setFiles(newFiles);
-    },
+
     beforeUpload: (file) => {
       setFiles([...files, file]);
       return false;
@@ -83,9 +48,9 @@ const PaymentDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
     <Modal
       width={"100%"}
       open={!!data}
-      onOk={onConfirm}
       onCancel={onClose}
       okButtonProps={{ style: { background: "#198348" } }}
+      footer={null}
     >
       <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr
@@ -346,9 +311,7 @@ const PaymentDetailModal = ({ onClose, data, onConfirm, fromCW }) => {
         </tr>
       </table>
 
-      <Upload {...uploadProps}>
-        {fromCW && <Button icon={<UploadOutlined />}>点击上传</Button>}
-      </Upload>
+      <Upload {...uploadProps}></Upload>
     </Modal>
   );
 };

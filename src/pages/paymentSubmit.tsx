@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   Space,
@@ -15,7 +15,6 @@ import {
   Avatar,
   Typography,
   Upload,
-  message,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -41,8 +40,9 @@ import {
 import { getProjectsSubmitList } from "@/restApi/project";
 import { getSuppliersYFList } from "@/restApi/supplyer";
 import { getDictByCode } from "@/restApi/dict";
-import DetailModal from "@/components/PaymentDetailModal";
+import PaymentSubmitModal from "@/components/PaymentSubmitModal";
 import { formatNumber } from "@/utils";
+import PaymentDetailModal from "@/components/PaymentDetailModal";
 
 const Payment = () => {
   const [form] = Form.useForm();
@@ -68,6 +68,8 @@ const Payment = () => {
   const [bankcards, setBankcards] = useState();
 
   const [detail, setDetail] = useState();
+  const [check, setCheck] = useState();
+
   const [files, setFiles] = useState([]);
   const [oldFiles, setOldFiles] = useState([]);
 
@@ -203,6 +205,11 @@ const Payment = () => {
     setDetail(res.entity.data);
   };
 
+  const handleCheck = async (id) => {
+    const res = await getPaymentDetailById(id);
+    setCheck(res.entity.data);
+  };
+
   const handleLogsOne = async (id: string) => {
     const res = await logsOne(id);
     setLogs(res.entity.data);
@@ -284,7 +291,7 @@ const Payment = () => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -364,6 +371,7 @@ const Payment = () => {
               <Tooltip title={<span>提交业务审核</span>}>
                 <Popconfirm
                   title="是否提交审核？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleDetail(record.id)}
                 >
@@ -409,6 +417,7 @@ const Payment = () => {
               <Tooltip title="删除">
                 <Popconfirm
                   title="是否删除？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleDeleteOne(record.id)}
                 >
@@ -698,8 +707,12 @@ const Payment = () => {
         />
       </Modal>
 
+      {!!check && (
+        <PaymentDetailModal data={check} onClose={() => setCheck(undefined)} />
+      )}
+
       {!!detail && (
-        <DetailModal
+        <PaymentSubmitModal
           data={detail}
           onConfirm={handleSubmitOne}
           onClose={() => setDetail(undefined)}

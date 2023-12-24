@@ -230,10 +230,11 @@ const Project = () => {
       render: (record) => formatNumber(record?.deductProfit),
     },
     {
-      title: "审核状态",
-      dataIndex: "state",
+      title: "项目状态",
+      // dataIndex: "state",
       align: "center",
       key: "state",
+      render: (record) => `${record?.state}(${record?.waitApproveNum})`,
     },
     {
       title: "备注",
@@ -246,10 +247,10 @@ const Project = () => {
       align: "center",
       key: "action",
       render: (_, record) => {
-        const unSubmit = record.state === "未提交";
+        const unFinished = record.state === "未完结";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
-            {unSubmit && (
+            {unFinished && (
               <Tooltip title={<span>编辑</span>}>
                 <Button
                   style={{
@@ -276,10 +277,11 @@ const Project = () => {
               </Button>
             </Tooltip>
 
-            {unSubmit && (
+            {unFinished && (
               <Tooltip title={<span>提交业务审核</span>}>
                 <Popconfirm
                   title="是否提交审核？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
                   onConfirm={() => handleSubmitOne(record.id)}
                 >
@@ -308,13 +310,14 @@ const Project = () => {
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            {unSubmit && (
+            {unFinished && (
             </Tooltip> */}
-            {unSubmit && (
+            {unFinished && (
               <Tooltip title={<span>删除</span>}>
                 <Popconfirm
                   title="是否删除？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  getPopupContainer={(node) => node.parentElement}
                   onConfirm={() => handleDeleteOne(record.id)}
                 >
                   <Button

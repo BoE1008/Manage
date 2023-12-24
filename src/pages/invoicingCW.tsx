@@ -35,7 +35,8 @@ import {
 } from "@ant-design/icons";
 import { getCustomersYSList } from "@/restApi/customer";
 import RejectModal from "@/components/RejectModal";
-import DetailModal from "@/components/InvoicingDetailModal";
+import InvoicingSubmitModal from "@/components/InvoicingSubmitModal";
+import InvoicingDetailModal from "@/components/InvoicingDetailModal";
 import { formatNumber } from "@/utils";
 
 const InvoicingSubmit = () => {
@@ -57,6 +58,7 @@ const InvoicingSubmit = () => {
   const [rejectId, setRejectId] = useState();
 
   const [detail, setDetail] = useState();
+  const [check, setCheck] = useState();
 
   useEffect(() => {
     (async () => {
@@ -110,6 +112,11 @@ const InvoicingSubmit = () => {
     setDetail(res.entity.data);
   };
 
+  const handleCheck = async (id) => {
+    const res = await getInvoicingDetailById(id);
+    setCheck(res.entity.data);
+  };
+
   const handleApprove = async () => {
     await approveOne(detail.id);
     notification.success({ message: "审核完成" });
@@ -159,7 +166,7 @@ const InvoicingSubmit = () => {
         return (
           <span
             className="cursor-pointer text-[#198348]"
-            onClick={() => handleDetail(record.id)}
+            onClick={() => handleCheck(record.id)}
           >
             {record.projectName}
           </span>
@@ -264,8 +271,11 @@ const InvoicingSubmit = () => {
               <Tooltip title="申请通过">
                 <Popconfirm
                   title="是否通过申请？"
+                  getPopupContainer={(node) => node.parentElement}
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  onConfirm={() => handleDetail(record.id)}
+                  onConfirm={() => {
+                    handleDetail(record.id);
+                  }}
                 >
                   <Button
                     style={{
@@ -284,6 +294,7 @@ const InvoicingSubmit = () => {
                 <Popconfirm
                   title="是否退回申请？"
                   okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                  getPopupContainer={(node) => node.parentElement}
                   onConfirm={() => setRejectId(record.id)}
                 >
                   <Button
@@ -510,12 +521,20 @@ const InvoicingSubmit = () => {
         />
       </Modal>
 
+      {!!check && (
+        <InvoicingDetailModal
+          data={check}
+          onClose={() => setCheck(undefined)}
+        />
+      )}
+
       {!!detail && (
-        <DetailModal
-          fromCW={true}
+        <InvoicingSubmitModal
           data={detail}
           onConfirm={handleApprove}
-          onClose={() => setDetail(undefined)}
+          onClose={() => {
+            setDetail(undefined);
+          }}
         />
       )}
 
