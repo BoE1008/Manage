@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   Space,
@@ -10,11 +10,14 @@ import {
   DatePicker,
   notification,
   Tag,
+  Tree,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import { getRoleList, addRole, updateRole, deleteRole } from "@/restApi/role";
+import { getMenu } from "@/restApi/menu";
+import { formatMenu } from "@/utils";
 
 const Role = () => {
   const [form] = Form.useForm();
@@ -28,6 +31,9 @@ const Role = () => {
   const [editId, setEditId] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const [allMenu, setAllMenu] = useState([]);
+  const [menuIds, setMenuIds] = useState([]);
+
   useEffect(() => {
     (async () => {
       const res = await getRoleList(page, pageSize);
@@ -36,11 +42,15 @@ const Role = () => {
   }, [page, pageSize]);
 
   const handleAdd = async () => {
+    const res = await getMenu();
+    setAllMenu(formatMenu(res.entity.data));
     setOperation(Operation.Add);
     setModalOpen(true);
   };
 
-  const handleEditOne = (record) => {
+  const handleEditOne = async (record) => {
+    const res = await getMenu();
+    setAllMenu(formatMenu(res.entity.data));
     setOperation(Operation.Edit);
     setEditId(record.id);
     form.setFieldsValue(record);
@@ -53,8 +63,8 @@ const Role = () => {
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addRole(values)
-        : await updateRole(editId, values);
+        ? await addRole({ ...values, menuIds })
+        : await updateRole(editId, { ...values, menuIds });
     if (code === 200) {
       setModalOpen(false);
       const data = await getRoleList(page, pageSize);
@@ -159,6 +169,17 @@ const Role = () => {
     },
   ];
 
+  const defaultCheckedKeys = useMemo(() => {
+    return data?.entity.data.find((c) => c.id === editId)?.menuIds;
+  }, [data, editId]);
+
+  const onCheck = (checkedKeys, info) => {
+    const list = checkedKeys.concat(info.halfCheckedKeys);
+    setMenuIds(list);
+  };
+
+  console.log(menuIds, "ids");
+
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
@@ -214,11 +235,15 @@ const Role = () => {
         okButtonProps={{ style: { background: "#198348" } }}
         // confirmLoading={confirmLoading}
         onCancel={() => setModalOpen(false)}
-        afterClose={() => form.resetFields()}
+        afterClose={() => {
+          form.resetFields();
+          setMenuIds([]);
+          setEditId("");
+        }}
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}
@@ -230,10 +255,19 @@ const Role = () => {
           <Form.Item required label="roleKey" name="roleKey">
             <Input placeholder="roleKey" />
           </Form.Item>
-          <Form.Item required label="status" name="status">
+          <Form.Item required label="状态" name="status">
             <Input placeholder="status" />
           </Form.Item>
-          <Form.Item></Form.Item>
+          <Form.Item label="菜单权限" name="menu">
+            <Tree
+              style={{ marginTop: "5px" }}
+              checkable
+              selectable={false}
+              onCheck={onCheck}
+              defaultCheckedKeys={defaultCheckedKeys}
+              treeData={allMenu}
+            />
+          </Form.Item>
           <Form.Item label="备注" name="remark">
             <Input.TextArea placeholder="备注" maxLength={100} />
           </Form.Item>

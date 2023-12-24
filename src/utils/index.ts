@@ -15,3 +15,14 @@ export const formatNumber = (number?: number) => {
 
   return formattedNumber;
 };
+
+export const formatMenu = (menu) => {
+  return menu.map((c) => {
+    return {
+      ...c,
+      title: c.name,
+      key: c.id,
+      children: c.children ? formatMenu(c.children) : c.children,
+    };
+  });
+};

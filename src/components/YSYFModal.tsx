@@ -422,6 +422,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                     </Tooltip>
                   </>
                 )}
+
               <Tooltip title={<span>查看审核日志</span>}>
                 <Button
                   onClick={() => handleLogs(record.id)}
@@ -640,6 +641,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                 </Tooltip>
               </>
             )}
+
             <Tooltip title={<span>查看审核日志</span>}>
               <Button
                 onClick={() => handleLogs(record.id)}

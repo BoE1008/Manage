@@ -13,7 +13,7 @@ import {
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { getDeptList, addDept, updateDept } from "@/restApi/dept";
+import { getDeptList, addDept, updateDept, deleteDept } from "@/restApi/dept";
 
 const Dept = () => {
   const [form] = Form.useForm();
@@ -67,7 +67,7 @@ const Dept = () => {
   };
 
   const handleDeleteOne = async (id: string) => {
-    await deleteCustomer(id);
+    await deleteDept(id);
     const data = await getDeptList(page, pageSize);
     setLoading(false);
     setData(data);
@@ -206,7 +206,7 @@ const Dept = () => {
         style={{ minWidth: "650px" }}
       >
         <Form
-          labelCol={{ span: 3 }}
+          labelCol={{ span: 4 }}
           wrapperCol={{ span: 20 }}
           layout={"horizontal"}
           form={form}

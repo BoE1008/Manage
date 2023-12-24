@@ -26,3 +26,16 @@ export const updateDept = async (id: string, info) => {
 
   return res.data;
 };
+
+export const deleteDept = async (id) => {
+  const res = await axiosInstance.get(`/zc/dept/del`, {
+    params: { id },
+  });
+
+  return res.data;
+};
+
+export const getDeptTree = async () => {
+  const res = await axiosInstance.get(`/zc/dept/tree`);
+  return res.data;
+};

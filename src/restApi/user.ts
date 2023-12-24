@@ -17,10 +17,11 @@ export const logout = async () => {
 export const getUserList = async (
   pageNo: number,
   pageSize: number,
-  userName: string
+  userName: string,
+  deptId: string
 ) => {
   const res = await axiosInstance.get(
-    `/zc/user/list?pageNo=${pageNo}&pageSize=${pageSize}&userName=${userName}`
+    `/zc/user/list?pageNo=${pageNo}&pageSize=${pageSize}&userName=${userName}&deptId=${deptId}`
   );
   return res.data;
 };

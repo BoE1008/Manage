@@ -9,11 +9,13 @@ import {
   notification,
   Tooltip,
   Popconfirm,
+  Tree,
 } from "antd";
-import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
+import { EditTwoTone, DeleteTwoTone, DownOutlined } from "@ant-design/icons";
 import { getUserList, updateUser, addUser, deleteUser } from "@/restApi/user";
 import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
+import { getDeptTree } from "@/restApi/dept";
 
 const initialValues = {
   name: "",
@@ -26,10 +28,13 @@ const initialValues = {
 const User = () => {
   const router = useRouter();
   const [data, setData] = useState();
+  const [depts, setDepts] = useState([]);
   const [editId, setEditId] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [searchValue, setSearchValue] = useState("");
+  const [selectDeptId, setSelectDeptId] = useState("100");
+
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
   const [loading, setLoading] = useState(true);
@@ -39,14 +44,22 @@ const User = () => {
   useEffect(() => {
     (async () => {
       if (!!sessionStorage.getItem("username")) {
-        const data = await getUserList(page, pageSize, searchValue);
+        const res = await getDeptTree();
+        console.log(res, "res");
+        setDepts(res.entity.data);
+        const data = await getUserList(
+          page,
+          pageSize,
+          searchValue,
+          selectDeptId
+        );
         setLoading(false);
         setData(data);
       } else {
         router.push("/login");
       }
     })();
-  }, [page, pageSize, searchValue, router]);
+  }, [page, pageSize, searchValue, router, selectDeptId]);
 
   const handleAdd = async () => {
     form.setFieldsValue(initialValues);
@@ -66,10 +79,10 @@ const User = () => {
     const values = form.getFieldsValue();
     // setLoading(true);
     operation === Operation.Add
-      ? await addUser(values)
+      ? await addUser({ ...values, deptId: selectDeptId })
       : await updateUser(values, editId);
     setModalOpen(false);
-    const data = await getUserList(page, pageSize, searchValue);
+    const data = await getUserList(page, pageSize, searchValue, selectDeptId);
     setLoading(false);
     setData(data);
     notification.success({
@@ -80,7 +93,7 @@ const User = () => {
 
   const handleDelete = async (id) => {
     await deleteUser(id);
-    const data = await getUserList(page, pageSize, searchValue);
+    const data = await getUserList(page, pageSize, searchValue, selectDeptId);
     setData(data);
   };
 
@@ -157,49 +170,70 @@ const User = () => {
     },
   ];
 
+  const onSelect = (selectedKeys) => {
+    setSelectDeptId(selectedKeys[0]);
+  };
+
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
-      <div className="flex flex-row justify-between gap-y-3">
-        <Button
-          onClick={handleAdd}
-          type="primary"
-          style={{ marginBottom: 16, background: "#198348", width: "100px" }}
-        >
-          添加
-        </Button>
-        <Space>
-          <Input
-            placeholder="用户名"
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
+      <div className="w-full flex flex-row gap-x-10">
+        <div className="min-w-[150px]">
+          <Tree
+            defaultExpandedKeys={["100"]}
+            defaultSelectedKeys={["100"]}
+            switcherIcon={<DownOutlined />}
+            onSelect={onSelect}
+            treeData={depts}
           />
-          {/* <Button onClick={handleSearch}>查询</Button> */}
-        </Space>
-      </div>
-      <Table
-        bordered
-        loading={loading}
-        dataSource={data?.entity.data}
-        columns={columns}
-        pagination={{
-          // 设置总条数
-          total: data?.entity.total,
-          // 显示总条数
-          showTotal: (total) => `共 ${total} 条`,
-          // 是否可以改变 pageSize
-          showSizeChanger: true,
+        </div>
+        <div className="flex-1">
+          <div className="flex flex-row justify-between gap-y-3">
+            <Button
+              onClick={handleAdd}
+              type="primary"
+              style={{
+                marginBottom: 16,
+                background: "#198348",
+                width: "100px",
+              }}
+            >
+              添加
+            </Button>
+            <Space>
+              <Input
+                placeholder="用户名"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+              {/* <Button onClick={handleSearch}>查询</Button> */}
+            </Space>
+          </div>
+          <Table
+            bordered
+            loading={loading}
+            dataSource={data?.entity.data}
+            columns={columns}
+            pagination={{
+              // 设置总条数
+              total: data?.entity.total,
+              // 显示总条数
+              showTotal: (total) => `共 ${total} 条`,
+              // 是否可以改变 pageSize
+              showSizeChanger: true,
 
-          // 改变页码时
-          onChange: async (page) => {
-            setPage(page);
-          },
-          // pageSize 变化的回调
-          onShowSizeChange: async (page, size) => {
-            setPage(page);
-            setPageSize(size);
-          },
-        }}
-      />
+              // 改变页码时
+              onChange: async (page) => {
+                setPage(page);
+              },
+              // pageSize 变化的回调
+              onShowSizeChange: async (page, size) => {
+                setPage(page);
+                setPageSize(size);
+              },
+            }}
+          />
+        </div>
+      </div>
       <Modal
         centered
         destroyOnClose
@@ -207,7 +241,6 @@ const User = () => {
         open={modalOpen}
         onOk={handleOk}
         okButtonProps={{ style: { background: "#198348" } }}
-        // confirmLoading={confirmLoading}
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
