@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   Space,
@@ -6,14 +6,16 @@ import {
   Input,
   Modal,
   Form,
-  Select,
-  DatePicker,
   notification,
+  TreeSelect,
+  Tooltip,
+  Popconfirm,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
-import { addDept, updateDept, deleteDept, getDeptTree } from "@/restApi/dept";
+import { addDept, updateDept, deleteDept, getDeptList } from "@/restApi/dept";
+import { arrayToTree, formatDept } from "@/utils";
 
 const Dept = () => {
   const [form] = Form.useForm();
@@ -21,15 +23,20 @@ const Dept = () => {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [operation, setOperation] = useState<Operation>(Operation.Add);
+
   const [editId, setEditId] = useState("");
+  const [parentId, setParentId] = useState("");
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const res = await getDeptTree();
-      setData(res?.entity.data);
+      const res = await getDeptList(1, 1000);
+      setData(arrayToTree(res?.entity.data, "0"));
     })();
   }, []);
+
+  const allDepts = useMemo(() => data && formatDept(data), [data]);
 
   const handleAdd = async () => {
     setOperation(Operation.Add);
@@ -53,9 +60,9 @@ const Dept = () => {
         : await updateDept(editId, values);
     if (code === 200) {
       setModalOpen(false);
-      const data = await getDeptTree();
+      const data = await getDeptList(1, 1000);
       setLoading(false);
-      setData(res?.entity.data);
+      setData(arrayToTree(data?.entity.data, "0"));
       notification.success({
         message: operation === Operation.Add ? "添加成功" : "编辑成功",
         duration: 3,
@@ -65,9 +72,9 @@ const Dept = () => {
 
   const handleDeleteOne = async (id: string) => {
     await deleteDept(id);
-    const data = await getDeptTree();
+    const data = await getDeptList(1, 1000);
     setLoading(false);
-    setData(res?.entity.data);
+    setData(arrayToTree(data?.entity.data, "0"));
   };
 
   const validateName = () => {
@@ -89,9 +96,9 @@ const Dept = () => {
   const columns = [
     {
       title: "部门名称",
-      dataIndex: "title",
+      dataIndex: "name",
       align: "center",
-      key: "title",
+      key: "name",
     },
     {
       title: "id",
@@ -117,50 +124,46 @@ const Dept = () => {
       key: "action",
       render: (_, record) => {
         return (
-          <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+          <Space size="middle" className="flex flex-row justify-center">
+            <Tooltip title="编辑">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                getPopupContainer={(node) => node.parentElement}
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
     },
   ];
 
-  const expandedRowRender = (record) => {
-    return (
-      <div>
-        <Table
-          bordered
-          loading={loading}
-          dataSource={record.children
-            .map((item, index) => ({
-              ...item,
-              key: index,
-            }))
-            .filter((c) => c.state !== "未提交")}
-          columns={columns}
-          pagination={false}
-        />
-      </div>
-    );
+  const onSelect = (value) => {
+    console.log(value);
   };
 
   return (
@@ -218,6 +221,18 @@ const Dept = () => {
         >
           <Form.Item required label="部门名称" name="name">
             <Input placeholder="部门名称" />
+          </Form.Item>
+
+          <Form.Item required label="上级部门" name="parentId">
+            <TreeSelect
+              style={{ width: "60%" }}
+              // value={value}
+              dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
+              treeData={allDepts}
+              placeholder="请选择上级部门"
+              treeDefaultExpandAll
+              onSelect={onSelect}
+            />
           </Form.Item>
 
           <Form.Item label="备注" name="remark">

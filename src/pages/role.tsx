@@ -11,6 +11,8 @@ import {
   notification,
   Tag,
   Tree,
+  Tooltip,
+  Popconfirm,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -142,27 +144,39 @@ const Role = () => {
       key: "action",
       render: (_, record) => {
         return (
-          <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+          <Space size="middle" className="flex flex-row justify-center">
+            <Tooltip title="编辑">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{
+                  style: { backgroundColor: "#198348" },
+                }}
+                getPopupContainer={(node) => node.parentElement}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
@@ -172,6 +186,10 @@ const Role = () => {
   const defaultCheckedKeys = useMemo(() => {
     return data?.entity.data.find((c) => c.id === editId)?.menuIds;
   }, [data, editId]);
+
+  useEffect(() => {
+    setMenuIds(defaultCheckedKeys);
+  }, [defaultCheckedKeys]);
 
   const onCheck = (checkedKeys, info) => {
     const list = checkedKeys.concat(info.halfCheckedKeys);

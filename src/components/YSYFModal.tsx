@@ -446,12 +446,16 @@ const Item = ({ projectId, onClose, modalType }) => {
         <Table
           bordered
           loading={loading}
-          dataSource={record.yf_data
+          dataSource={modalType === ModalType.Approve ? record.yf_data
             .map((item, index) => ({
               ...item,
               key: index,
             }))
-            .filter((c) => c.state !== "未提交")}
+            .filter((c) => c.state !== "未提交"):record.yf_data
+            .map((item, index) => ({
+              ...item,
+              key: index,
+            }))}
           columns={littleTableColumn}
           pagination={false}
         />
@@ -755,7 +759,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         <Table
           bordered
           loading={loading}
-          dataSource={data?.entity?.data?.filter((c) => c.state !== "未提交")}
+          dataSource={modalType === ModalType.Approve ? data?.entity?.data?.filter((c) => c.state !== "未提交"):data?.entity?.data}
           columns={columns}
           expandable={{
             expandedRowRender: (record) => expandedRowRender(record),

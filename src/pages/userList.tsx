@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Table,
   Button,
@@ -18,6 +18,7 @@ import { Company, Operation } from "@/types";
 import { useRouter } from "next/router";
 import { getDeptList, getDeptTree } from "@/restApi/dept";
 import { getRoleList } from "@/restApi/role";
+import { formatMenu } from "@/utils/index";
 
 const initialValues = {
   name: "",
@@ -43,6 +44,7 @@ const User = () => {
 
   const [allDept, setAllDept] = useState([]);
   const [allRole, setAllRole] = useState([]);
+  const [roleIds, setRoleIds] = useState([]);
 
   const [form] = Form.useForm();
 
@@ -87,8 +89,8 @@ const User = () => {
     const values = form.getFieldsValue();
     // setLoading(true);
     operation === Operation.Add
-      ? await addUser({ ...values, deptId: selectDeptId })
-      : await updateUser(values, editId);
+      ? await addUser({ ...values, deptId: selectDeptId, roleIds })
+      : await updateUser({ ...values, deptId: selectDeptId, roleIds }, editId);
     setModalOpen(false);
     const data = await getUserList(page, pageSize, searchValue, selectDeptId);
     setLoading(false);
@@ -151,17 +153,19 @@ const User = () => {
       key: "action",
       render: (_, record: Company) => {
         return (
-          <Space size="middle" className="flex flex-row !gap-x-1">
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleEditOne(record)}
-            >
-              <EditTwoTone twoToneColor="#198348" />
-            </Button>
+          <Space size="middle" className="flex flex-row justify-center">
+            <Tooltip title="编辑">
+              <Button
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  padding: "3px 5px",
+                }}
+                onClick={() => handleEditOne(record)}
+              >
+                <EditTwoTone twoToneColor="#198348" />
+              </Button>
+            </Tooltip>
             <Tooltip title="删除">
               <Popconfirm
                 title="是否删除？"
@@ -188,6 +192,19 @@ const User = () => {
 
   const onSelect = (selectedKeys) => {
     setSelectDeptId(selectedKeys[0]);
+  };
+
+  const defaultCheckedKeys = useMemo(() => {
+    return data?.entity.data.find((c) => c.id === editId)?.roleIds;
+  }, [data, editId]);
+
+  useEffect(() => {
+    setRoleIds(defaultCheckedKeys);
+  }, [defaultCheckedKeys]);
+
+  const onCheck = (checkedKeys, info) => {
+    const list = checkedKeys.concat(info.halfCheckedKeys);
+    setRoleIds(list);
   };
 
   return (
@@ -281,12 +298,13 @@ const User = () => {
             <Input placeholder="请输入用户编号" />
           </Form.Item>
           <Form.Item label="用户角色" name="userRole">
-            <Select
-              placeholder="请选择用户角色"
-              options={allRole?.map((con) => ({
-                label: con.name,
-                value: con.id,
-              }))}
+            <Tree
+              style={{ marginTop: "5px" }}
+              checkable
+              selectable={false}
+              onCheck={onCheck}
+              defaultCheckedKeys={defaultCheckedKeys}
+              treeData={formatMenu(allRole)}
             />
           </Form.Item>
           <Form.Item label="邮箱" name="email">
