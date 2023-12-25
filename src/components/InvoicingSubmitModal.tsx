@@ -79,7 +79,7 @@ const InvoicingDetailModal = ({ onClose, data, onConfirm }) => {
 
   return (
     <Modal
-      width={"100%"}
+      width={"80%"}
       open={!!data}
       onOk={handleConfirm}
       onCancel={onClose}

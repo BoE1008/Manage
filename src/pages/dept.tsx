@@ -101,16 +101,16 @@ const Dept = () => {
       key: "name",
     },
     {
-      title: "id",
-      dataIndex: "id",
-      align: "center",
-      key: "id",
-    },
-    {
       title: "部门排序",
       dataIndex: "orderSort",
       align: "center",
       key: "orderSort",
+    },
+    {
+      title: "创建时间",
+      dataIndex: "createTime",
+      align: "center",
+      key: "createTime",
     },
     {
       title: "备注",
@@ -163,7 +163,7 @@ const Dept = () => {
   ];
 
   const onSelect = (value) => {
-    console.log(value);
+    setParentId(value);
   };
 
   return (
@@ -177,14 +177,6 @@ const Dept = () => {
           >
             添加
           </Button>
-        </Space>
-
-        <Space>
-          <Input
-            placeholder="名称"
-            // value={searchValue}
-            // onChange={(e) => setSearchValue(e.target.value)}
-          />
         </Space>
       </div>
       <Table
@@ -226,7 +218,7 @@ const Dept = () => {
           <Form.Item required label="上级部门" name="parentId">
             <TreeSelect
               style={{ width: "60%" }}
-              // value={value}
+              // value={allDepts?.find((c) => c.id === parentId)}
               dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
               treeData={allDepts}
               placeholder="请选择上级部门"

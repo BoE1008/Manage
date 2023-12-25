@@ -212,7 +212,8 @@ const User = () => {
       <div className="w-full flex flex-row gap-x-10">
         <div className="min-w-[150px]">
           <Tree
-            defaultExpandedKeys={["100"]}
+            defaultExpandAll
+            // defaultExpandedKeys={["100"]}
             defaultSelectedKeys={["100"]}
             switcherIcon={<DownOutlined />}
             onSelect={onSelect}

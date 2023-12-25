@@ -46,7 +46,7 @@ const PaymentDetailModal = ({ onClose, data }) => {
   };
   return (
     <Modal
-      width={"100%"}
+      width={"80%"}
       open={!!data}
       onCancel={onClose}
       okButtonProps={{ style: { background: "#198348" } }}

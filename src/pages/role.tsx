@@ -13,6 +13,7 @@ import {
   Tree,
   Tooltip,
   Popconfirm,
+  Switch,
 } from "antd";
 import { Operation } from "@/types";
 import dayjs from "dayjs";
@@ -35,6 +36,8 @@ const Role = () => {
 
   const [allMenu, setAllMenu] = useState([]);
   const [menuIds, setMenuIds] = useState([]);
+
+  const [status, setStatus] = useState(true);
 
   useEffect(() => {
     (async () => {
@@ -65,8 +68,12 @@ const Role = () => {
     setLoading(true);
     const { code } =
       operation === Operation.Add
-        ? await addRole({ ...values, menuIds })
-        : await updateRole(editId, { ...values, menuIds });
+        ? await addRole({ ...values, menuIds, status: status ? "0" : "1" })
+        : await updateRole(editId, {
+            ...values,
+            menuIds,
+            status: status ? "0" : "1",
+          });
     if (code === 200) {
       setModalOpen(false);
       const data = await getRoleList(page, pageSize);
@@ -196,6 +203,10 @@ const Role = () => {
     setMenuIds(list);
   };
 
+  const onChange = (checked: boolean) => {
+    setStatus(checked);
+  };
+
   return (
     <div className="p-2">
       <div className="flex flex-row gap-y-3 justify-between">
@@ -207,14 +218,6 @@ const Role = () => {
           >
             添加
           </Button>
-        </Space>
-
-        <Space>
-          <Input
-            placeholder="名称"
-            // value={searchValue}
-            // onChange={(e) => setSearchValue(e.target.value)}
-          />
         </Space>
       </div>
       <Table
@@ -271,8 +274,8 @@ const Role = () => {
           <Form.Item required label="roleKey" name="roleKey">
             <Input placeholder="roleKey" />
           </Form.Item>
-          <Form.Item required label="状态" name="status">
-            <Input placeholder="status" />
+          <Form.Item required label="状态" name="state">
+            <Switch defaultChecked checked={status} onChange={onChange} />
           </Form.Item>
           <Form.Item label="菜单权限" name="menu">
             <Tree
