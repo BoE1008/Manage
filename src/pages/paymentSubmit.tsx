@@ -97,6 +97,10 @@ const Payment = () => {
     setSelectSupplier(
       projectCustom.entity?.data?.find((c) => record.supplierId === c.id)
     );
+    const selectProject = project?.find(
+      (c) => c.projectNum === record.projectNum
+    );
+    setSelectProject(selectProject);
     const res = await getDictByCode("sys_money_type");
     setDict(res.entity);
     const rawFilelist = await getFilesById(record.id);
@@ -125,8 +129,9 @@ const Payment = () => {
         ? {
             ...values,
             moneyType: values.moneyType.value || "",
-            projectName: values.projectName.label || "",
-            projectId: values.projectName.value || "",
+            projectNum: values.projectNum.label || "",
+            projectId: values.projectNum?.value || "",
+            projectName: selectProject?.name || "",
             supplierName: values.supplierName.label || "",
             supplierId: values.supplierName.value || "",
             bank: values.bank.value || "",
@@ -138,11 +143,12 @@ const Payment = () => {
         : {
             ...values,
             moneyType: values.moneyType.value || values.moneyType || "",
-            projectName: values.projectName?.label || values.projectName || "",
+            projectNum: values.projectNum.label || values.projectNum || "",
             projectId:
-              values.projectName?.value ||
-              project?.find((c) => c.name === values.projectName).id ||
+              values.projectNum?.value ||
+              project?.find((c) => c.name === values.projectName)?.id ||
               "",
+            projectName: selectProject?.name,
             supplierName:
               values.supplierName?.label || values.supplierName || "",
             supplierId:
@@ -527,6 +533,7 @@ const Payment = () => {
         afterClose={() => {
           form.resetFields();
           setSelectSupplier(undefined);
+          setSelectProject(undefined);
         }}
         style={{ minWidth: "650px" }}
       >
