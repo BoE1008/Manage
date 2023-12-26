@@ -102,7 +102,9 @@ const InvoicingSubmit = () => {
     setSelectCustomer(
       projectCustom.entity?.data?.find((c) => record.customId === c.id)
     );
-    const selectProject = project?.find((c) => c.projectNum === record.projectNum);
+    const selectProject = project?.find(
+      (c) => c.projectNum === record.projectNum
+    );
     setSelectProject(selectProject);
     const res = await getDictByCode("sys_money_type");
     setDict(res.entity);

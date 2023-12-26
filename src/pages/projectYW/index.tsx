@@ -404,7 +404,6 @@ const Project = () => {
               >
                 <CalendarTwoTone twoToneColor="#198348" />
               </Button>
-            </Tooltip>
             </Tooltip> */}
 
             {/* <Tooltip title="删除">
@@ -680,10 +679,14 @@ const Project = () => {
         />
       )}
 
+<<<<<<< Updated upstream
       {/* <div
         style={{ width: "100%", minHeight: "1000px", marginTop: "100px" }}
         ref={chartRef}
       ></div> */}
+=======
+      {/* <div style={{ width: '100%', minHeight: "1000px", marginTop: '100px' }} ref={chartRef}></div> */}
+>>>>>>> Stashed changes
     </div>
   );
 };

@@ -297,21 +297,6 @@ const Project = () => {
                 </Popconfirm>
               </Tooltip>
             )}
-
-            {/* <Tooltip title={<span>查看审核日志</span>}>
-              <Button
-                onClick={() => handleLogs(record.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-              >
-                <CalendarTwoTone twoToneColor="#198348" />
-              </Button>
-            </Tooltip>
-            {unFinished && (
-            </Tooltip> */}
             {unFinished && (
               <Tooltip title={<span>删除</span>}>
                 <Popconfirm
@@ -355,7 +340,7 @@ const Project = () => {
   };
 
   return (
-    <div className="w-full p-2" style={{ color: "#000",  }}>
+    <div className="w-full p-2" style={{ color: "#000" }}>
       <div className="flex flex-row gap-y-3 justify-between">
         <Space>
           <Button
@@ -388,7 +373,7 @@ const Project = () => {
         loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
-        scroll={{scrollToFirstRowOnChange: true, y: '80vh' }}
+        scroll={{ scrollToFirstRowOnChange: true, y: "80vh" }}
         pagination={{
           // 设置总条数
           total: data?.entity.total,
