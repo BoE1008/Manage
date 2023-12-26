@@ -102,6 +102,8 @@ const InvoicingSubmit = () => {
     setSelectCustomer(
       projectCustom.entity?.data?.find((c) => record.customId === c.id)
     );
+    const selectProject = project?.find((c) => c.projectNum === record.projectNum);
+    setSelectProject(selectProject);
     const res = await getDictByCode("sys_money_type");
     setDict(res.entity);
     const data = await getDictByCode("sys_invoicing_content");
@@ -132,8 +134,9 @@ const InvoicingSubmit = () => {
             ...values,
             invoicingType: values.invoicingType?.value || "",
             moneyType: values.moneyType?.value || "",
-            projectId: values.projectName?.value || "",
-            projectName: values.projectName?.label || "",
+            projectNum: values.projectNum.label || "",
+            projectId: values.projectNum?.value || "",
+            projectName: selectProject?.name || "",
             customId: values.customName?.value || "",
             customName: values.customName?.label || "",
             bankCard: values.bankCard.value || "",
@@ -148,11 +151,12 @@ const InvoicingSubmit = () => {
             invoicingType:
               values.invoicingType?.value || values.invoicingType || "",
             moneyType: values.moneyType?.value || values.moneyType || "",
+            projectNum: values.projectNum.label || values.projectNum || "",
             projectId:
-              values.projectName?.value ||
+              values.projectNum?.value ||
               project?.find((c) => c.name === values.projectName)?.id ||
               "",
-            projectName: values.projectName?.label || values.projectName || "",
+            projectName: selectProject?.name,
             customId:
               values.customName?.value ||
               customer?.find((a) => a.name === values.customName)?.id ||
@@ -285,6 +289,12 @@ const InvoicingSubmit = () => {
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
   const columns = [
+    {
+      title: "项目编号",
+      dataIndex: "projectNum",
+      align: "center",
+      key: "projectNum",
+    },
     {
       title: "项目名称",
       align: "center",
@@ -520,22 +530,15 @@ const InvoicingSubmit = () => {
       </div>
       <Table
         bordered
-        // loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
         pagination={{
-          // 设置总条数
           total: data?.entity.total,
-          // 显示总条数
           showTotal: (total) => `共 ${total} 条`,
-          // 是否可以改变 pageSize
           showSizeChanger: true,
-
-          // 改变页码时
           onChange: async (page) => {
             setPage(page);
           },
-          // pageSize 变化的回调
           onShowSizeChange: async (page, size) => {
             setPage(page);
             setPageSize(size);
@@ -558,6 +561,7 @@ const InvoicingSubmit = () => {
         afterClose={() => {
           form.resetFields();
           setSelectCustomer(undefined);
+          setSelectProject(undefined);
         }}
         style={{ minWidth: "650px" }}
       >
@@ -589,21 +593,6 @@ const InvoicingSubmit = () => {
             name="projectName"
             rules={[{ required: true, message: "项目名称不能为空" }]}
           >
-            {/* <Select
-              showSearch
-              labelInValue
-              placeholder="选择项目"
-              optionFilterProp="children"
-              filterOption={customerFilterOption}
-              onSearch={onSearch}
-              optionLabelProp="label"
-              options={[
-                {
-                  label: selectProject?.name,
-                  value: selectProject?.id,
-                },
-              ]}
-            /> */}
             <Typography>
               <code
                 style={{
@@ -685,7 +674,7 @@ const InvoicingSubmit = () => {
           <Form.Item required label="币种" name="moneyType">
             <Select
               showSearch
-              labelInValue
+              // labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -699,7 +688,7 @@ const InvoicingSubmit = () => {
           <Form.Item label="卡号" name="bankCard">
             <Select
               showSearch
-              labelInValue
+              // labelInValue
               placeholder="选择银行卡"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -713,7 +702,7 @@ const InvoicingSubmit = () => {
           <Form.Item label="开户行" name="bank">
             <Select
               showSearch
-              labelInValue
+              // labelInValue
               placeholder="选择开户行"
               optionFilterProp="children"
               filterOption={customerFilterOption}

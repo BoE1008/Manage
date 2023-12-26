@@ -355,7 +355,7 @@ const Project = () => {
   };
 
   return (
-    <div className="w-full p-2" style={{ color: "#000" }}>
+    <div className="w-full p-2" style={{ color: "#000",  }}>
       <div className="flex flex-row gap-y-3 justify-between">
         <Space>
           <Button
@@ -388,6 +388,7 @@ const Project = () => {
         loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
+        scroll={{scrollToFirstRowOnChange: true, y: '80vh' }}
         pagination={{
           // 设置总条数
           total: data?.entity.total,
