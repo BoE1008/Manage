@@ -127,7 +127,7 @@ const InvoicingSubmit = () => {
   };
 
   const handleReject = async (invoicingId: string, remark: string) => {
-    await rejectOne(invoicingId, remark, 2);
+    await rejectOne(invoicingId, remark, 3);
     notification.success({ message: "申请已退回" });
     setRejectId(undefined);
     const data = await getinvoicingCWList(page, pageSize);

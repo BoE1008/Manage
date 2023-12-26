@@ -12,6 +12,10 @@ import {
   getProjectDetailById,
   submitYF,
   submitYS,
+  deleteYF,
+  deleteYS,
+  updateYFThreeStatus,
+  updateYSThreeStatus,
 } from "@/restApi/project";
 import { useEffect, useState } from "react";
 import {
@@ -28,6 +32,7 @@ import {
   Popconfirm,
   List,
   Avatar,
+  Switch,
 } from "antd";
 import {
   EditTwoTone,
@@ -229,6 +234,122 @@ const Item = ({ projectId, onClose, modalType }) => {
     });
   };
 
+  const handleDeleteYF = async (id) => {
+    await deleteYF(id, projectId);
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+
+  const handleDeleteYS = async (id) => {
+    await deleteYS(id, projectId);
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+
+  const handleYFChecking = async (id, value) => {
+    await updateYFThreeStatus({ id, yfChecking: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+  const handleYFInvoicing = async (id, value) => {
+    await updateYFThreeStatus({ id, yfInvoice: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+  const handleYFCollection = async (id, value) => {
+    await updateYFThreeStatus({ id, yfCollection: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+
+  const handleYSChecking = async (id, value) => {
+    await updateYSThreeStatus({ id, ysChecking: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+  const handleYSInvoicing = async (id, value) => {
+    await updateYSThreeStatus({ id, ysInvoice: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+  const handleYSCollection = async (id, value) => {
+    await updateYSThreeStatus({ id, ysCollection: value ? "0" : "1" });
+    const data = await getProjectYSList(projectId as string, page, pageSize);
+    setData({
+      ...data,
+      entity: {
+        ...data.entity,
+        data: data.entity.data.map((item, index) => ({
+          key: index,
+          ...item,
+        })),
+      },
+    });
+  };
+
   const expandedRowRender = (record) => {
     const littleTableColumn = [
       {
@@ -269,15 +390,59 @@ const Item = ({ projectId, onClose, modalType }) => {
       },
       {
         title: "对账",
-        dataIndex: "yfChecking",
+        // dataIndex: "yfChecking",
         key: "yfChecking",
         align: "center",
+        render: (record) => {
+          return modalType !== ModalType.Approve ? (
+            record.ysChecking === "0" ? (
+              "√"
+            ) : (
+              "×"
+            )
+          ) : (
+            <Switch
+              checked={record.yfChecking === "0"}
+              onChange={(value) => handleYFChecking(record.id, value)}
+            />
+          );
+        },
       },
       {
         key: "yfInvoice",
         title: "开票",
-        dataIndex: "yfInvoice",
+        // dataIndex: "yfInvoice",
         align: "center",
+        render: (record) => {
+          return modalType === ModalType.CW ? (
+            <Switch
+              checked={record.yfInvoice === "0"}
+              onChange={(value) => handleYFInvoicing(record.id, value)}
+            />
+          ) : record.ysInvoice === "0" ? (
+            "√"
+          ) : (
+            "×"
+          );
+        },
+      },
+      {
+        title: "付款",
+        // dataIndex: "yfCollection",
+        key: "yfCollection",
+        align: "center",
+        render: (record) => {
+          return modalType === ModalType.CW ? (
+            <Switch
+              checked={record.yfCollection === "0"}
+              onChange={(value) => handleYFCollection(record.id, value)}
+            />
+          ) : record.ysInvoice === "0" ? (
+            "√"
+          ) : (
+            "×"
+          );
+        },
       },
       {
         title: "预留利润名称",
@@ -298,12 +463,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         key: "isPay",
         align: "center",
       },
-      {
-        title: "付款",
-        dataIndex: "yfCollection",
-        key: "yfCollection",
-        align: "center",
-      },
+
       {
         title: "审核状态",
         dataIndex: "state",
@@ -356,8 +516,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                       title="是否删除？"
                       okButtonProps={{ style: { backgroundColor: "#198348" } }}
                       getPopupContainer={(node) => node.parentElement}
-
-                      // onConfirm={() => handleDeleteOne(record.id)}
+                      onConfirm={() => handleDeleteYF(record.id)}
                     >
                       <Button
                         style={{
@@ -446,16 +605,19 @@ const Item = ({ projectId, onClose, modalType }) => {
         <Table
           bordered
           loading={loading}
-          dataSource={modalType === ModalType.Approve ? record.yf_data
-            .map((item, index) => ({
-              ...item,
-              key: index,
-            }))
-            .filter((c) => c.state !== "未提交"):record.yf_data
-            .map((item, index) => ({
-              ...item,
-              key: index,
-            }))}
+          dataSource={
+            modalType === ModalType.Approve
+              ? record.yf_data
+                  .map((item, index) => ({
+                    ...item,
+                    key: index,
+                  }))
+                  .filter((c) => c.state !== "未提交")
+              : record.yf_data.map((item, index) => ({
+                  ...item,
+                  key: index,
+                }))
+          }
           columns={littleTableColumn}
           pagination={false}
         />
@@ -498,21 +660,59 @@ const Item = ({ projectId, onClose, modalType }) => {
     },
     {
       title: "对账",
-      dataIndex: "ysChecking",
+      // dataIndex: "ysChecking",
       key: "ysChecking",
       align: "center",
+      render: (record) => {
+        return modalType !== ModalType.Approve ? (
+          record.ysChecking === "0" ? (
+            "√"
+          ) : (
+            "×"
+          )
+        ) : (
+          <Switch
+            checked={record.ysChecking === "0"}
+            onChange={(value) => handleYSChecking(record.id, value)}
+          />
+        );
+      },
     },
     {
       title: "开票",
-      dataIndex: "ysInvoice",
+      // dataIndex: "ysInvoice",
       key: "ysInvoice",
       align: "center",
+      render: (record) => {
+        return modalType === ModalType.CW ? (
+          <Switch
+            checked={record.ysInvoice === "0"}
+            onChange={(value) => handleYSInvoicing(record.id, value)}
+          />
+        ) : record.ysInvoice === "0" ? (
+          "√"
+        ) : (
+          "×"
+        );
+      },
     },
     {
       title: "收款",
-      dataIndex: "ysCollection",
+      // dataIndex: "ysCollection",
       align: "center",
       key: "ysCollection",
+      render: (record) => {
+        return modalType === ModalType.CW ? (
+          <Switch
+            checked={record.ysCollection === "0"}
+            onChange={(value) => handleYSCollection(record.id, value)}
+          />
+        ) : record.ysCollection === "0" ? (
+          "√"
+        ) : (
+          "×"
+        );
+      },
     },
     {
       title: "审核状态",
@@ -583,8 +783,7 @@ const Item = ({ projectId, onClose, modalType }) => {
                       title="是否删除？"
                       okButtonProps={{ style: { backgroundColor: "#198348" } }}
                       getPopupContainer={(node) => node.parentElement}
-
-                      // onConfirm={() => handleDeleteOne(record.id)}
+                      onConfirm={() => handleDeleteYS(record.id)}
                     >
                       <Button
                         style={{
@@ -725,8 +924,6 @@ const Item = ({ projectId, onClose, modalType }) => {
     option?: { label: string; value: string }
   ) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
-  console.log(data, "data");
-
   return (
     <>
       <Modal
@@ -759,12 +956,16 @@ const Item = ({ projectId, onClose, modalType }) => {
         <Table
           bordered
           loading={loading}
-          dataSource={modalType === ModalType.Approve ? data?.entity?.data?.filter((c) => c.state !== "未提交"):data?.entity?.data}
+          dataSource={
+            modalType === ModalType.Approve
+              ? data?.entity?.data?.filter((c) => c.state !== "未提交")
+              : data?.entity?.data
+          }
           columns={columns}
           expandable={{
             expandedRowRender: (record) => expandedRowRender(record),
             defaultExpandedRowKeys: ["0"],
-            expandRowByClick: true,
+            // expandRowByClick: true,
             indentSize: 300,
           }}
           pagination={{
@@ -834,48 +1035,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             <Form.Item label="明细" name="ysPurpose">
               <Input.TextArea placeholder="明细" maxLength={100} />
             </Form.Item>
-            <Form.Item label="对账" name="ysChecking">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否对账"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
-            <Form.Item label="开票" name="ysInvoice">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否开票"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
-            <Form.Item label="收款" name="ysCollection">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否收款"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
+
             {/* <Form.Item
             label="日期"
             name="ysDate"
@@ -939,48 +1099,7 @@ const Item = ({ projectId, onClose, modalType }) => {
             <Form.Item label="汇率" labelCol={{ span: 5 }} name="yfExrate">
               <InputNumber placeholder="请输入汇率" style={{ width: "100%" }} />
             </Form.Item>
-            <Form.Item label="对账" labelCol={{ span: 5 }} name="yfChecking">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否对账"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
-            <Form.Item label="开票" labelCol={{ span: 5 }} name="yfInvoice">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否开票"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
-            <Form.Item label="付款" labelCol={{ span: 5 }} name="yfCollection">
-              <Select
-                showSearch
-                labelInValue
-                placeholder="是否付款"
-                optionFilterProp="children"
-                filterOption={customerFilterOption}
-                defaultValue={BooltypeArr[0]}
-                options={BooltypeArr?.map((con) => ({
-                  label: con,
-                  value: con,
-                }))}
-              ></Select>
-            </Form.Item>
+
             <Form.Item
               label="预留利润名称"
               labelCol={{ span: 5 }}

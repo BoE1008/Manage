@@ -57,3 +57,7 @@ body {
 :global(.ant-table-thead > tr > th){
   text-align: center !important;
 }
+
+.ant-switch {
+  background-color: gray;
+}

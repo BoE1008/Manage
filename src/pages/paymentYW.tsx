@@ -263,7 +263,7 @@ const Role = () => {
               </Tooltip>
             )}
             {!isFinished && (
-              <Tooltip title="提交至业务审核">
+              <Tooltip title="提交至财务审核">
                 <Popconfirm
                   title="是否提交？"
                   getPopupContainer={(node) => node.parentElement}

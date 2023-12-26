@@ -194,14 +194,19 @@ const Role = () => {
     return data?.entity.data.find((c) => c.id === editId)?.menuIds;
   }, [data, editId]);
 
+  console.log(defaultCheckedKeys, "defa");
+
   useEffect(() => {
     setMenuIds(defaultCheckedKeys);
   }, [defaultCheckedKeys]);
 
   const onCheck = (checkedKeys, info) => {
-    const list = checkedKeys.concat(info.halfCheckedKeys);
+    // const list = checkedKeys.concat(info.halfCheckedKeys);
+    const list = checkedKeys;
     setMenuIds(list);
   };
+
+  console.log(editId);
 
   const onChange = (checked: boolean) => {
     setStatus(checked);

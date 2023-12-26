@@ -335,7 +335,6 @@ const Project = () => {
       align: "center",
       key: "action",
       render: (_, record: Company) => {
-        const isFinished = record.state === "已完结";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             <Tooltip title="查看应收应付">
@@ -350,79 +349,6 @@ const Project = () => {
                 <ProfileTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-
-            {!isFinished && (
-              <Tooltip title="完成审核">
-                <Popconfirm
-                  title="是否通过审核？"
-                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  getPopupContainer={(node) => node.parentElement}
-                  onConfirm={() => handleApproveOne(record?.id)}
-                >
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                  >
-                    <CheckCircleTwoTone twoToneColor="#198348" />
-                  </Button>
-                </Popconfirm>
-              </Tooltip>
-            )}
-
-            {
-              <Tooltip title="退回">
-                <Popconfirm
-                  title="是否退回申请？"
-                  okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                  getPopupContainer={(node) => node.parentElement}
-                  onConfirm={() => setRejectId(record.id)}
-                >
-                  <Button
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      padding: "3px 5px",
-                    }}
-                  >
-                    <StopTwoTone twoToneColor="#198348" />
-                  </Button>
-                </Popconfirm>
-              </Tooltip>
-            }
-
-            {/* <Tooltip title="查看审核日志">
-              <Button
-                onClick={() => handleLogs(record.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  padding: "3px 5px",
-                }}
-              >
-                <CalendarTwoTone twoToneColor="#198348" />
-              </Button>
-            </Tooltip> */}
-
-            {/* <Tooltip title="删除">
-              <Popconfirm
-                title="是否删除？"
-                okButtonProps={{ style: { backgroundColor: "#198348" } }}
-                onConfirm={() => handleDeleteOne(record.id)}
-              >
-                <Button
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    padding: "3px 5px",
-                  }}
-                >
-                  <DeleteTwoTone twoToneColor="#198348" />
-                </Button>
-              </Popconfirm>
-            </Tooltip> */}
           </Space>
         );
       },
@@ -658,7 +584,7 @@ const Project = () => {
 
       {!!projectId && (
         <YSYFModal
-          modalType={ModalType.Approve}
+          modalType={ModalType.CW}
           projectId={projectId}
           onClose={() => setProjectId(undefined)}
         />

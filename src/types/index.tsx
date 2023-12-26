@@ -31,6 +31,7 @@ export interface User {
 export enum ModalType {
   Submit,
   Approve,
+  CW,
 }
 
 enum DictRecord {}

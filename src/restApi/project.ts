@@ -215,3 +215,30 @@ export const rejectYF = async (projectId, projectYsfId, remark) => {
 
   return res.data;
 };
+
+export const deleteYS = async (id: string, projectId: string) => {
+  const res = await axiosInstance.get(`/zc/project/ys/del`, {
+    params: { id, projectId },
+  });
+  return res.data;
+};
+
+export const deleteYF = async (id: string, projectId: string) => {
+  const res = await axiosInstance.get(`/zc/project/yf/del`, {
+    params: { id, projectId },
+  });
+  return res.data;
+};
+
+// /zc/project/yf/status/change
+export const updateYFThreeStatus = async (info) => {
+  const res = await axiosInstance.post("/zc/project/yf/status/change", info);
+
+  return res.data;
+};
+
+export const updateYSThreeStatus = async (info) => {
+  console.log(info);
+  const res = await axiosInstance.post("/zc/project/ys/status/change", info);
+  return res.data;
+};
