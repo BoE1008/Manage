@@ -190,23 +190,52 @@ const Role = () => {
     },
   ];
 
-  const defaultCheckedKeys = useMemo(() => {
-    return data?.entity.data.find((c) => c.id === editId)?.menuIds;
-  }, [data, editId]);
+  let test = [];
 
-  console.log(defaultCheckedKeys, "defa");
+  const requestList = (data) => {
+    data &&
+      data.forEach((item) => {
+        if (item.children && item.children.length > 0) {
+          requestList(item.children);
+        } else {
+          test.push(item.id);
+        }
+        return null;
+      });
+
+    return test;
+  };
+
+  const testData = useMemo(() => { 
+    return requestList(allMenu)
+  }, [allMenu])
+
+  const uniqueTree = (uniqueArr, Arr) => {
+    let uniqueChild = [];
+    for (var i in Arr) {
+      for (var k in uniqueArr) {
+        if (uniqueArr[k] === Arr[i]) {
+          uniqueChild.push(uniqueArr[k]);
+        }
+      }
+    }
+    return uniqueChild;
+  };
+
+  const defaultCheckedKeys = useMemo(() => {
+    const listData = data?.entity.data.find((c) => c.id === editId)?.menuIds;
+
+    return uniqueTree(listData, testData)
+  }, [data, editId, testData]);
 
   useEffect(() => {
     setMenuIds(defaultCheckedKeys);
   }, [defaultCheckedKeys]);
 
   const onCheck = (checkedKeys, info) => {
-    // const list = checkedKeys.concat(info.halfCheckedKeys);
-    const list = checkedKeys;
+    const list = checkedKeys?.concat(info.halfCheckedKeys);
     setMenuIds(list);
   };
-
-  console.log(editId);
 
   const onChange = (checked: boolean) => {
     setStatus(checked);

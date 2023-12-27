@@ -2,7 +2,7 @@ import { Input, Button, Form } from "antd";
 import { UserOutlined } from "@ant-design/icons";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import Background from "@/assets/images/bg.png";
+import Background from "@/assets/images/bg.jpg";
 import { login } from "@/restApi/user";
 import { notification } from "antd";
 import { menuHandler } from "@/utils";

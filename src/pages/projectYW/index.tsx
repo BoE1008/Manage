@@ -471,6 +471,7 @@ const Project = () => {
         bordered
         loading={loading}
         dataSource={data?.entity?.data}
+        scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         columns={columns}
         pagination={{
           // 设置总条数

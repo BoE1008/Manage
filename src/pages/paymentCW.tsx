@@ -154,6 +154,12 @@ const Role = () => {
 
   const columns = [
     {
+      title: "项目编号",
+      dataIndex: "projectNum",
+      align: "center",
+      key: "projectNum",
+    },
+    {
       title: "项目名称",
       // dataIndex: "projectName",
       align: "center",
@@ -335,6 +341,7 @@ const Role = () => {
         bordered
         // loading={loading}
         dataSource={data?.entity.data}
+        scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         columns={columns}
         pagination={{
           // 设置总条数

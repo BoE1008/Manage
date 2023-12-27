@@ -533,6 +533,7 @@ const InvoicingSubmit = () => {
       <Table
         bordered
         dataSource={data?.entity.data}
+        scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         columns={columns}
         pagination={{
           total: data?.entity.total,

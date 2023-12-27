@@ -343,6 +343,7 @@ const Customer = () => {
         loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
+        scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         pagination={{
           // 设置总条数
           total: data?.entity.total,

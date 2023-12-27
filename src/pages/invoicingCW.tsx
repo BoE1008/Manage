@@ -158,6 +158,12 @@ const InvoicingSubmit = () => {
 
   const columns = [
     {
+      title: "项目编号",
+      dataIndex: "projectNum",
+      align: "center",
+      key: "projectNum",
+    },
+    {
       title: "项目名称",
       // dataIndex: "projectName",
       align: "center",
@@ -376,6 +382,7 @@ const InvoicingSubmit = () => {
         // loading={loading}
         dataSource={data?.entity.data}
         columns={columns}
+        scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         pagination={{
           // 设置总条数
           total: data?.entity.total,
