@@ -84,6 +84,7 @@ const InvoicingDetailModal = ({ onClose, data, onConfirm }) => {
       onOk={handleConfirm}
       onCancel={onClose}
       okButtonProps={{ style: { background: "#198348" } }}
+      maskClosable={false}
     >
       <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr

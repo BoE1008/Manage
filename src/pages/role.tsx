@@ -294,6 +294,7 @@ const Role = () => {
           setEditId("");
         }}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 4 }}

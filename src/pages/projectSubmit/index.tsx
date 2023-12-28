@@ -409,6 +409,7 @@ const Project = () => {
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 4 }}
@@ -529,6 +530,7 @@ const Project = () => {
         open={!!logs}
         style={{ minWidth: "650px" }}
         onCancel={() => setLogs(undefined)}
+        maskClosable={false}
       >
         <List
           pagination={{ position: "bottom", align: "end" }}

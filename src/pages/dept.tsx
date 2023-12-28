@@ -203,6 +203,7 @@ const Dept = () => {
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 4 }}

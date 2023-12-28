@@ -41,7 +41,7 @@ const InvoicingDetailModal = ({ onClose, data }) => {
   };
 
   return (
-    <Modal width={"80%"} open={!!data} onCancel={onClose} footer={null}>
+    <Modal width={"80%"} open={!!data} onCancel={onClose} footer={null} maskClosable={false}>
       <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr
           style={{

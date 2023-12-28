@@ -374,6 +374,7 @@ const Customer = () => {
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 3 }}
@@ -423,6 +424,7 @@ const Customer = () => {
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
         footer={null}
+        maskClosable={false}
       >
         <Button
           onClick={handleAddBank}
@@ -449,6 +451,7 @@ const Customer = () => {
         onCancel={() => setBankModalState(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 3 }}

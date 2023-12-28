@@ -368,6 +368,7 @@ const Supplyer = () => {
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 3 }}
@@ -417,6 +418,7 @@ const Supplyer = () => {
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
         footer={null}
+        maskClosable={false}
       >
         <Button
           onClick={handleAddBank}
@@ -444,6 +446,7 @@ const Supplyer = () => {
         onCancel={() => setBankModalState(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 3 }}

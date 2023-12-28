@@ -356,6 +356,7 @@ const Dict = () => {
         onCancel={() => setModalOpen(false)}
         afterClose={() => form.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 5 }}
@@ -411,6 +412,7 @@ const Dict = () => {
         afterClose={() => form.resetFields()}
         style={{ minWidth: "80%" }}
         footer={null}
+        maskClosable={false}
       >
         <Button
           onClick={handleDataAdd}
@@ -459,6 +461,7 @@ const Dict = () => {
         onCancel={() => setDataModalOpen(false)}
         afterClose={() => form1.resetFields()}
         style={{ minWidth: "650px" }}
+        maskClosable={false}
       >
         <Form
           labelCol={{ span: 5 }}

@@ -51,6 +51,7 @@ const PaymentDetailModal = ({ onClose, data }) => {
       onCancel={onClose}
       okButtonProps={{ style: { background: "#198348" } }}
       footer={null}
+      maskClosable={false}
     >
       <table style={{ width: "100%", marginBottom: "20px" }}>
         <tr
@@ -178,7 +179,7 @@ const PaymentDetailModal = ({ onClose, data }) => {
               textAlign: "center",
             }}
           >
-            {data?.customName}
+            {data?.supplierName}
           </td>
         </tr>
 

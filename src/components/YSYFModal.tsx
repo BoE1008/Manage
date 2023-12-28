@@ -935,6 +935,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         title="应收应付列表"
         style={{ minWidth: "90%" }}
         styles={{ body: { height: "800px", overflowY: "auto" } }}
+        maskClosable={false}
       >
         {modalType === ModalType.Submit && projectState === "未完结" && (
           <>
@@ -1000,6 +1001,7 @@ const Item = ({ projectId, onClose, modalType }) => {
           onCancel={() => setYsModalOpen(false)}
           afterClose={() => form.resetFields()}
           style={{ minWidth: "650px" }}
+          maskClosable={false}
         >
           <Form
             form={form}
@@ -1061,6 +1063,7 @@ const Item = ({ projectId, onClose, modalType }) => {
           onCancel={() => setYfModalOpen(false)}
           afterClose={() => form1.resetFields()}
           style={{ minWidth: "650px" }}
+          maskClosable={false}
         >
           <Form
             form={form1}
@@ -1150,6 +1153,7 @@ const Item = ({ projectId, onClose, modalType }) => {
         open={!!logs}
         style={{ minWidth: "650px" }}
         onCancel={() => setLogs(undefined)}
+        maskClosable={false}
       >
         <List
           pagination={{ position: "bottom", align: "end" }}

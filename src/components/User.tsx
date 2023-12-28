@@ -89,6 +89,7 @@ const User = () => {
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         footer={null}
+        maskClosable={false}
       >
         <Form>
           <Form.Item label="用户名" labelCol={{ span: 6 }}>
@@ -116,6 +117,7 @@ const User = () => {
         onOk={handleConfirmPass}
         onCancel={() => setPassModal(false)}
         afterClose={() => form.resetFields()}
+        maskClosable={false}
       >
         <Form form={form} className="w-full min-w-40 text-center">
           <Form.Item name="oldPassword">

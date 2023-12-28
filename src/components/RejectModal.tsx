@@ -14,6 +14,7 @@ const RejectModal = ({ open, onReject, onClose }) => {
       okButtonProps={{ style: { background: "#198348" } }}
       onOk={() => onReject(value)}
       onCancel={onClose}
+      maskClosable={false}
     >
       <Input.TextArea
         placeholder="备注"
