@@ -6,8 +6,6 @@ import {
   Input,
   Modal,
   Form,
-  Select,
-  DatePicker,
   notification,
   Tag,
   Tree,
@@ -16,7 +14,6 @@ import {
   Switch,
 } from "antd";
 import { Operation } from "@/types";
-import dayjs from "dayjs";
 import { EditTwoTone, DeleteTwoTone } from "@ant-design/icons";
 import { getRoleList, addRole, updateRole, deleteRole } from "@/restApi/role";
 import { getMenu } from "@/restApi/menu";
@@ -62,16 +59,33 @@ const Role = () => {
     setModalOpen(true);
   };
 
+  // 处理半选回传问题
+  const handleMenuIds = (arr) => {
+    const menuIdsParams = [];
+    arr.forEach((con) => {
+      if (con.length > 1) {
+        menuIdsParams.push(con);
+        menuIdsParams.push(con[0]);
+      } else {
+        menuIdsParams.push(con);
+      }
+    });
+    return menuIdsParams;
+  };
+
   const handleOk = async () => {
     form.validateFields();
     const values = form.getFieldsValue();
+
+    const menuIdsParams = Array.from(new Set(handleMenuIds(menuIds)));
+
     setLoading(true);
     const { code } =
       operation === Operation.Add
         ? await addRole({ ...values, menuIds, status: status ? "0" : "1" })
         : await updateRole(editId, {
             ...values,
-            menuIds,
+            menuIds: menuIdsParams,
             status: status ? "0" : "1",
           });
     if (code === 200) {
@@ -206,9 +220,9 @@ const Role = () => {
     return test;
   };
 
-  const testData = useMemo(() => { 
-    return requestList(allMenu)
-  }, [allMenu])
+  const testData = useMemo(() => {
+    return requestList(allMenu);
+  }, [allMenu]);
 
   const uniqueTree = (uniqueArr, Arr) => {
     let uniqueChild = [];
@@ -225,7 +239,7 @@ const Role = () => {
   const defaultCheckedKeys = useMemo(() => {
     const listData = data?.entity.data.find((c) => c.id === editId)?.menuIds;
 
-    return uniqueTree(listData, testData)
+    return uniqueTree(listData, testData);
   }, [data, editId, testData]);
 
   useEffect(() => {

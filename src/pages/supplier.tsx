@@ -9,6 +9,7 @@ import {
   notification,
   Tooltip,
   Select,
+  Popconfirm,
 } from "antd";
 import { EditTwoTone, DeleteTwoTone, ProfileTwoTone } from "@ant-design/icons";
 import {
@@ -240,16 +241,24 @@ const Supplyer = () => {
                 <ProfileTwoTone twoToneColor="#198348" />
               </Button>
             </Tooltip>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleDeleteOne(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                getPopupContainer={(node) => node.parentElement}
+                onConfirm={() => handleDeleteOne(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
@@ -298,16 +307,24 @@ const Supplyer = () => {
             >
               <EditTwoTone twoToneColor="#198348" />
             </Button>
-            <Button
-              style={{
-                display: "flex",
-                alignItems: "center",
-                padding: "3px 5px",
-              }}
-              onClick={() => handleDeleteBank(record.id)}
-            >
-              <DeleteTwoTone twoToneColor="#198348" />
-            </Button>
+            <Tooltip title="删除">
+              <Popconfirm
+                title="是否删除？"
+                okButtonProps={{ style: { backgroundColor: "#198348" } }}
+                getPopupContainer={(node) => node.parentElement}
+                onConfirm={() => handleDeleteBank(record.id)}
+              >
+                <Button
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    padding: "3px 5px",
+                  }}
+                >
+                  <DeleteTwoTone twoToneColor="#198348" />
+                </Button>
+              </Popconfirm>
+            </Tooltip>
           </Space>
         );
       },
@@ -391,7 +408,7 @@ const Supplyer = () => {
           <Form.Item label="地址" name="address">
             <Input placeholder="请输入供应商地址" />
           </Form.Item>
-          <Form.Item label="联系人" name="contacts_name">
+          <Form.Item label="联系人" name="contactsName">
             <Input placeholder="请输入供应商联系人姓名" />
           </Form.Item>
           <Form.Item label="电话" name="contactsMobile">

@@ -243,9 +243,9 @@ const InvoicingSubmit = () => {
     },
     {
       title: "申请人",
-      dataIndex: "createBy",
+      dataIndex: "userName",
       align: "center",
-      key: "createBy",
+      key: "userName",
     },
     {
       title: "申请时间",

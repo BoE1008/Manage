@@ -220,9 +220,9 @@ const Role = () => {
     },
     {
       title: "申请人",
-      dataIndex: "createBy",
+      dataIndex: "userName",
       align: "center",
-      key: "createBy",
+      key: "userName",
     },
     {
       title: "应付日期",

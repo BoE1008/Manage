@@ -93,6 +93,7 @@ const Payment = () => {
     setOperation(Operation.Edit);
     setEditId(record.id);
     const projectCustom = await getSuppliersYFList(record.projectId);
+    console.log(projectCustom, "projectCustom");
     setSupplier(projectCustom.entity.data);
     setSelectSupplier(
       projectCustom.entity?.data?.find((c) => record.supplierId === c.id)
@@ -139,6 +140,7 @@ const Payment = () => {
             taxationNumber: selectSupplier?.taxationNumber || "",
             fee: values.fee || "",
             remark: values.remark || "",
+            yfDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
           }
         : {
             ...values,
@@ -153,17 +155,16 @@ const Payment = () => {
               values.supplierName?.label || values.supplierName || "",
             supplierId:
               values.supplierName?.value ||
-              supplier?.find((a) => a.name === values.supplierName).id ||
+              supplier?.find((a) => a.name === values.supplierName)?.id ||
               "",
             bank: values.bank.value || values.bank || "",
             bankCard: values.bankCard.value || values.bankCard || "",
             taxationNumber: selectSupplier?.taxationNumber || "",
             fee: values.fee || "",
             remark: values.remark || "",
+            yfDate: dayjs(values.projectDate).format("YYYY-MM-DD"),
             // files,
           };
-
-    console.log(params, "params");
 
     if (operation === Operation.Add) {
       const formData = new FormData();
@@ -355,9 +356,9 @@ const Payment = () => {
     },
     {
       title: "申请人",
-      dataIndex: "createBy",
-      align: "center",
-      key: "createBy",
+      dataIndex: "userName",
+      align: "userName",
+      key: "userName",
     },
     {
       title: "应付日期",
@@ -376,7 +377,7 @@ const Payment = () => {
       align: "center",
       key: "action",
       render: (_, record) => {
-        const isFinished = record.state === "审批通过";
+        const isFinished = record.state !== "未提交";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             {!isFinished && (

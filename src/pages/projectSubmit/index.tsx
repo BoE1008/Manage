@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Table,
   Button,
@@ -13,6 +13,7 @@ import {
   Avatar,
   Popconfirm,
   Tooltip,
+  Checkbox,
 } from "antd";
 import {
   EditTwoTone,
@@ -143,66 +144,88 @@ const Project = () => {
   const columns = [
     {
       title: "项目编号",
+      label: "项目编号",
+      value: "项目编号",
       dataIndex: "projectNum",
       align: "center",
       key: "projectNum",
     },
     {
       title: "项目名称",
+      label: "项目名称",
+      value: "项目名称",
       dataIndex: "name",
       align: "center",
       key: "name",
     },
     {
       title: "产品",
+      label: "产品",
+      value: "产品",
       dataIndex: "typeName",
       align: "center",
       key: "typeName",
     },
     {
       title: "客户",
+      label: "客户",
+      value: "客户",
       dataIndex: "customName",
       align: "center",
       key: "customName",
     },
     {
       title: "品牌",
+      label: "品牌",
+      value: "品牌",
       dataIndex: "brandName",
       align: "center",
       key: "brandName",
     },
     {
       title: "货物",
+      label: "货物",
+      value: "货物",
       dataIndex: "productName",
       align: "center",
       key: "productName",
     },
     {
       title: "发运日期",
+      label: "发运日期",
+      value: "发运日期",
       dataIndex: "projectDate",
       align: "center",
       key: "projectDate",
     },
     {
       title: "服务内容",
+      label: "服务内容",
+      value: "服务内容",
       dataIndex: "serviceName",
       align: "center",
       key: "serviceName",
     },
     {
       title: "班列号/船名",
+      label: "班列号/船名",
+      value: "班列号/船名",
       dataIndex: "trainNumName",
       align: "center",
       key: "trainNumName",
     },
     {
       title: "数量",
+      label: "数量",
+      value: "数量",
       dataIndex: "num",
       align: "center",
       key: "num",
     },
     {
       title: "收入小计",
+      label: "收入小计",
+      value: "收入小计",
       // dataIndex: "proIncome",
       align: "center",
       key: "proIncome",
@@ -210,6 +233,8 @@ const Project = () => {
     },
     {
       title: "成本小计",
+      label: "成本小计",
+      value: "成本小计",
       // dataIndex: "proCost",
       align: "center",
       key: "proCost",
@@ -217,6 +242,8 @@ const Project = () => {
     },
     {
       title: "利润",
+      label: "利润",
+      value: "利润",
       // dataIndex: "profit",
       align: "center",
       key: "profit",
@@ -224,6 +251,8 @@ const Project = () => {
     },
     {
       title: "扣除后利润",
+      label: "扣除后利润",
+      value: "扣除后利润",
       // dataIndex: "deductProfit",
       align: "center",
       key: "deductProfit",
@@ -231,6 +260,8 @@ const Project = () => {
     },
     {
       title: "项目状态",
+      label: "项目状态",
+      value: "项目状态",
       // dataIndex: "state",
       align: "center",
       key: "state",
@@ -238,12 +269,16 @@ const Project = () => {
     },
     {
       title: "备注",
+      label: "备注",
+      value: "备注",
       dataIndex: "remark",
       align: "center",
       key: "remark",
     },
     {
       title: "操作",
+      label: "操作",
+      value: "操作",
       align: "center",
       key: "action",
       render: (_, record) => {
@@ -323,6 +358,8 @@ const Project = () => {
     },
   ];
 
+  const [options, setOptions] = useState(columns.map((c) => c.value));
+
   const filterOption = (
     input: string,
     option?: { label: string; value: string }
@@ -338,6 +375,18 @@ const Project = () => {
       },
     };
   };
+
+  const onOptionChange = (con) => {
+    setOptions(con);
+  };
+
+  const displayColumn = useMemo(() => {
+    return options.map((con) => {
+      return columns.find((item) => {
+        return con === item.value;
+      });
+    });
+  }, [options]);
 
   return (
     <div className="w-full p-2" style={{ color: "#000" }}>
@@ -359,6 +408,17 @@ const Project = () => {
           </Button>
         </Space>
 
+        <Space style={{ marginLeft: "20px" }}>
+          <Checkbox.Group
+            options={columns?.map((c) => ({
+              label: c.label,
+              value: c.value,
+            }))}
+            defaultValue={columns.map((c) => c.value)}
+            onChange={onOptionChange}
+          ></Checkbox.Group>
+        </Space>
+
         <Space>
           <Input
             placeholder="名称"
@@ -372,7 +432,7 @@ const Project = () => {
         bordered
         loading={loading}
         dataSource={data?.entity.data}
-        columns={columns}
+        columns={displayColumn?.length > 0 ? displayColumn : columns}
         scroll={{ scrollToFirstRowOnChange: true, y: "800px" }}
         pagination={{
           // 设置总条数

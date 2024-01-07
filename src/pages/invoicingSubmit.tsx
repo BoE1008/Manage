@@ -376,9 +376,9 @@ const InvoicingSubmit = () => {
     },
     {
       title: "申请人",
-      dataIndex: "createBy",
+      dataIndex: "userName",
       align: "center",
-      key: "createBy",
+      key: "userName",
     },
     {
       title: "申请时间",
@@ -403,7 +403,7 @@ const InvoicingSubmit = () => {
       align: "center",
       key: "action",
       render: (_, record) => {
-        const isFinished = record.state === "审批通过";
+        const isFinished = record.state !== "未提交";
         return (
           <Space size="middle" className="flex flex-row !gap-x-1">
             {!isFinished && (
@@ -643,14 +643,14 @@ const InvoicingSubmit = () => {
             ></Select>
           </Form.Item>
 
-          <Form.Item required label="内容" name="content">
+          <Form.Item required label="开票内容" name="content">
             <Select
               showSearch
               labelInValue
               placeholder="选择开票内容"
               optionFilterProp="children"
               filterOption={customerFilterOption}
-              onChange={handleMoneyTypeChnage}
+              // onChange={handleMoneyTypeChnage}
               options={invoicingContent?.map((con) => ({
                 label: con.dictLabel,
                 value: con.dictLabel,
@@ -678,7 +678,7 @@ const InvoicingSubmit = () => {
           <Form.Item required label="币种" name="moneyType">
             <Select
               showSearch
-              // labelInValue
+              labelInValue
               placeholder="选择币种"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -692,7 +692,7 @@ const InvoicingSubmit = () => {
           <Form.Item label="卡号" name="bankCard">
             <Select
               showSearch
-              // labelInValue
+              labelInValue
               placeholder="选择银行卡"
               optionFilterProp="children"
               filterOption={customerFilterOption}
@@ -706,7 +706,7 @@ const InvoicingSubmit = () => {
           <Form.Item label="开户行" name="bank">
             <Select
               showSearch
-              // labelInValue
+              labelInValue
               placeholder="选择开户行"
               optionFilterProp="children"
               filterOption={customerFilterOption}
